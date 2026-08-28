@@ -135,8 +135,41 @@ textarea{resize:vertical;}
 .searchHit .txt{font-size:13px;}
 .searchHit mark{background:#ffe9a8;padding:0 1px;}
 
+/* 横スクロールしても時限番号の列が常に見えるように固定 */
+.grid .corner,.grid .periodhead,.grid .footlabel{position:sticky;left:0;z-index:6;}
+
+.hamburger{display:none;flex:none;font-size:18px;padding:5px 9px;}
+
+@media (max-width:760px){
+  .hamburger{display:inline-block;}
+  .topbar{padding:6px 8px;gap:6px;}
+  .topbar .ttl{font-size:14px;margin-right:2px;}
+  .topbar button{padding:5px 8px;font-size:12px;}
+  .weeknav .wk{min-width:0;font-size:12px;}
+  #searchBox{width:96px;}
+  .teacherBox select{max-width:80px;}
+
+  .layout{position:relative;}
+  .sidebar{position:fixed;top:0;bottom:0;left:0;width:78vw;max-width:280px;
+    z-index:40;box-shadow:2px 0 14px rgba(0,0,0,.25);
+    transform:translateX(-100%);transition:transform .2s ease;padding-top:56px;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebarBackdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:35;}
+  .sidebarBackdrop.open{display:block;}
+
+  .main{padding:8px;}
+  .grid{min-width:640px;overflow:visible;} /* sticky列を効かせるため角丸クリップは諦める */
+  .cell{min-height:70px;padding:4px;}
+  .cell textarea{min-height:38px;font-size:11px;}
+  .badge{font-size:11px;}
+  .dayhead .dt{font-size:12px;}
+
+  .modal{padding:14px;max-width:95vw!important;max-height:92vh;}
+  .previewTable,.progTable,.taskTable{font-size:11px;}
+}
+
 @media print{
-  .topbar,.sidebar,.msgbar,button{display:none!important;}
+  .topbar,.sidebar,.sidebarBackdrop,.msgbar,button{display:none!important;}
   .main{padding:0;}
   .cell textarea{border:1px solid #ccc;}
 }
@@ -145,6 +178,7 @@ textarea{resize:vertical;}
 <body>
 
 <div class="topbar">
+  <button id="btnSidebarToggle" class="hamburger" title="週一覧">☰</button>
   <div class="ttl">📘 電子教務手帳</div>
   <div class="teacherBox">
     <span class="small">先生</span>
@@ -168,6 +202,7 @@ textarea{resize:vertical;}
   <input type="file" id="jsonFile" accept="application/json" hidden>
 </div>
 
+<div class="sidebarBackdrop" id="sidebarBackdrop"></div>
 <div class="layout">
   <div class="sidebar">
     <div class="sidebarHead">
@@ -980,7 +1015,7 @@ function renderWeekList(){
     </div>`;
   }).join("");
   el.querySelectorAll(".weekItem").forEach(elm=>{
-    elm.onclick=(e)=>{ if(e.target.closest(".weekDel")) return; curWeek=elm.dataset.k; renderWeek(); renderWeekList(); };
+    elm.onclick=(e)=>{ if(e.target.closest(".weekDel")) return; curWeek=elm.dataset.k; renderWeek(); renderWeekList(); closeSidebar(); };
   });
   el.querySelectorAll(".weekDel").forEach(btn=>{
     btn.onclick=(e)=>{ e.stopPropagation(); deleteWeek(btn.dataset.k); };
@@ -1121,6 +1156,14 @@ document.getElementById("teacherSel").onchange=(e)=>{
   DB.teacherName = e.target.value;
   saveDB();
 };
+
+// スマホ表示：週一覧をドロワー（引き出し）として開閉
+function openSidebar(){ document.querySelector(".sidebar").classList.add("open"); document.getElementById("sidebarBackdrop").classList.add("open"); }
+function closeSidebar(){ document.querySelector(".sidebar").classList.remove("open"); document.getElementById("sidebarBackdrop").classList.remove("open"); }
+document.getElementById("btnSidebarToggle").onclick=()=>{
+  document.querySelector(".sidebar").classList.contains("open") ? closeSidebar() : openSidebar();
+};
+document.getElementById("sidebarBackdrop").onclick=closeSidebar;
 
 document.getElementById("prevWk").onclick=()=>shiftWeek(-7);
 document.getElementById("nextWk").onclick=()=>shiftWeek(7);
