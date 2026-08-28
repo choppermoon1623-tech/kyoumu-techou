@@ -252,9 +252,14 @@ textarea{resize:vertical;}
 <div class="overlay" id="taskModal" style="display:none;">
   <div class="modal">
     <h2>✅ 小テスト・提出物</h2>
+    <div class="modalRow">
+      <button id="btnClassroomImport">🎓 Classroomから課題の期限を取り込む</button>
+      <span class="hint" id="classroomHint"></span>
+    </div>
     <div class="modalRow" style="flex-wrap:wrap;background:var(--free);padding:8px;border-radius:6px;">
       <input type="date" id="taskDate">
-      <input type="text" id="taskCls" placeholder="クラス" style="width:70px;">
+      <input type="text" id="taskCls" placeholder="クラス" list="classroomCourseList" style="width:100px;">
+      <datalist id="classroomCourseList"></datalist>
       <input type="text" id="taskSubject" placeholder="教科" style="width:80px;">
       <select id="taskType">
         <option>小テスト</option><option>提出物</option><option>その他</option>
@@ -264,6 +269,24 @@ textarea{resize:vertical;}
     </div>
     <div id="taskListWrap" style="margin-top:12px;"></div>
     <div class="modalActions"><button id="taskClose">閉じる</button></div>
+  </div>
+</div>
+
+<!-- Classroom 課題取り込みモーダル -->
+<div class="overlay" id="classroomModal" style="display:none;">
+  <div class="modal">
+    <h2>🎓 Classroomから課題を取り込む</h2>
+    <div id="classroomWarn"></div>
+    <div class="modalRow">
+      <span class="small">クラス（コース）：</span>
+      <select id="classroomCourseSel"></select>
+      <button id="classroomLoadWork">課題を表示</button>
+    </div>
+    <div id="classroomWorkWrap" style="margin-top:10px;"></div>
+    <div class="modalActions">
+      <button id="classroomCancel">キャンセル</button>
+      <button class="primary" id="classroomImportBtn">選択した課題を取り込む</button>
+    </div>
   </div>
 </div>
 
@@ -394,17 +417,35 @@ if(fbConfigured){
 }
 
 let unsubscribeSnapshot=null;
+let classroomToken=null;
+
+const CLASSROOM_SCOPES = [
+  "https://www.googleapis.com/auth/classroom.courses.readonly",
+  "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
+  "https://www.googleapis.com/auth/classroom.rosters.readonly",
+  "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly"
+];
+function buildGoogleProvider(){
+  const provider = new GoogleAuthProvider();
+  CLASSROOM_SCOPES.forEach(s=>provider.addScope(s));
+  return provider;
+}
 
 window.fbSync = {
   configured: fbConfigured,
-  signIn(){
+  async signIn(){
     if(!fbConfigured) return Promise.reject(new Error("Firebase未設定です"));
-    return signInWithPopup(fbAuth, new GoogleAuthProvider());
+    const result = await signInWithPopup(fbAuth, buildGoogleProvider());
+    const cred = GoogleAuthProvider.credentialFromResult(result);
+    classroomToken = cred && cred.accessToken ? cred.accessToken : null;
+    return result;
   },
   signOut(){
     if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot=null; }
+    classroomToken=null;
     return fbConfigured ? signOut(fbAuth) : Promise.resolve();
   },
+  getClassroomToken(){ return classroomToken; },
   onAuthChange(cb){
     if(!fbConfigured){ cb(null); return; }
     onAuthStateChanged(fbAuth, cb);
@@ -1254,15 +1295,19 @@ function renderTasks(){
   const wrap=document.getElementById("taskListWrap");
   if(!DB.tasks.length){ wrap.innerHTML='<div class="hint">まだ登録がありません。</div>'; return; }
   const sorted=[...DB.tasks].sort((a,b)=> (a.date||"").localeCompare(b.date||""));
-  let h='<table class="taskTable"><tr><th>日付</th><th>クラス</th><th>教科</th><th>種別</th><th>タイトル</th><th>状態</th><th></th></tr>';
+  let h='<table class="taskTable"><tr><th>日付</th><th>クラス</th><th>教科</th><th>種別</th><th>タイトル</th><th>状態</th><th>提出状況</th><th></th></tr>';
   sorted.forEach(t=>{
+    const isClassroom = t.classroomCourseId && t.classroomCourseWorkId;
     h+=`<tr class="taskRow ${t.status==="実施済み"?"done":""}">
       <td>${escHtml(t.date||"")}</td><td>${escHtml(t.cls)}</td><td>${escHtml(t.subject)}</td>
-      <td>${escHtml(t.type)}</td><td>${escHtml(t.title)}</td>
+      <td>${escHtml(t.type)}${isClassroom?' <span class="hint">🎓</span>':''}</td><td>${escHtml(t.title)}</td>
       <td><select class="taskStatus ${t.status==="実施済み"?"done":""}" data-id="${escAttr(t.id)}">
         <option ${t.status==="未実施"?"selected":""}>未実施</option>
         <option ${t.status==="実施済み"?"selected":""}>実施済み</option>
       </select></td>
+      <td class="submitStatus" data-id="${escAttr(t.id)}">${isClassroom
+        ? (t.submitStatus? escHtml(t.submitStatus)+` <button class="btnCheckSubmit" data-id="${escAttr(t.id)}">↻</button>` : `<button class="btnCheckSubmit" data-id="${escAttr(t.id)}">確認</button>`)
+        : '<span class="hint">－</span>'}</td>
       <td><button class="taskDel" data-id="${escAttr(t.id)}">✕</button></td>
     </tr>`;
   });
@@ -1281,6 +1326,132 @@ function renderTasks(){
       saveDB(); renderTasks(); renderWeek();
     };
   });
+  wrap.querySelectorAll(".btnCheckSubmit").forEach(btn=>{
+    btn.onclick=async()=>{
+      const t=DB.tasks.find(x=>x.id===btn.dataset.id); if(!t) return;
+      const cell=btn.closest("td");
+      cell.innerHTML='<span class="hint">確認中…</span>';
+      try{
+        const stat = await fetchSubmissionStatus(t.classroomCourseId, t.classroomCourseWorkId);
+        t.submitStatus = stat;
+        saveDB();
+      }catch(err){
+        alert("提出状況の取得に失敗しました：\n"+(err.message||err));
+      }
+      renderTasks();
+    };
+  });
+}
+
+/* ============================================================
+   Google Classroom 連携（任意機能）
+   ============================================================ */
+let classroomCourses=[]; // {id, name}
+
+async function classroomFetch(path){
+  let token = window.fbSync && window.fbSync.getClassroomToken && window.fbSync.getClassroomToken();
+  if(!token){
+    // ページ再読み込み後などトークンが無い場合は、再ログインして取り直す
+    await window.fbSync.signIn();
+    token = window.fbSync.getClassroomToken();
+  }
+  let res = await fetch("https://classroom.googleapis.com/v1/"+path, { headers:{ Authorization:"Bearer "+token } });
+  if(res.status===401){
+    // 期限切れの可能性 → 再ログインして1回だけ再試行
+    await window.fbSync.signIn();
+    token = window.fbSync.getClassroomToken();
+    res = await fetch("https://classroom.googleapis.com/v1/"+path, { headers:{ Authorization:"Bearer "+token } });
+  }
+  if(!res.ok){
+    const body = await res.text().catch(()=> "");
+    throw new Error(`Classroom API エラー（${res.status}）\n${body.slice(0,200)}`);
+  }
+  return res.json();
+}
+
+async function loadClassroomCourses(){
+  const data = await classroomFetch("courses?courseStates=ACTIVE&teacherId=me&pageSize=100");
+  classroomCourses = (data.courses||[]).map(c=>({id:c.id, name:c.name}));
+  const dl=document.getElementById("classroomCourseList");
+  dl.innerHTML = classroomCourses.map(c=>`<option value="${escAttr(c.name)}">`).join("");
+  return classroomCourses;
+}
+
+document.getElementById("btnClassroomImport").onclick=async()=>{
+  const warn=document.getElementById("classroomWarn");
+  warn.innerHTML="";
+  document.getElementById("classroomModal").style.display="flex";
+  const sel=document.getElementById("classroomCourseSel");
+  sel.innerHTML='<option>読み込み中…</option>';
+  document.getElementById("classroomWorkWrap").innerHTML="";
+  try{
+    const courses = await loadClassroomCourses();
+    if(!courses.length){ sel.innerHTML='<option value="">（担当コースが見つかりません）</option>'; return; }
+    sel.innerHTML = courses.map(c=>`<option value="${escAttr(c.id)}">${escHtml(c.name)}</option>`).join("");
+  }catch(err){
+    sel.innerHTML='<option value="">読み込み失敗</option>';
+    warn.innerHTML=`<div class="warnBox">Classroomの読み込みに失敗しました：${escHtml(err.message||String(err))}</div>`;
+  }
+};
+document.getElementById("classroomCancel").onclick=()=>{ document.getElementById("classroomModal").style.display="none"; };
+
+document.getElementById("classroomLoadWork").onclick=async()=>{
+  const courseId=document.getElementById("classroomCourseSel").value;
+  const wrap=document.getElementById("classroomWorkWrap");
+  if(!courseId) return;
+  wrap.innerHTML='<div class="hint">読み込み中…</div>';
+  try{
+    const data = await classroomFetch(`courses/${courseId}/courseWork?courseWorkStates=PUBLISHED&pageSize=100&orderBy=dueDate desc`);
+    const items = data.courseWork||[];
+    if(!items.length){ wrap.innerHTML='<div class="hint">課題が見つかりませんでした。</div>'; return; }
+    let h='<table class="taskTable"><tr><th></th><th>期限</th><th>タイトル</th><th>種類</th></tr>';
+    items.forEach(w=>{
+      const due = w.dueDate ? `${w.dueDate.year}-${String(w.dueDate.month).padStart(2,"0")}-${String(w.dueDate.day).padStart(2,"0")}` : "";
+      const kind = w.workType==="SHORT_ANSWER_QUESTION"||w.workType==="MULTIPLE_CHOICE_QUESTION" ? "小テスト" : "提出物";
+      h+=`<tr>
+        <td><input type="checkbox" class="cwPick" data-id="${escAttr(w.id)}" data-due="${escAttr(due)}" data-title="${escAttr(w.title)}" data-kind="${escAttr(kind)}" ${due?"checked":""}></td>
+        <td>${escHtml(due||"(期限なし)")}</td><td>${escHtml(w.title)}</td><td>${escHtml(kind)}</td>
+      </tr>`;
+    });
+    h+="</table>";
+    wrap.innerHTML=h;
+  }catch(err){
+    wrap.innerHTML=`<div class="warnBox">課題の読み込みに失敗しました：${escHtml(err.message||String(err))}</div>`;
+  }
+};
+
+document.getElementById("classroomImportBtn").onclick=()=>{
+  const courseId=document.getElementById("classroomCourseSel").value;
+  const courseName=(classroomCourses.find(c=>c.id===courseId)||{}).name||"";
+  const picks=[...document.querySelectorAll(".cwPick:checked")];
+  if(!picks.length){ alert("取り込む課題にチェックを入れてください。"); return; }
+  let added=0;
+  picks.forEach(cb=>{
+    const already = DB.tasks.some(t=>t.classroomCourseId===courseId && t.classroomCourseWorkId===cb.dataset.id);
+    if(already) return;
+    DB.tasks.push({
+      id: Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      date: cb.dataset.due||"", cls: courseName, subject:"", type: cb.dataset.kind,
+      title: cb.dataset.title, status:"未実施",
+      classroomCourseId: courseId, classroomCourseWorkId: cb.dataset.id
+    });
+    added++;
+  });
+  saveDB();
+  document.getElementById("classroomModal").style.display="none";
+  renderTasks(); renderWeek();
+  alert(`${added}件の課題を取り込みました。`);
+};
+
+async function fetchSubmissionStatus(courseId, courseWorkId){
+  const [subData, rosterData] = await Promise.all([
+    classroomFetch(`courses/${courseId}/courseWork/${courseWorkId}/studentSubmissions?pageSize=200`),
+    classroomFetch(`courses/${courseId}/students?pageSize=200`)
+  ]);
+  const subs = subData.studentSubmissions||[];
+  const total = (rosterData.students||[]).length;
+  const done = subs.filter(s=>s.state==="TURNED_IN" || s.state==="RETURNED").length;
+  return `${done}/${total} 提出`;
 }
 
 /* ============================================================
