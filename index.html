@@ -4,218 +4,354 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>電子教務手帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#faf7f2; --panel:#fff; --ink:#3a332b; --sub:#8a8177;
-  --line:#e4dccc; --accent:#c4795a; --accent2:#e8b4a0;
-  --head:#f3e6dd; --headtxt:#7a4a35;
-  --free:#f4f1ea;
-  --ok:#5c8a6a; --warn:#c0562f;
+  --paper:#faf8f3; --panel:#fffdf9; --ink:#24211c; --ink2:#4a4335;
+  --sub:#8d8578; --faint:#a49b8b; --ghost:#c2b9a7;
+  --line:#e6e0d4; --line2:#eee9dd; --wash:#f4f0e7; --wash2:#f7f4ed;
+  --accent:#b03a2e; --accentWash:#fdf3ee; --accentLine:#f0d6c9;
+  --btn:#2b2721; --btnHover:#413a30;
+  --ok:#7f9a7f; --task:#7a4a9c; --taskWash:#f4edfc;
+  --serif:'Zen Old Mincho',serif;
+  --sans:'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN',sans-serif;
 }
 *{box-sizing:border-box;}
 html,body{height:100%;}
-body{margin:0;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",sans-serif;background:var(--bg);color:var(--ink);
-  display:flex;flex-direction:column;overflow:hidden;}
+body{margin:0;font-family:var(--sans);background:var(--paper);color:var(--ink);
+  display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased;}
 h1,h2,h3{margin:0;}
-button{font-family:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:6px 12px;color:var(--ink);}
-button:hover{background:var(--head);}
-button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
-button.primary:hover{background:#ad6448;}
-button:disabled{opacity:.4;cursor:default;}
-input,select,textarea{font-family:inherit;border:1px solid var(--line);border-radius:5px;padding:4px 6px;color:var(--ink);background:#fff;}
-textarea{resize:vertical;}
+a{color:var(--accent);text-decoration:none;} a:hover{color:#8d2c22;text-decoration:underline;}
+::selection{background:#f0d9c8;}
 
-.topbar{flex:none;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);
-  display:flex;align-items:center;gap:10px;padding:8px 14px;flex-wrap:wrap;}
-.topbar .ttl{font-size:16px;font-weight:700;color:var(--headtxt);margin-right:8px;white-space:nowrap;}
-.topbar .grow{flex:1;}
-.teacherBox{display:flex;align-items:center;gap:6px;font-size:13px;}
-.weeknav{display:flex;align-items:center;gap:6px;}
-.weeknav .wk{font-size:13px;min-width:220px;text-align:center;font-weight:600;}
-.small{font-size:12px;color:var(--sub);}
+button{font-family:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;
+  border-radius:9px;padding:0 13px;height:34px;color:#57503f;font-size:12.5px;transition:border-color .12s,background .12s;}
+button:hover{border-color:#cfc5b1;}
+button.primary{background:var(--btn);color:#f8f3e9;border-color:var(--btn);font-weight:500;}
+button.primary:hover{background:var(--btnHover);border-color:var(--btnHover);}
+button.icon{width:32px;height:32px;padding:0;border:none;background:transparent;border-radius:9px;font-size:13px;}
+button.icon:hover{background:#f1ece1;}
+button:disabled{opacity:.35;cursor:default;}
+input,select,textarea{font-family:inherit;border:1px solid var(--line);border-radius:8px;
+  padding:6px 9px;color:var(--ink);background:#fff;font-size:12.5px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--faint);}
+textarea{resize:vertical;line-height:1.6;}
+.small{font-size:11.5px;color:var(--sub);}
+.hint{font-size:11px;color:var(--faint);line-height:1.6;}
 
+/* ---------- topbar ---------- */
+.topbar{flex:none;z-index:30;background:var(--panel);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:12px;padding:0 18px;min-height:60px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;flex:none;}
+.brand .mark{width:28px;height:28px;border-radius:7px;background:var(--btn);color:#f6efe2;
+  font-family:var(--serif);font-size:15px;display:flex;align-items:center;justify-content:center;}
+.brand .ttl{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.05em;white-space:nowrap;}
+.tbdiv{width:1px;height:22px;background:var(--line);flex:none;}
+.teacherBox{display:flex;align-items:center;gap:7px;flex:none;}
+.teacherBox select{border:none;background:var(--wash);border-radius:999px;height:30px;padding:0 8px;font-weight:500;max-width:150px;}
+.grow{flex:1;}
+.weeknav{display:flex;align-items:center;gap:2px;flex:none;}
+.weeknav .wk{font-family:var(--serif);font-size:14px;font-weight:700;min-width:250px;text-align:center;line-height:1.3;}
+.searchWrap{display:flex;align-items:center;gap:7px;height:32px;padding:0 11px;border-radius:9px;background:var(--wash);flex:none;}
+.searchWrap .mag{color:var(--faint);font-size:12px;}
+.searchWrap input{border:none;background:transparent;padding:0;width:150px;}
+.searchWrap input::placeholder{color:var(--faint);}
+.tbicons{display:flex;align-items:center;gap:2px;flex:none;}
+.menuWrap{position:relative;}
+.menu{display:none;position:absolute;top:38px;right:0;min-width:190px;background:var(--panel);
+  border:1px solid var(--line);border-radius:11px;box-shadow:0 16px 34px -18px rgba(48,40,28,.5);padding:6px;z-index:40;}
+.menu.open{display:flex;flex-direction:column;gap:2px;}
+.menu button{border:none;background:transparent;text-align:left;height:36px;padding:0 10px;border-radius:8px;width:100%;}
+.menu button:hover{background:var(--wash);}
+.syncDot{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ok);flex:none;}
+.syncDot i{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+/* ---------- layout ---------- */
 .layout{display:flex;align-items:stretch;flex:1;min-height:0;overflow:hidden;}
-.sidebar{width:190px;flex:none;border-right:1px solid var(--line);
-  background:var(--panel);padding:10px;display:flex;flex-direction:column;min-height:0;}
-.sidebar h3{font-size:12px;color:var(--sub);margin-bottom:6px;}
-.sidebarHead{flex:none;}
-#weekList{flex:1;overflow-y:auto;margin-top:8px;}
-.weekItem{position:relative;padding:6px 26px 6px 8px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:3px;line-height:1.4;}
-.weekDel{position:absolute;top:4px;right:3px;border:none;background:none;color:var(--sub);font-size:11px;padding:2px 5px;border-radius:4px;visibility:hidden;}
+.sidebar{width:228px;flex:none;border-right:1px solid var(--line);background:var(--wash2);
+  display:flex;flex-direction:column;min-height:0;}
+.sidebarHead{flex:none;padding:16px 16px 8px;}
+.sidebarHead h3{font-family:var(--serif);font-size:13px;font-weight:700;letter-spacing:.1em;color:#4a4335;}
+#weekList{flex:1;overflow-y:auto;padding:4px 10px;}
+.weekItem{position:relative;padding:9px 26px 9px 10px;border-radius:8px;font-size:12.5px;cursor:pointer;
+  margin-bottom:2px;line-height:1.45;color:#57503f;border-left:2px solid transparent;}
+.weekItem:hover{background:#efe9dd;}
+.weekItem.cur{background:var(--panel);box-shadow:0 1px 0 rgba(60,52,38,.06),0 0 0 1px #e0d7c4;
+  border-left-color:var(--accent);color:var(--ink);font-weight:700;}
+.weekItem .d{color:var(--faint);font-size:10.5px;font-weight:400;margin-top:2px;}
+.weekItem.blank{color:var(--sub);}
+.weekItem.blank .d{color:var(--ghost);}
+.weekDel{position:absolute;top:6px;right:4px;border:none;background:none;color:var(--faint);
+  font-size:11px;height:22px;width:22px;padding:0;border-radius:6px;visibility:hidden;}
 .weekItem:hover .weekDel{visibility:visible;}
-.weekDel:hover{background:#fbe2da;color:var(--warn);}
-.weekItem:hover{background:var(--head);}
-.weekItem.cur{background:var(--accent2);font-weight:700;}
-.weekItem .d{color:var(--sub);font-size:11px;}
-.weekItem.blank{opacity:.55;}
-.weekItem.blank.cur{opacity:1;}
-.sidebar .empty{font-size:12px;color:var(--sub);padding:8px;}
+.weekDel:hover{background:var(--accentWash);color:var(--accent);}
+.sidebar .empty{font-size:12px;color:var(--faint);padding:10px;}
+.sidebarFoot{flex:none;border-top:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:2px;}
+.sidebarFoot button{border:none;background:transparent;text-align:left;height:36px;padding:0 10px;border-radius:8px;font-size:12px;}
+.sidebarFoot button:hover{background:#efe9dd;}
 
-.main{flex:1;padding:14px;overflow:auto;min-height:0;}
-.noWeek{padding:60px 20px;text-align:center;color:var(--sub);}
-.noWeek button{margin-top:14px;}
+.mainWrap{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;}
+.main{flex:1;padding:20px 22px;overflow:auto;min-height:0;}
+.noWeek{max-width:460px;margin:70px auto;text-align:center;color:var(--sub);font-size:13px;line-height:1.8;}
+.noWeek .hint{margin-top:10px;}
 
-.grid{display:grid;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel);
+/* ---------- week grid ---------- */
+.grid{display:grid;border:1px solid #e0d7c4;border-radius:12px;overflow:hidden;background:var(--panel);
   min-width:900px;}
-.grid .corner{background:var(--head);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--headtxt);padding:4px;}
-.dayhead{background:var(--head);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  padding:6px 8px;}
-.dayhead .dt{font-weight:700;color:var(--headtxt);font-size:13px;}
-.dayhead .wd{font-size:11px;color:var(--sub);margin-left:4px;}
-.dayhead .ev{font-size:11px;color:var(--warn);white-space:pre-line;margin-top:3px;min-height:14px;}
-.dayTaskBanner{font-size:11px;color:#7a4a9c;background:#f1e8fb;border-radius:4px;padding:3px 5px;margin-top:4px;line-height:1.5;}
-.taskChip{font-size:10.5px;background:#f1e8fb;color:#5e3a80;border:1px solid #dcc9f0;border-radius:4px;padding:2px 5px;line-height:1.4;}
-.taskChip.done{background:#e3f3e6;color:var(--ok);border-color:#cdeacf;text-decoration:line-through;}
-.periodhead{background:var(--head);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--headtxt);}
-.cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px;display:flex;flex-direction:column;gap:4px;min-height:92px;}
-.cell.off{background:#fbfaf7;}
-.badge{font-size:12px;font-weight:700;border-radius:5px;padding:3px 4px;background:var(--free);color:var(--ink);
-  min-height:20px;display:flex;align-items:center;gap:2px;}
-.badge input{background:transparent;border:none;border-radius:3px;padding:1px 2px;font-weight:700;font-size:12px;color:inherit;min-width:0;width:auto;box-sizing:border-box;}
-.badge input.clsInput{flex:0 0 28%;color:var(--headtxt);text-align:center;}
-.badge input.subjInput{flex:1;}
-.badge input::placeholder{color:#c8c0b2;font-weight:400;font-style:italic;}
-.badge input:hover{background:rgba(255,255,255,.55);}
-.badge input:focus{background:#fff;outline:1px solid var(--accent2);}
-.badge .flag{font-size:10px;background:#eee;border-radius:3px;padding:0 4px;color:#888;}
-.cell textarea{flex:1;width:100%;border:1px dashed var(--line);background:#fffefb;font-size:12px;min-height:52px;line-height:1.4;}
-.dayfoot{border-right:1px solid var(--line);padding:5px;background:#fbfaf7;}
-.dayfoot textarea{width:100%;font-size:11px;min-height:34px;border:1px dashed var(--line);}
-.footlabel{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--sub);background:var(--head);}
-
-.msgbar{margin:10px 0 0;padding:8px 12px;background:#fbf3ea;border:1px solid var(--accent2);border-radius:6px;
-  font-size:12px;color:#7a5a3c;white-space:pre-line;}
-
-/* subject colors */
-.s-国語{background:#fde3e3;} .s-社会{background:#fdeccb;} .s-数学{background:#dcecfb;}
-.s-理科{background:#ddf3e4;} .s-音楽{background:#ece0fb;} .s-美術{background:#fbe0f0;}
-.s-保体{background:#e0f5f2;} .s-技術{background:#e9e2d0;} .s-家庭{background:#f7e6d8;}
-.s-英語{background:#e2e9fb;} .s-道徳{background:#f0f0f0;} .s-総合{background:#eaf7d8;}
-.s-学活{background:#fbeee0;} .s-自立{background:#e6f0e0;} .s-作業{background:#eee6f2;}
-.s-生単{background:#f2ecdd;}
-
-/* modal */
-.overlay{position:fixed;inset:0;background:rgba(40,32,24,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
-.modal{background:#fff;border-radius:10px;max-width:1000px;width:100%;max-height:90vh;overflow:auto;padding:18px 20px;}
-.modal h2{font-size:16px;color:var(--headtxt);margin-bottom:10px;}
-.modalRow{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
-.previewTable{border-collapse:collapse;width:100%;font-size:12px;margin-top:8px;}
-.previewTable th,.previewTable td{border:1px solid var(--line);padding:3px;text-align:center;}
-.previewTable th{background:var(--head);color:var(--headtxt);font-weight:600;}
-.previewTable input{width:100%;font-size:11px;border:none;text-align:center;background:transparent;}
-.previewTable input:focus{background:#fff8ee;outline:1px solid var(--accent2);}
-.modalActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
-.warnBox{background:#fdf0ea;border:1px solid var(--warn);color:#8a3c1c;font-size:12px;border-radius:6px;padding:8px 10px;margin-bottom:8px;}
-.hint{font-size:11px;color:var(--sub);}
-.fld{font-size:12px;color:var(--sub);}
-.fld input[type=checkbox]{margin-right:2px;}
-.fld label{margin-right:10px;font-size:13px;color:var(--ink);}
-
-.progTable{border-collapse:collapse;width:100%;font-size:12px;}
-.progTable th,.progTable td{border:1px solid var(--line);padding:5px 8px;text-align:center;}
-.progTable th{background:var(--head);color:var(--headtxt);}
-.progTable td.subj{text-align:left;font-weight:600;}
-.progbar{background:#eee;border-radius:5px;height:10px;overflow:hidden;width:100%;min-width:80px;}
-.progbar>div{background:var(--accent);height:100%;}
-.progNote{font-size:11px;color:var(--sub);text-align:right;margin-top:4px;}
-
-.taskTable{border-collapse:collapse;width:100%;font-size:12px;}
-.taskTable th,.taskTable td{border:1px solid var(--line);padding:5px 7px;text-align:left;}
-.taskTable th{background:var(--head);color:var(--headtxt);}
-.taskStatus{border-radius:4px;padding:2px 6px;font-size:11px;border:1px solid var(--line);background:#fff;}
-.taskStatus.done{background:#e3f3e6;color:var(--ok);}
-.taskRow.done td{color:#aaa;text-decoration:line-through;}
-.taskDel{color:var(--warn);cursor:pointer;background:none;border:none;font-size:13px;}
-
-.searchHit{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:8px;cursor:pointer;}
-.searchHit:hover{background:var(--head);}
-.searchHit .meta{font-size:11px;color:var(--sub);margin-bottom:3px;}
-.searchHit .txt{font-size:13px;}
-.searchHit mark{background:#ffe9a8;padding:0 1px;}
-
-/* 横スクロールしても時限番号の列が常に見えるように固定 */
+.grid .corner{background:var(--wash);border-right:1px solid var(--line);border-bottom:1px solid #e0d7c4;
+  display:flex;align-items:center;justify-content:center;font-size:9.5px;color:var(--faint);letter-spacing:.08em;}
+.dayhead{background:var(--wash);border-right:1px solid var(--line);border-bottom:1px solid #e0d7c4;padding:9px 11px 8px;}
+.dayhead .dt{font-family:var(--serif);font-size:14px;font-weight:700;}
+.dayhead .wd{font-size:11.5px;font-weight:500;color:#57503f;margin-left:5px;}
+.dayhead .ev{font-size:10.5px;color:var(--accent);white-space:pre-line;margin-top:4px;min-height:14px;line-height:1.5;}
+.dayTaskBanner{font-size:10.5px;color:var(--task);background:var(--taskWash);border-radius:6px;
+  padding:4px 6px;margin-top:5px;line-height:1.55;}
+.periodhead{background:var(--paper);border-right:1px solid var(--line);border-bottom:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;font-weight:700;color:#57503f;}
+.cell{border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);padding:8px 10px;
+  display:flex;flex-direction:column;gap:5px;min-height:116px;}
+.cell.off{background:transparent;}
+.cell.off:hover{background:var(--paper);}
+.badge{display:flex;align-items:center;gap:6px;min-height:22px;}
+.badge input{background:transparent;border:none;border-radius:5px;padding:2px 4px;min-width:0;width:auto;}
+.badge input.clsInput{flex:0 0 30%;font-size:10px;font-weight:700;text-align:center;
+  background:var(--panel);color:#6b5b3a;letter-spacing:.03em;}
+.badge input.subjInput{flex:1;font-size:13px;font-weight:700;letter-spacing:.02em;}
+.badge input::placeholder{color:var(--ghost);font-weight:400;}
+.badge input:hover{background:rgba(255,255,255,.6);}
+.badge input:focus{background:#fff;box-shadow:0 0 0 1.5px var(--accentLine);}
+.cell.off .badge input.clsInput{background:transparent;}
+.taskChip{font-size:9.5px;font-weight:700;background:var(--taskWash);color:var(--task);
+  border-radius:5px;padding:3px 6px;line-height:1.4;align-self:flex-start;}
+.taskChip.done{background:#e9f0e6;color:#5f7a5f;text-decoration:line-through;}
+.cell textarea{flex:1;width:100%;border:none;background:transparent;font-size:11px;
+  min-height:52px;line-height:1.6;color:var(--ink2);padding:2px 3px;border-radius:6px;}
+.cell textarea::placeholder{color:var(--ghost);}
+.cell textarea:hover{background:rgba(255,255,255,.5);}
+.cell textarea:focus{background:#fff;box-shadow:0 0 0 1.5px var(--accentLine);}
+.footlabel{display:flex;align-items:center;justify-content:center;background:var(--wash);
+  border-right:1px solid var(--line);font-size:9.5px;color:var(--faint);letter-spacing:.1em;
+  writing-mode:vertical-rl;padding:8px 0;}
+.dayfoot{border-right:1px solid var(--line2);background:var(--paper);padding:6px 8px;}
+.dayfoot textarea{width:100%;font-size:10.5px;min-height:44px;border:none;background:transparent;color:var(--ink2);}
+.dayfoot textarea::placeholder{color:var(--ghost);}
+.dayfoot textarea:focus{background:#fff;box-shadow:0 0 0 1.5px var(--accentLine);border-radius:6px;}
 .grid .corner,.grid .periodhead,.grid .footlabel{position:sticky;left:0;z-index:6;}
 
-.hamburger{display:none;flex:none;font-size:18px;padding:5px 9px;}
+.msgbar{margin:12px 0 0;padding:11px 13px;background:var(--accentWash);border:1px solid var(--accentLine);
+  border-radius:10px;font-size:11.5px;color:#8d3f28;white-space:pre-line;line-height:1.6;}
+
+/* ---------- 教科の塗り分け ---------- */
+.cell.s-国語{background:#f4e6e3;box-shadow:inset 3px 0 0 #c08a80;}
+.cell.s-社会{background:#f6ecd9;box-shadow:inset 3px 0 0 #c2a464;}
+.cell.s-数学{background:#e4ecf1;box-shadow:inset 3px 0 0 #7d9db0;}
+.cell.s-理科{background:#e5efe7;box-shadow:inset 3px 0 0 #7fa389;}
+.cell.s-音楽{background:#efe8f2;box-shadow:inset 3px 0 0 #a18cb0;}
+.cell.s-美術{background:#f6e6ee;box-shadow:inset 3px 0 0 #c08aa8;}
+.cell.s-保体{background:#e2f0ee;box-shadow:inset 3px 0 0 #7fa8a2;}
+.cell.s-技術{background:#efe9db;box-shadow:inset 3px 0 0 #b39a6b;}
+.cell.s-家庭{background:#f6ead9;box-shadow:inset 3px 0 0 #c49a72;}
+.cell.s-英語{background:#e8e9f3;box-shadow:inset 3px 0 0 #8d92b8;}
+.cell.s-道徳{background:#ecebe8;box-shadow:inset 3px 0 0 #a6a29a;}
+.cell.s-総合{background:#eef0e4;box-shadow:inset 3px 0 0 #9aa77e;}
+.cell.s-学活{background:#f3ece2;box-shadow:inset 3px 0 0 #bfa389;}
+.cell.s-自立{background:#e9f0e4;box-shadow:inset 3px 0 0 #94a882;}
+.cell.s-作業{background:#eee9f0;box-shadow:inset 3px 0 0 #a596ab;}
+.cell.s-生単{background:#f2ecdd;box-shadow:inset 3px 0 0 #b8a882;}
+
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(40,32,24,.42);display:flex;align-items:center;
+  justify-content:center;z-index:100;padding:24px;backdrop-filter:blur(2px);}
+.modal{background:var(--panel);border:1px solid #d5cdbe;border-radius:14px;max-width:1000px;width:100%;
+  max-height:90vh;overflow:auto;padding:22px 26px 24px;box-shadow:0 30px 70px -30px rgba(48,40,28,.55);}
+.modal h2{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:.03em;color:var(--ink);
+  margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line2);}
+.modalRow{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.modalActions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px;}
+.warnBox{background:var(--accentWash);border:1px solid var(--accentLine);color:#8d3f28;
+  font-size:11.5px;border-radius:10px;padding:11px 13px;margin-bottom:12px;line-height:1.6;}
+.fld{font-size:11.5px;color:var(--sub);line-height:2;}
+.fld input[type=checkbox]{margin-right:3px;}
+.fld label{margin-right:12px;font-size:12.5px;color:var(--ink);}
+
+.previewTable{border-collapse:separate;border-spacing:0;width:100%;font-size:11.5px;margin-top:10px;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.previewTable th,.previewTable td{border-bottom:1px solid var(--line2);border-right:1px solid var(--line2);padding:6px 4px;text-align:center;}
+.previewTable th{background:var(--wash);color:#7b7365;font-weight:500;font-size:10.5px;}
+.previewTable input{width:100%;font-size:11px;border:none;text-align:center;background:transparent;padding:2px;}
+.previewTable input:focus{background:#fff;box-shadow:0 0 0 1.5px var(--accentLine);border-radius:5px;}
+
+.progTable{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.progTable th,.progTable td{border-bottom:1px solid var(--line2);border-right:1px solid var(--line2);padding:9px 10px;text-align:center;}
+.progTable th{background:var(--wash);color:#7b7365;font-weight:500;font-size:10.5px;letter-spacing:.04em;}
+.progTable td.subj{text-align:left;font-weight:700;}
+.progbar{background:#f1ece1;border-radius:4px;height:7px;overflow:hidden;width:100%;min-width:90px;}
+.progbar>div{background:#b39a6b;height:100%;border-radius:4px;}
+.progNote{font-size:10.5px;color:var(--faint);text-align:right;margin-top:8px;line-height:1.6;}
+
+.taskTable{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.taskTable th,.taskTable td{border-bottom:1px solid var(--line2);border-right:1px solid var(--line2);padding:8px 10px;text-align:left;}
+.taskTable th{background:var(--wash);color:#7b7365;font-weight:500;font-size:10.5px;letter-spacing:.04em;}
+.taskStatus{border-radius:7px;padding:4px 7px;font-size:11px;border:1px solid var(--line);background:#fff;}
+.taskStatus.done{background:#e9f0e6;color:#5f7a5f;border-color:#d8e4d6;}
+.taskRow.done td{color:var(--ghost);text-decoration:line-through;}
+.taskDel{color:var(--accent);cursor:pointer;background:none;border:none;font-size:13px;height:auto;padding:0;}
+.taskDel:hover{background:none;}
+
+.searchHit{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;background:#fff;}
+.searchHit:hover{border-color:#cfc5b1;background:var(--wash2);}
+.searchHit .meta{font-size:10.5px;color:var(--faint);margin-bottom:4px;}
+.searchHit .txt{font-size:12.5px;line-height:1.7;color:var(--ink2);}
+.searchHit mark{background:#f6e3bd;padding:0 2px;border-radius:3px;}
+
+@media (max-width:1180px){
+  .topbar{gap:8px;padding:0 12px;}
+  .weeknav .wk{min-width:150px;font-size:13px;}
+  .searchWrap input{width:96px;}
+  .teacherBox .small{display:none;}
+  .syncDot{display:none;}
+}
+
+/* ---------- モバイル：日／週 切替バー ---------- */
+.hamburger{display:none;flex:none;}
+#mobileBar{display:none;}
+.sidebarBackdrop{display:none;}
 
 @media (max-width:760px){
-  .hamburger{display:inline-block;}
-  .topbar{padding:6px 8px;gap:6px;}
-  .topbar .ttl{font-size:14px;margin-right:2px;}
-  .topbar button{padding:5px 8px;font-size:12px;}
-  .weeknav .wk{min-width:0;font-size:12px;}
-  #searchBox{width:96px;}
-  .teacherBox select{max-width:80px;}
+  .hamburger{display:flex;align-items:center;justify-content:center;}
+  .topbar{height:auto;min-height:56px;padding:0 8px;gap:6px;}
+  .brand .ttl{font-size:15px;}
+  .tbdiv,.teacherBox,.syncDot,.weeknav .wk{display:none;}
+  .weeknav{display:none;}
+  .searchWrap{height:34px;padding:0 9px;}
+  .searchWrap input{width:74px;}
+  .topbar .primary{padding:0 10px;font-size:11.5px;height:34px;}
+  .topbar button.icon{width:36px;height:36px;}
 
   .layout{position:relative;}
-  .sidebar{position:fixed;top:0;bottom:0;left:0;width:78vw;max-width:280px;
-    z-index:40;box-shadow:2px 0 14px rgba(0,0,0,.25);
-    transform:translateX(-100%);transition:transform .2s ease;padding-top:56px;}
+  .sidebar{position:fixed;top:0;bottom:0;left:0;width:80vw;max-width:300px;z-index:60;
+    box-shadow:14px 0 40px -18px rgba(40,32,24,.5);transform:translateX(-100%);
+    transition:transform .22s ease;padding-top:12px;background:var(--panel);}
   .sidebar.open{transform:translateX(0);}
-  .sidebarBackdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:35;}
+  .sidebarBackdrop{display:none;position:fixed;inset:0;background:rgba(40,32,24,.4);z-index:55;}
   .sidebarBackdrop.open{display:block;}
 
-  .main{padding:8px;}
-  .grid{min-width:640px;overflow:visible;} /* sticky列を効かせるため角丸クリップは諦める */
-  .cell{min-height:70px;padding:4px;}
-  .cell textarea{min-height:38px;font-size:11px;}
-  .badge{font-size:11px;}
-  .dayhead .dt{font-size:12px;}
+  #mobileBar{display:flex;flex-direction:column;gap:10px;flex:none;
+    padding:10px 14px 12px;background:var(--panel);border-bottom:1px solid var(--line2);}
+  .mbTop{display:flex;align-items:center;gap:8px;}
+  .mbTop .mbWk{flex:1;text-align:center;font-family:var(--serif);font-size:15px;font-weight:700;line-height:1.3;}
+  .mbTop .mbWk small{display:block;font-family:var(--sans);font-size:10.5px;font-weight:400;color:var(--faint);margin-top:2px;}
+  .mbTop button{width:40px;height:40px;border:none;background:transparent;border-radius:11px;padding:0;font-size:13px;}
+  .mbSeg{display:flex;gap:4px;background:var(--wash);border-radius:11px;padding:3px;}
+  .mbSeg button{flex:1;height:36px;border:none;background:transparent;border-radius:9px;font-size:12px;color:#7b7365;padding:0;}
+  .mbSeg button.on{background:var(--panel);box-shadow:0 1px 2px rgba(60,52,38,.12);font-weight:700;color:var(--ink);}
+  .mbDays{display:flex;gap:4px;}
+  .mbDays button{flex:1;height:48px;border:none;background:transparent;border-radius:10px;padding:0;
+    font-size:11.5px;color:var(--sub);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+  .mbDays button b{font-size:14px;font-weight:700;}
+  .mbDays button.on{background:var(--btn);color:#f2ebdc;}
+  .mbDays.hide{display:none;}
 
-  .modal{padding:14px;max-width:95vw!important;max-height:92vh;}
+  .main{padding:12px 12px 20px;}
+  .grid{min-width:660px;border-radius:10px;}
+  .cell{min-height:96px;padding:7px 9px;}
+  .cell textarea{min-height:40px;font-size:11px;}
+  .dayhead .dt{font-size:13px;}
+
+  /* 1日ずつモード */
+  .grid.dayFocus{min-width:0;grid-template-columns:38px 1fr!important;}
+  .grid.dayFocus .hideCol{display:none;}
+  .grid.dayFocus .cell{min-height:132px;padding:11px 13px;}
+  .grid.dayFocus .badge input.subjInput{font-size:15px;}
+  .grid.dayFocus .badge input.clsInput{flex:0 0 56px;font-size:11px;}
+  .grid.dayFocus .cell textarea{font-size:13px;min-height:62px;}
+  .grid.dayFocus .dayhead{padding:11px 13px;}
+  .grid.dayFocus .dayfoot textarea{font-size:12px;}
+
+  .modal{padding:16px 16px 18px;max-width:96vw!important;max-height:92vh;border-radius:12px;}
+  .modal h2{font-size:16px;}
   .previewTable,.progTable,.taskTable{font-size:11px;}
+  .menu{right:-4px;min-width:210px;}
+  .menu button{height:44px;}
 }
 
 @media print{
-  .topbar,.sidebar,.sidebarBackdrop,.msgbar,button{display:none!important;}
-  .main{padding:0;}
-  .cell textarea{border:1px solid #ccc;}
+  .topbar,.sidebar,.sidebarBackdrop,.msgbar,#mobileBar,button{display:none!important;}
+  .main{padding:0;overflow:visible;}
+  .grid{border-radius:0;min-width:0;}
+  .cell textarea{border:1px solid #ddd;background:#fff;}
 }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <button id="btnSidebarToggle" class="hamburger" title="週一覧">☰</button>
-  <div class="ttl">📘 電子教務手帳</div>
+  <button id="btnSidebarToggle" class="icon hamburger" title="週一覧">☰</button>
+  <div class="brand"><span class="mark">帳</span><span class="ttl">教務手帳</span></div>
+  <div class="tbdiv"></div>
   <div class="teacherBox">
     <span class="small">先生</span>
     <select id="teacherSel"><option value="">(未選択)</option></select>
   </div>
+  <div class="grow"></div>
   <div class="weeknav">
-    <button id="prevWk" title="前の週">◀</button>
+    <button id="prevWk" class="icon" title="前の週">◀</button>
     <span class="wk" id="wkLabel">週を読み込んでください</span>
-    <button id="nextWk" title="次の週">▶</button>
+    <button id="nextWk" class="icon" title="次の週">▶</button>
   </div>
   <div class="grow"></div>
-  <button id="btnSync" title="クラウド同期">☁ ログイン</button>
-  <input id="searchBox" type="text" placeholder="🔍 メモを検索" style="width:150px;">
-  <button id="btnTasks">✅ 小テスト・提出物</button>
-  <button id="btnProgress">📊 集計・進捗</button>
+  <div class="searchWrap"><span class="mag">⌕</span><input id="searchBox" type="text" placeholder="メモを検索"></div>
+  <div class="tbicons">
+    <button id="btnTasks" class="icon" title="小テスト・提出物">✓</button>
+    <button id="btnProgress" class="icon" title="集計・進捗">▦</button>
+    <button id="btnPrint" class="icon" title="印刷">⎙</button>
+    <div class="menuWrap">
+      <button id="btnMore" class="icon" title="その他">⋯</button>
+      <div class="menu" id="moreMenu">
+        <button id="btnSync" title="クラウド同期">☁ ログイン</button>
+        <button id="btnExport">バックアップ書き出し</button>
+        <button id="btnImportJson">バックアップ読み込み</button>
+      </div>
+    </div>
+  </div>
   <input type="file" id="pdfFile" accept="application/pdf" hidden>
-  <button class="primary" id="btnImport">📥 時間割PDFを読み込む</button>
-  <button id="btnPrint">🖨 印刷</button>
-  <button id="btnExport">💾 バックアップ書き出し</button>
-  <button id="btnImportJson">📂 バックアップ読み込み</button>
   <input type="file" id="jsonFile" accept="application/json" hidden>
+  <button class="primary" id="btnImport">時間割PDFを読み込む</button>
+  <div class="syncDot" id="syncDot" style="display:none;"><i></i><span>同期済み</span></div>
 </div>
 
 <div class="sidebarBackdrop" id="sidebarBackdrop"></div>
 <div class="layout">
   <div class="sidebar">
-    <div class="sidebarHead">
-      <h3 style="margin:0 0 6px;">週一覧</h3>
-      <button id="btnCalendar" style="font-size:11px;padding:3px 6px;width:100%;">🗓 年間予定を準備</button>
-      <button id="btnBulkDelete" style="font-size:11px;padding:3px 6px;width:100%;margin-top:4px;">🗑 期間の週をまとめて削除</button>
-    </div>
+    <div class="sidebarHead"><h3>週一覧</h3></div>
     <div id="weekList"><div class="empty">まだありません</div></div>
+    <div class="sidebarFoot">
+      <button id="btnCalendar">＋　年間予定を準備</button>
+      <button id="btnBulkDelete">⌫　期間の週を削除</button>
+    </div>
   </div>
-  <div class="main" id="mainArea">
-    <div class="noWeek">
-      <div>📥 まず右上の「時間割PDFを読み込む」から、学校で配布される週時間割PDFを読み込んでください。</div>
-      <div class="hint">教員別の行から、選んだ先生の担当コマを自動で表に書き込みます。</div>
+  <div class="mainWrap">
+    <div id="mobileBar">
+      <div class="mbTop">
+        <button id="mbPrev">◀</button>
+        <div class="mbWk" id="mbWk">週を読み込んでください<small id="mbWkSub"></small></div>
+        <button id="mbNext">▶</button>
+      </div>
+      <div class="mbSeg">
+        <button id="mbModeDay" class="on">1日ずつ</button>
+        <button id="mbModeWeek">週の俯瞰</button>
+      </div>
+      <div class="mbDays" id="mbDays"></div>
+    </div>
+    <div class="main" id="mainArea">
+      <div class="noWeek">
+        <div>まず「時間割PDFを読み込む」から、学校で配布される週時間割PDFを読み込んでください。</div>
+        <div class="hint">教員別の行から、選んだ先生の担当コマを自動で表に書き込みます。</div>
+      </div>
     </div>
   </div>
 </div>
@@ -256,7 +392,7 @@ textarea{resize:vertical;}
       <button id="btnClassroomImport">🎓 Classroomから課題の期限を取り込む</button>
       <span class="hint" id="classroomHint"></span>
     </div>
-    <div class="modalRow" style="flex-wrap:wrap;background:var(--free);padding:8px;border-radius:6px;">
+    <div class="modalRow" style="flex-wrap:wrap;background:var(--wash);padding:8px;border-radius:6px;">
       <input type="date" id="taskDate">
       <input type="text" id="taskCls" placeholder="クラス" list="classroomCourseList" style="width:100px;">
       <datalist id="classroomCourseList"></datalist>
@@ -1104,7 +1240,7 @@ function renderWeek(){
   if(!curWeek || !DB.weeks[curWeek]){
     wkLabel.textContent="週を読み込んでください";
     main.innerHTML=`<div class="noWeek">
-      <div>📥 まず右上の「時間割PDFを読み込む」から、学校で配布される週時間割PDFを読み込んでください。</div>
+      <div>まず「時間割PDFを読み込む」から、学校で配布される週時間割PDFを読み込んでください。</div>
       <div class="hint">教員別の行から、選んだ先生の担当コマを自動で表に書き込みます。</div>
     </div>`;
     return;
@@ -1147,7 +1283,7 @@ function renderWeek(){
       const hasContent = cell.cls || cell.subject;
       const badgeCls = hasContent? subjectClass(cell.subject) : "";
       const chips = dayTaskInfo[di].perPeriod[p]||[];
-      h += `<div class="cell ${hasContent?"":"off"}">
+      h += `<div class="cell ${hasContent?badgeCls:"off"}">
         <div class="badge ${badgeCls}">
           <input class="clsInput" data-day="${di}" data-p="${p}" data-f="cls" value="${escAttr(cell.cls)}" placeholder="組" size="1">
           <input class="subjInput" data-day="${di}" data-p="${p}" data-f="subject" value="${escAttr(cell.subject)}" placeholder="教科（空きコマ）" size="1">
@@ -1556,6 +1692,98 @@ function escAttr(s){ return escHtml(s).replace(/"/g,"&quot;"); }
   renderWeekList();
   renderWeek();
   initSync();
+})();
+</script>
+
+<script>
+/* ============================================================
+   UI：オーバーフローメニューと、スマホの「1日ずつ／週の俯瞰」切替
+   ============================================================ */
+(function(){
+  const menu = document.getElementById("moreMenu");
+  document.getElementById("btnMore").onclick = (e)=>{ e.stopPropagation(); menu.classList.toggle("open"); };
+  document.addEventListener("click", (e)=>{ if(!e.target.closest(".menuWrap")) menu.classList.remove("open"); });
+  menu.querySelectorAll("button").forEach(b=>b.addEventListener("click", ()=>menu.classList.remove("open")));
+
+  const MK = "kyoumu_ui_mobile_v1";
+  let mode = "day", focusDay = 0;
+  try{ const s=JSON.parse(localStorage.getItem(MK)||"{}"); if(s.mode) mode=s.mode; }catch(e){}
+  const save = ()=>{ try{ localStorage.setItem(MK, JSON.stringify({mode})); }catch(e){} };
+
+  const days = ()=>{
+    const w = (DB && DB.weeks && curWeek) ? DB.weeks[curWeek] : null;
+    return w ? w.days : [];
+  };
+
+  function labelColumns(grid){
+    let col = -1;
+    Array.from(grid.children).forEach(el=>{
+      if(el.classList.contains("corner") || el.classList.contains("periodhead") || el.classList.contains("footlabel")){
+        col = -1; el.removeAttribute("data-col"); return;
+      }
+      col++; el.setAttribute("data-col", String(col));
+    });
+  }
+
+  function paint(){
+    const grid = document.querySelector("#mainArea .grid");
+    const ds = days();
+    const bar = document.getElementById("mobileBar");
+    if(!ds.length){ bar.style.visibility="hidden"; return; }
+    bar.style.visibility="visible";
+
+    const first = ds[0], last = ds[ds.length-1];
+    const fmt = (s)=> s ? s.slice(5).replace("-","月")+"日" : "";
+    document.getElementById("mbWk").firstChild.nodeValue = fmt(first&&first.date)+" – "+fmt(last&&last.date);
+    const w = DB.weeks[curWeek];
+    document.getElementById("mbWkSub").textContent = (w.teacherName? w.teacherName+"　" : "") + (w.imported? ds.length+"日分" : "未読み込み");
+
+    document.getElementById("mbModeDay").classList.toggle("on", mode==="day");
+    document.getElementById("mbModeWeek").classList.toggle("on", mode==="week");
+
+    const dwrap = document.getElementById("mbDays");
+    dwrap.classList.toggle("hide", mode!=="day");
+    if(focusDay >= ds.length) focusDay = 0;
+    dwrap.innerHTML = "";
+    ds.forEach((d,i)=>{
+      const b = document.createElement("button");
+      if(i===focusDay) b.className = "on";
+      const wd = document.createElement("span"); wd.textContent = d.weekday || "";
+      const dt = document.createElement("b"); dt.textContent = (d.date||"").slice(8).replace(/^0/,"");
+      b.appendChild(wd); b.appendChild(dt);
+      b.onclick = ()=>{ focusDay = i; paint(); };
+      dwrap.appendChild(b);
+    });
+
+    if(!grid) return;
+    labelColumns(grid);
+    const focusOn = (mode==="day") && window.matchMedia("(max-width:760px)").matches;
+    grid.classList.toggle("dayFocus", focusOn);
+    grid.querySelectorAll("[data-col]").forEach(el=>{
+      el.classList.toggle("hideCol", focusOn && +el.getAttribute("data-col") !== focusDay);
+    });
+  }
+
+  document.getElementById("mbModeDay").onclick = ()=>{ mode="day"; save(); paint(); };
+  document.getElementById("mbModeWeek").onclick = ()=>{ mode="week"; save(); paint(); };
+  document.getElementById("mbPrev").onclick = ()=>{
+    if(mode==="day" && focusDay>0){ focusDay--; paint(); return; }
+    document.getElementById("prevWk").click(); focusDay=0;
+  };
+  document.getElementById("mbNext").onclick = ()=>{
+    if(mode==="day" && focusDay < days().length-1){ focusDay++; paint(); return; }
+    document.getElementById("nextWk").click(); focusDay=0;
+  };
+  window.addEventListener("resize", paint);
+
+  const orig = window.renderWeek;
+  window.renderWeek = function(){ const r = orig.apply(this, arguments); paint(); return r; };
+
+  // 今日が表示中の週にあれば、その日から開く
+  const todayIso = new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0")+"-"+String(new Date().getDate()).padStart(2,"0");
+  const i = days().findIndex(d=>d.date===todayIso);
+  if(i>=0) focusDay = i;
+  paint();
 })();
 </script>
 </body>
