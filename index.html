@@ -530,7 +530,7 @@ textarea{resize:vertical;line-height:1.6;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot }
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, runTransaction }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 // ↓↓↓ Firebaseコンソールで作成したプロジェクトの設定に置き換えてください ↓↓↓
@@ -588,18 +588,35 @@ window.fbSync = {
   },
   async fetchOnce(uid){
     const snap = await getDoc(doc(fbDb, "users", uid, "techou", "data"));
-    return snap.exists() ? snap.data().json : null;
+    return snap.exists() ? { json: snap.data().json, updatedAt: snap.data().updatedAt||null } : null;
   },
   subscribe(uid, onRemoteChange){
     if(unsubscribeSnapshot) unsubscribeSnapshot();
     unsubscribeSnapshot = onSnapshot(doc(fbDb, "users", uid, "techou", "data"), snap=>{
       if(snap.metadata.hasPendingWrites) return; // 自分がいま書き込んだものはスキップ（エコー防止）
       if(!snap.exists()) return;
-      onRemoteChange(snap.data().json);
+      onRemoteChange({ json: snap.data().json, updatedAt: snap.data().updatedAt||null });
     });
   },
-  push(uid, dataObj){
-    return setDoc(doc(fbDb, "users", uid, "techou", "data"), { json: dataObj, updatedAt: Date.now() });
+  // expectedUpdatedAt: 直前に自分が把握していたサーバー側updatedAt。
+  // 保存しようとした瞬間にサーバー側がそれと異なっていたら（＝別端末が先に書き込んでいたら）
+  // 上書きせずに競合として例外を投げ、サーバー側の最新内容を持たせて返す。
+  async push(uid, dataObj, expectedUpdatedAt){
+    const ref = doc(fbDb, "users", uid, "techou", "data");
+    return runTransaction(fbDb, async (tx)=>{
+      const snap = await tx.get(ref);
+      const serverUpdatedAt = snap.exists() ? (snap.data().updatedAt||null) : null;
+      if(expectedUpdatedAt!=null && serverUpdatedAt!=null && serverUpdatedAt!==expectedUpdatedAt){
+        const err = new Error("別の端末が先に保存しています");
+        err.code = "sync-conflict";
+        err.serverJson = snap.data().json;
+        err.serverUpdatedAt = serverUpdatedAt;
+        throw err;
+      }
+      const updatedAt = Date.now();
+      tx.set(ref, { json: dataObj, updatedAt });
+      return updatedAt;
+    });
   }
 };
 </script>
@@ -634,11 +651,46 @@ function saveDB(){
    ============================================================ */
 let currentUser=null;
 let cloudPushTimer=null;
+let cloudRetryTimer=null;
+let lastKnownRemoteUpdatedAt=null; // 自分が最後に把握しているサーバー側の更新時刻（衝突検知用）
+
+function setSyncStatus(state, detail){
+  const el=document.getElementById("syncDot");
+  if(!el) return;
+  if(state==="hidden"){ el.style.display="none"; return; }
+  el.style.display=""; // 画面幅による表示/非表示はCSS（@media）に任せる
+  el.title = detail || "";
+  const label = el.querySelector("span");
+  if(state==="pending"){ el.style.color="var(--faint)"; label.textContent="同期中…"; }
+  else if(state==="ok"){ el.style.color="var(--ok)"; label.textContent="同期済み"; }
+  else if(state==="error"){ el.style.color="var(--accent)"; label.textContent="同期エラー"; }
+}
+
 function scheduleCloudPush(){
   if(!currentUser) return;
+  const uid = currentUser.uid;
+  setSyncStatus("pending");
   clearTimeout(cloudPushTimer);
-  cloudPushTimer=setTimeout(()=>{
-    window.fbSync.push(currentUser.uid, DB).catch(err=>console.error("同期エラー", err));
+  cloudPushTimer=setTimeout(async()=>{
+    // 実行時に別アカウントへ切り替わっていたら送らない（ログアウト・アカウント切替時の誤送信防止）
+    if(!currentUser || currentUser.uid!==uid) return;
+    try{
+      lastKnownRemoteUpdatedAt = await window.fbSync.push(uid, DB, lastKnownRemoteUpdatedAt);
+      setSyncStatus("ok");
+    }catch(err){
+      if(err && err.code==="sync-conflict"){
+        if(!currentUser || currentUser.uid!==uid) return;
+        alert("別の端末で保存された内容があるため、たった今の変更は保存されませんでした。\nこの端末を最新の内容に更新します。もう一度入力し直してください。");
+        applyRemoteDB(err.serverJson);
+        lastKnownRemoteUpdatedAt = err.serverUpdatedAt;
+        setSyncStatus("ok");
+      } else {
+        console.error("同期エラー", err);
+        setSyncStatus("error", "クラウドへの保存に失敗しています（この端末のデータは残っています）：\n"+(err.message||err)+"\n\n20秒後に自動で再試行します。");
+        clearTimeout(cloudRetryTimer);
+        cloudRetryTimer=setTimeout(()=>{ if(currentUser && currentUser.uid===uid) scheduleCloudPush(); }, 20000);
+      }
+    }
   }, 1200);
 }
 function isDbEmpty(db){
@@ -656,9 +708,9 @@ function applyRemoteDB(remote){
 }
 function updateSyncButton(){
   const btn=document.getElementById("btnSync");
-  if(!window.fbSync || !window.fbSync.configured){ btn.textContent="☁ 未設定"; btn.title="Firebaseが設定されていません"; return; }
+  if(!window.fbSync || !window.fbSync.configured){ btn.textContent="☁ 未設定"; btn.title="Firebaseが設定されていません"; setSyncStatus("hidden"); return; }
   if(currentUser){ btn.textContent="☁ "+(currentUser.displayName||currentUser.email||"ログイン中"); btn.title="クリックでログアウト"; }
-  else{ btn.textContent="☁ ログイン"; btn.title="Googleアカウントでログインして端末間同期"; }
+  else{ btn.textContent="☁ ログイン"; btn.title="Googleアカウントでログインして端末間同期"; setSyncStatus("hidden"); }
 }
 document.getElementById("btnSync").onclick=async()=>{
   if(!window.fbSync || !window.fbSync.configured){
@@ -673,27 +725,46 @@ document.getElementById("btnSync").onclick=async()=>{
 function initSync(){
   if(!window.fbSync) { setTimeout(initSync, 50); return; } // モジュール読み込み待ち
   updateSyncButton();
-  window.fbSync.onAuthChange(async user=>{
+  window.fbSync.onAuthChange(user=>{
     currentUser=user;
     updateSyncButton();
-    if(!user) return;
-    try{
-      const remote = await window.fbSync.fetchOnce(user.uid);
-      if(remote && !isDbEmpty(remote) && !isDbEmpty(DB)){
-        const useCloud = confirm(
-          "この端末にもクラウド側にもデータがあります。\n"+
-          "「OK」でクラウドのデータを使う（この端末の内容は上書きされます）\n"+
-          "「キャンセル」でこの端末のデータを使う（クラウド側を上書きします）"
-        );
-        if(useCloud) applyRemoteDB(remote); else scheduleCloudPush();
-      } else if(remote && !isDbEmpty(remote)){
-        applyRemoteDB(remote);
-      } else {
-        scheduleCloudPush();
-      }
-      window.fbSync.subscribe(user.uid, remote2=>{ applyRemoteDB(remote2); });
-    }catch(err){ console.error(err); alert("クラウドとの同期に失敗しました：\n"+(err.message||err)); }
+    if(!user){ clearTimeout(cloudPushTimer); clearTimeout(cloudRetryTimer); setSyncStatus("hidden"); return; }
+    trySyncUser(user);
   });
+}
+async function trySyncUser(user){
+  try{
+    const remote = await window.fbSync.fetchOnce(user.uid);
+    if(currentUser!==user) return; // 待機中に別アカウントへ切り替わった／ログアウトした場合は中断
+    if(remote && !isDbEmpty(remote.json) && !isDbEmpty(DB)){
+      const useCloud = confirm(
+        "この端末にもクラウド側にもデータがあります。\n"+
+        "「OK」でクラウドのデータを使う（この端末の内容は上書きされます）\n"+
+        "「キャンセル」でこの端末のデータを使う（クラウド側を上書きします）"
+      );
+      if(useCloud){
+        applyRemoteDB(remote.json);
+        lastKnownRemoteUpdatedAt = remote.updatedAt;
+      } else {
+        clearTimeout(cloudPushTimer);
+        lastKnownRemoteUpdatedAt = await window.fbSync.push(user.uid, DB, remote.updatedAt);
+      }
+    } else if(remote && !isDbEmpty(remote.json)){
+      applyRemoteDB(remote.json);
+      lastKnownRemoteUpdatedAt = remote.updatedAt;
+    } else {
+      clearTimeout(cloudPushTimer);
+      lastKnownRemoteUpdatedAt = await window.fbSync.push(user.uid, DB, remote?remote.updatedAt:null);
+    }
+    if(currentUser!==user) return; // confirm()・push()待ち中に切り替わった場合も中断
+    window.fbSync.subscribe(user.uid, remote2=>{ applyRemoteDB(remote2.json); lastKnownRemoteUpdatedAt = remote2.updatedAt; setSyncStatus("ok"); });
+    setSyncStatus("ok");
+  }catch(err){
+    console.error(err);
+    setSyncStatus("error", "クラウドとの同期に失敗しています（この端末のデータは残っています）：\n"+(err.message||err)+"\n\n20秒後に自動で再試行します。");
+    clearTimeout(cloudRetryTimer);
+    cloudRetryTimer=setTimeout(()=>{ if(currentUser===user) trySyncUser(user); }, 20000);
+  }
 }
 
 /* ============================================================
@@ -732,7 +803,7 @@ document.getElementById("pdfFile").onchange=async(e)=>{
 async function parsePdf(file){
   ensurePdfWorker();
   const buf = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+  const pdf = await pdfjsLib.getDocument({data:buf, isEvalSupported:false}).promise;
   let best = null;
   for(let p=1; p<=pdf.numPages; p++){
     const page = await pdf.getPage(p);
@@ -1185,8 +1256,8 @@ function renderWeekList(){
     const last = w.days[w.days.length-1];
     const label = w.days[0] && w.days[0].date ? `${w.days[0].date.slice(5).replace("-","/")}〜${(last&&last.date||"").slice(5).replace("-","/")}` : k;
     const sub = w.imported ? (w.teacherName||"") : "（未読み込み）";
-    return `<div class="weekItem ${k===curWeek?"cur":""} ${w.imported?"":"blank"}" data-k="${k}">
-      <button class="weekDel" data-k="${k}" title="この週を削除">✕</button>
+    return `<div class="weekItem ${k===curWeek?"cur":""} ${w.imported?"":"blank"}" data-k="${escAttr(k)}">
+      <button class="weekDel" data-k="${escAttr(k)}" title="この週を削除">✕</button>
       <div>${escHtml(label)}</div>
       <div class="d">${escHtml(sub)}</div>
     </div>`;
@@ -1221,10 +1292,11 @@ function taskMatchesCell(t, cell){
   return true;
 }
 
+const SUBJECT_CLASS_NAMES = new Set(["国語","社会","数学","理科","音楽","美術","保体","技術","家庭","英語","道徳","総合","学活","自立","作業","生単"]);
 function subjectClass(s){
   if(!s) return "";
-  const base = s.replace(/[（(].*/,"");
-  return "s-"+base;
+  const base = s.replace(/[（(].*/,"").trim();
+  return SUBJECT_CLASS_NAMES.has(base) ? "s-"+base : "";
 }
 
 function renderWeek(){
