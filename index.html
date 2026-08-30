@@ -48,6 +48,11 @@ textarea{resize:vertical;line-height:1.6;}
 .brand .mark{width:28px;height:28px;border-radius:7px;background:var(--btn);color:#f6efe2;
   font-family:var(--serif);font-size:15px;display:flex;align-items:center;justify-content:center;}
 .brand .ttl{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.05em;white-space:nowrap;}
+.syncBtn{height:26px;padding:0 11px;border-radius:999px;font-size:11.5px;font-weight:500;
+  background:var(--wash);border:1px solid var(--line);color:#57503f;
+  display:flex;align-items:center;gap:5px;flex:none;white-space:nowrap;}
+.syncBtn:hover{border-color:#cfc5b1;background:#efe9dd;}
+.syncBtnLabel{max-width:160px;overflow:hidden;text-overflow:ellipsis;}
 .tbdiv{width:1px;height:22px;background:var(--line);flex:none;}
 .teacherBox{display:flex;align-items:center;gap:7px;flex:none;}
 .teacherBox select{border:none;background:var(--wash);border-radius:999px;height:30px;padding:0 8px;font-weight:500;max-width:150px;}
@@ -214,6 +219,7 @@ textarea{resize:vertical;line-height:1.6;}
   .searchWrap input{width:96px;}
   .teacherBox .small{display:none;}
   .syncDot{display:none;}
+  .syncBtnLabel{max-width:80px;}
 }
 
 /* ---------- モバイル：日／週 切替バー ---------- */
@@ -227,6 +233,8 @@ textarea{resize:vertical;line-height:1.6;}
   .brand .ttl{font-size:15px;}
   .tbdiv,.teacherBox,.syncDot,.weeknav .wk{display:none;}
   .weeknav{display:none;}
+  .syncBtnLabel{display:none;} /* 画面が狭い時は☁アイコンだけにする */
+  .syncBtn{padding:0 8px;}
   .searchWrap{height:34px;padding:0 9px;}
   .searchWrap input{width:74px;}
   .topbar .primary{padding:0 10px;font-size:11.5px;height:34px;}
@@ -292,6 +300,7 @@ textarea{resize:vertical;line-height:1.6;}
 <div class="topbar">
   <button id="btnSidebarToggle" class="icon hamburger" title="週一覧">☰</button>
   <div class="brand"><span class="mark">帳</span><span class="ttl">教務手帳</span></div>
+  <button id="btnSync" class="syncBtn" title="クラウド同期">☁ <span class="syncBtnLabel">ログイン</span></button>
   <div class="tbdiv"></div>
   <div class="teacherBox">
     <span class="small">先生</span>
@@ -312,7 +321,6 @@ textarea{resize:vertical;line-height:1.6;}
     <div class="menuWrap">
       <button id="btnMore" class="icon" title="その他">⋯</button>
       <div class="menu" id="moreMenu">
-        <button id="btnSync" title="クラウド同期">☁ ログイン</button>
         <button id="btnExport">バックアップ書き出し</button>
         <button id="btnImportJson">バックアップ読み込み</button>
       </div>
@@ -789,9 +797,10 @@ function applyRemoteDB(remote){
 }
 function updateSyncButton(){
   const btn=document.getElementById("btnSync");
-  if(!window.fbSync || !window.fbSync.configured){ btn.textContent="☁ 未設定"; btn.title="Firebaseが設定されていません"; setSyncStatus("hidden"); return; }
-  if(currentUser){ btn.textContent="☁ "+(currentUser.displayName||currentUser.email||"ログイン中"); btn.title="クリックでログアウト"; }
-  else{ btn.textContent="☁ ログイン"; btn.title="Googleアカウントでログインして端末間同期"; setSyncStatus("hidden"); }
+  const label=btn.querySelector(".syncBtnLabel");
+  if(!window.fbSync || !window.fbSync.configured){ label.textContent="未設定"; btn.title="Firebaseが設定されていません"; setSyncStatus("hidden"); return; }
+  if(currentUser){ label.textContent=currentUser.displayName||currentUser.email||"ログイン中"; btn.title="クリックでログアウト"; }
+  else{ label.textContent="ログイン"; btn.title="Googleアカウントでログインして端末間同期"; setSyncStatus("hidden"); }
 }
 document.getElementById("btnSync").onclick=async()=>{
   if(!window.fbSync || !window.fbSync.configured){
