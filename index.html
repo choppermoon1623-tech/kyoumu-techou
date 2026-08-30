@@ -555,13 +555,17 @@ if(fbConfigured){
 let unsubscribeSnapshot=null;
 let classroomToken=null;
 
+// classroom.student-submissions.students.readonly は coursework.students.readonly に
+// 権限が包含されるため要求しない（studentSubmissions系エンドポイントも後者だけで取得できる）
 const CLASSROOM_SCOPES = [
   "https://www.googleapis.com/auth/classroom.courses.readonly",
   "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
-  "https://www.googleapis.com/auth/classroom.rosters.readonly",
-  "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly"
+  "https://www.googleapis.com/auth/classroom.rosters.readonly"
 ];
 function buildGoogleProvider(){
+  return new GoogleAuthProvider(); // 端末間同期のログインではClassroom権限は要求しない
+}
+function buildClassroomProvider(){
   const provider = new GoogleAuthProvider();
   CLASSROOM_SCOPES.forEach(s=>provider.addScope(s));
   return provider;
@@ -572,6 +576,14 @@ window.fbSync = {
   async signIn(){
     if(!fbConfigured) return Promise.reject(new Error("Firebase未設定です"));
     const result = await signInWithPopup(fbAuth, buildGoogleProvider());
+    const cred = GoogleAuthProvider.credentialFromResult(result);
+    classroomToken = cred && cred.accessToken ? cred.accessToken : null;
+    return result;
+  },
+  // Classroom機能を実際に使う時だけ呼ぶ。追加スコープの同意を求め、対応したトークンに更新する。
+  async grantClassroomAccess(){
+    if(!fbConfigured) return Promise.reject(new Error("Firebase未設定です"));
+    const result = await signInWithPopup(fbAuth, buildClassroomProvider());
     const cred = GoogleAuthProvider.credentialFromResult(result);
     classroomToken = cred && cred.accessToken ? cred.accessToken : null;
     return result;
@@ -647,6 +659,75 @@ function saveDB(){
 }
 
 /* ============================================================
+   外部データ（JSONバックアップ・クラウド同期）の検証・正規化
+   壊れた/古い/悪意あるデータでも例外にならず、安全な形だけを取り込む
+   ============================================================ */
+function isIsoDateStr(v){ return typeof v==="string" && /^\d{4}-\d{2}-\d{2}$/.test(v); }
+function sanitizeStr(v, maxLen){
+  if(typeof v!=="string") return "";
+  return v.length>maxLen ? v.slice(0,maxLen) : v;
+}
+function normalizePeriod(p){
+  if(!p || typeof p!=="object") p={};
+  return { cls: sanitizeStr(p.cls,40), subject: sanitizeStr(p.subject,100), note: sanitizeStr(p.note,2000) };
+}
+function normalizeDay(d){
+  if(!d || typeof d!=="object") d={};
+  return {
+    date: isIsoDateStr(d.date) ? d.date : "",
+    weekday: sanitizeStr(d.weekday,10),
+    events: sanitizeStr(d.events,500),
+    dayNote: sanitizeStr(d.dayNote,2000),
+    periods: Array.isArray(d.periods) ? d.periods.slice(0,20).map(normalizePeriod) : []
+  };
+}
+function normalizeWeek(w){
+  if(!w || typeof w!=="object") w={};
+  return {
+    imported: !!w.imported,
+    teacherName: sanitizeStr(w.teacherName,100),
+    days: Array.isArray(w.days) ? w.days.slice(0,14).map(normalizeDay) : []
+  };
+}
+function normalizeTask(t){
+  if(!t || typeof t!=="object") t={};
+  const task = {
+    id: sanitizeStr(t.id,100) || (Date.now()+"_"+Math.random().toString(36).slice(2,7)),
+    date: isIsoDateStr(t.date) ? t.date : "",
+    cls: sanitizeStr(t.cls,100),
+    subject: sanitizeStr(t.subject,100),
+    type: sanitizeStr(t.type,40),
+    title: sanitizeStr(t.title,300),
+    status: sanitizeStr(t.status,20) || "未実施"
+  };
+  if(t.classroomCourseId!=null) task.classroomCourseId = sanitizeStr(t.classroomCourseId,100);
+  if(t.classroomCourseWorkId!=null) task.classroomCourseWorkId = sanitizeStr(t.classroomCourseWorkId,100);
+  if(t.submitStatus!=null) task.submitStatus = sanitizeStr(t.submitStatus,40);
+  return task;
+}
+// 未知の形式のオブジェクトはそのまま通す（学校の公式集計値。表示側でescHtml済みのため安全）
+function normalizeAnnualHours(a){
+  if(!a || typeof a!=="object") return {asOfWeek:null, data:{}};
+  const data={};
+  if(a.data && typeof a.data==="object"){
+    Object.keys(a.data).slice(0,500).forEach(k=>{ data[sanitizeStr(k,80)] = a.data[k]; });
+  }
+  return { asOfWeek: isIsoDateStr(a.asOfWeek) ? a.asOfWeek : null, data };
+}
+function normalizeDB(raw){
+  if(!raw || typeof raw!=="object" || !raw.weeks || typeof raw.weeks!=="object") throw new Error("形式が違います");
+  const weeks={};
+  Object.keys(raw.weeks).filter(isIsoDateStr).slice(0,2000).forEach(k=>{ weeks[k]=normalizeWeek(raw.weeks[k]); });
+  return {
+    v:1,
+    teacherName: sanitizeStr(raw.teacherName,100),
+    weeks,
+    tasks: Array.isArray(raw.tasks) ? raw.tasks.slice(0,5000).map(normalizeTask) : [],
+    annualHours: normalizeAnnualHours(raw.annualHours)
+  };
+}
+
+/* ============================================================
    クラウド同期（Firebase・任意機能）
    ============================================================ */
 let currentUser=null;
@@ -697,10 +778,10 @@ function isDbEmpty(db){
   return !Object.keys(db.weeks||{}).length && !(db.tasks||[]).length;
 }
 function applyRemoteDB(remote){
-  DB = remote;
-  if(!DB.weeks) DB.weeks={};
-  if(!DB.annualHours) DB.annualHours={asOfWeek:null, data:{}};
-  if(!DB.tasks) DB.tasks=[];
+  let normalized;
+  try{ normalized = normalizeDB(remote); }
+  catch(e){ console.error("クラウドのデータ形式が不正です", e); return; }
+  DB = normalized;
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
   const keys=Object.keys(DB.weeks).sort();
   if(!curWeek || !DB.weeks[curWeek]) curWeek = keys.length? keys[keys.length-1] : null;
@@ -1123,7 +1204,11 @@ document.getElementById("modalApply").onclick=()=>{
 function applyParsedWeek(parsed, row, teacherName){
   DB.teacherName = teacherName;
   // 日付から月曜日の週キーを決定
-  const year = parsed.reiwa? reiwaToYear(parsed.reiwa) : new Date().getFullYear();
+  // 年度（4月始まり）が読み取れない場合は、今日の日付から年度開始年を推定する
+  // （1〜3月に実行している＝前年度の年度内なので、そのまま今年をとると1年先にずれる）
+  const today = new Date();
+  const inferredFiscalStartYear = (today.getMonth()+1>=4) ? today.getFullYear() : today.getFullYear()-1;
+  const year = parsed.reiwa? reiwaToYear(parsed.reiwa) : inferredFiscalStartYear;
   let firstIso=null;
   const daysMeta=[];
   for(let d=0; d<parsed.dayCount; d++){
@@ -1143,7 +1228,7 @@ function applyParsedWeek(parsed, row, teacherName){
   const existing = DB.weeks[wkKey];
   const newDays = daysMeta.map((meta,d)=>{
     const n = parsed.periodsPerDay[d]||0;
-    const oldDay = oldDayMatches(existing,d,meta.iso) ? existing.days[d] : null;
+    const oldDay = (meta.iso && existing && Array.isArray(existing.days)) ? existing.days.find(dd=>dd.date===meta.iso) : null;
     const periods=[];
     for(let p=0;p<n;p++){
       const cell = (row.grid[d] && row.grid[d][p]) || {cls:"",subject:""};
@@ -1173,10 +1258,6 @@ function applyParsedWeek(parsed, row, teacherName){
   renderWeekList();
   renderWeek();
 }
-function oldDayMatches(existing,d,iso){
-  return existing && existing.days && existing.days[d] && existing.days[d].date===iso;
-}
-
 // 全角英数字を半角に揃える（クラス名・教科名の突き合わせ用）
 function normalizeWidth(s){
   return (s||"").replace(/[！-～]/g, c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).trim();
@@ -1227,7 +1308,7 @@ function prepareCalendar(startIso, endIso, weekdayOffsets, periodsCount){
     if(!DB.weeks[wkKey]){
       const days = weekdayOffsets.map(off=>{
         const date = addDays(wkKey, off);
-        if(new Date(date+"T00:00:00")>end) return null;
+        if(date<startIso || new Date(date+"T00:00:00")>end) return null;
         return {
           date, weekday: weekdayOf(date), events:"", dayNote:"",
           periods: Array.from({length:periodsCount}, (_,i)=>({n:i+1, cls:"", subject:"", note:""}))
@@ -1441,9 +1522,9 @@ document.getElementById("jsonFile").onchange=async(e)=>{
   try{
     const text=await f.text();
     const data=JSON.parse(text);
-    if(!data || !data.weeks) throw new Error("形式が違います");
+    const normalized=normalizeDB(data);
     if(!confirm("現在のデータに上書きして読み込みます。よろしいですか？")) return;
-    DB=data; saveDB();
+    DB=normalized; saveDB();
     curWeek = Object.keys(DB.weeks).sort()[0] || null;
     renderWeekList(); renderWeek();
   }catch(err){ alert("読み込みに失敗しました：\n"+(err.message||err)); }
@@ -1559,14 +1640,14 @@ let classroomCourses=[]; // {id, name}
 async function classroomFetch(path){
   let token = window.fbSync && window.fbSync.getClassroomToken && window.fbSync.getClassroomToken();
   if(!token){
-    // ページ再読み込み後などトークンが無い場合は、再ログインして取り直す
-    await window.fbSync.signIn();
+    // まだClassroom権限の同意を得ていない（通常ログインだけでは要求していない）→ここで求める
+    await window.fbSync.grantClassroomAccess();
     token = window.fbSync.getClassroomToken();
   }
   let res = await fetch("https://classroom.googleapis.com/v1/"+path, { headers:{ Authorization:"Bearer "+token } });
-  if(res.status===401){
-    // 期限切れの可能性 → 再ログインして1回だけ再試行
-    await window.fbSync.signIn();
+  if(res.status===401 || res.status===403){
+    // トークン期限切れ、またはClassroom権限が不足 → 権限を求め直して1回だけ再試行
+    await window.fbSync.grantClassroomAccess();
     token = window.fbSync.getClassroomToken();
     res = await fetch("https://classroom.googleapis.com/v1/"+path, { headers:{ Authorization:"Bearer "+token } });
   }
@@ -1577,9 +1658,21 @@ async function classroomFetch(path){
   return res.json();
 }
 
+// nextPageToken が残っている限り取得を続け、一覧を1つの配列にまとめる
+async function classroomFetchAll(path, listKey){
+  let results=[], pageToken="";
+  do{
+    const sep = path.includes("?") ? "&" : "?";
+    const data = await classroomFetch(path + (pageToken? sep+"pageToken="+encodeURIComponent(pageToken) : ""));
+    results = results.concat(data[listKey]||[]);
+    pageToken = data.nextPageToken || "";
+  } while(pageToken);
+  return results;
+}
+
 async function loadClassroomCourses(){
-  const data = await classroomFetch("courses?courseStates=ACTIVE&teacherId=me&pageSize=100");
-  classroomCourses = (data.courses||[]).map(c=>({id:c.id, name:c.name}));
+  const courses = await classroomFetchAll("courses?courseStates=ACTIVE&teacherId=me&pageSize=100", "courses");
+  classroomCourses = courses.map(c=>({id:c.id, name:c.name}));
   const dl=document.getElementById("classroomCourseList");
   dl.innerHTML = classroomCourses.map(c=>`<option value="${escAttr(c.name)}">`).join("");
   return classroomCourses;
@@ -1609,8 +1702,7 @@ document.getElementById("classroomLoadWork").onclick=async()=>{
   if(!courseId) return;
   wrap.innerHTML='<div class="hint">読み込み中…</div>';
   try{
-    const data = await classroomFetch(`courses/${courseId}/courseWork?courseWorkStates=PUBLISHED&pageSize=100&orderBy=dueDate desc`);
-    const items = data.courseWork||[];
+    const items = await classroomFetchAll(`courses/${courseId}/courseWork?courseWorkStates=PUBLISHED&pageSize=100&orderBy=dueDate desc`, "courseWork");
     if(!items.length){ wrap.innerHTML='<div class="hint">課題が見つかりませんでした。</div>'; return; }
     let h='<table class="taskTable"><tr><th></th><th>期限</th><th>タイトル</th><th>種類</th></tr>';
     items.forEach(w=>{
@@ -1652,12 +1744,11 @@ document.getElementById("classroomImportBtn").onclick=()=>{
 };
 
 async function fetchSubmissionStatus(courseId, courseWorkId){
-  const [subData, rosterData] = await Promise.all([
-    classroomFetch(`courses/${courseId}/courseWork/${courseWorkId}/studentSubmissions?pageSize=200`),
-    classroomFetch(`courses/${courseId}/students?pageSize=200`)
+  const [subs, students] = await Promise.all([
+    classroomFetchAll(`courses/${courseId}/courseWork/${courseWorkId}/studentSubmissions?pageSize=200`, "studentSubmissions"),
+    classroomFetchAll(`courses/${courseId}/students?pageSize=200`, "students")
   ]);
-  const subs = subData.studentSubmissions||[];
-  const total = (rosterData.students||[]).length;
+  const total = students.length;
   const done = subs.filter(s=>s.state==="TURNED_IN" || s.state==="RETURNED").length;
   return `${done}/${total} 提出`;
 }
@@ -1691,7 +1782,9 @@ document.getElementById("bulkDeleteApply").onclick=()=>{
   if(!start || !end){ alert("開始日と終了日を入力してください。"); return; }
   if(end<start){ alert("終了日が開始日より前になっています。"); return; }
   const targets = Object.keys(DB.weeks).filter(k=>{
-    if(k<start || k>end) return false;
+    // 週の範囲（k〜k+6日）が指定期間と少しでも重なっていれば対象にする
+    // （開始日・終了日が週の途中でも、その週を取りこぼさないように）
+    if(addDays(k,6)<start || k>end) return false;
     const w=DB.weeks[k];
     return includeImported ? true : !w.imported;
   });
