@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>初期設定 - 電子教務手帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf8f3; --panel:#fffdf9; --ink:#24211c; --ink2:#4a4335;
+  --sub:#8d8578; --faint:#a49b8b; --ghost:#c2b9a7;
+  --line:#e6e0d4; --line2:#eee9dd; --wash:#f4f0e7; --wash2:#f7f4ed;
+  --accent:#b03a2e; --accentWash:#fdf3ee; --accentLine:#f0d6c9;
+  --btn:#2b2721; --btnHover:#413a30;
+  --ok:#7f9a7f; --task:#7a4a9c; --taskWash:#f4edfc;
+  --serif:'Zen Old Mincho',serif;
+  --sans:'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN',sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{min-height:100%;}
+body{margin:0;font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;}
+h1,h2,h3{margin:0;}
+button{font-family:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;
+  border-radius:9px;padding:0 13px;height:34px;color:#57503f;font-size:12.5px;transition:border-color .12s,background .12s;}
+button:hover{border-color:#cfc5b1;}
+button.primary{background:var(--btn);color:#f8f3e9;border-color:var(--btn);font-weight:500;}
+button.primary:hover{background:var(--btnHover);border-color:var(--btnHover);}
+a.primary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:var(--btn);color:#f8f3e9;border-color:var(--btn);font-weight:500;
+  border-radius:9px;padding:0 16px;height:34px;font-size:12.5px;}
+a.primary:hover{background:var(--btnHover);}
+input,select,textarea{font-family:inherit;border:1px solid var(--line);border-radius:8px;
+  padding:6px 9px;color:var(--ink);background:#fff;font-size:12.5px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--faint);}
+.small{font-size:11.5px;color:var(--sub);}
+.hint{font-size:11px;color:var(--faint);line-height:1.6;}
+
+.topbar{display:flex;align-items:center;gap:12px;padding:0 18px;min-height:58px;
+  background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .mark{width:28px;height:28px;border-radius:7px;background:var(--btn);color:#f6efe2;
+  font-family:var(--serif);font-size:15px;display:flex;align-items:center;justify-content:center;}
+.brand .ttl{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.05em;}
+.grow{flex:1;}
+
+.page{max-width:960px;margin:0 auto;padding:22px 20px 70px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:18px;}
+.card h2{font-family:var(--serif);font-size:16px;font-weight:700;letter-spacing:.03em;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line2);}
+.fld{font-size:12.5px;color:var(--sub);line-height:2.2;margin-bottom:8px;}
+.fld label{margin-right:16px;color:var(--ink);}
+
+.termRow{display:flex;align-items:center;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line2);flex-wrap:wrap;}
+.termRow:last-child{border-bottom:none;}
+.termName{font-weight:700;min-width:56px;font-size:12.5px;}
+#termGapInfo{margin-top:10px;font-size:11.5px;color:var(--sub);line-height:1.9;}
+#termGapInfo .warn{color:var(--accent);}
+
+.miniCal{display:inline-block;vertical-align:top;width:190px;margin:0 12px 20px 0;}
+.miniCalTitle{font-family:var(--serif);font-weight:700;font-size:12.5px;margin-bottom:6px;}
+.miniCalGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.miniCalWd{font-size:9px;color:var(--faint);text-align:center;padding-bottom:2px;}
+.miniCalDay{font-size:10.5px;text-align:center;border-radius:5px;padding:3px 0 4px;cursor:pointer;min-height:30px;}
+.miniCalDay:hover{background:var(--wash);}
+.miniCalDay b{display:block;font-weight:500;}
+.miniCalDay small{display:block;font-size:7.5px;color:var(--accent);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.miniCalDay.holiday{background:var(--accentWash);}
+.miniCalDay.holiday b{color:var(--accent);font-weight:700;}
+
+.chipInputRow{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
+.chipList{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--wash);border-radius:999px;padding:4px 6px 4px 12px;font-size:11.5px;color:var(--ink2);}
+.chip button{border:none;background:none;color:var(--faint);width:18px;height:18px;padding:0;border-radius:50%;font-size:11px;line-height:1;}
+.chip button:hover{background:var(--accentWash);color:var(--accent);}
+.subjChecks{margin-bottom:10px;}
+.subjCheck{display:inline-flex;align-items:center;gap:4px;margin:0 14px 8px 0;font-size:12.5px;color:var(--ink);}
+
+.saveBar{display:flex;align-items:center;gap:14px;position:sticky;bottom:0;background:var(--paper);
+  padding:16px 0 4px;border-top:1px solid var(--line);margin-top:4px;}
+#saveMsg{color:var(--ok);font-size:12px;}
+
+@media (max-width:700px){
+  .page{padding:16px 12px 60px;}
+  .card{padding:16px;}
+  .miniCal{width:44%;margin-right:4%;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">帳</span><span class="ttl">初期設定</span></div>
+  <div class="grow"></div>
+  <a class="primary" href="index.html">教務手帳に戻る</a>
+</div>
+
+<div class="page">
+
+  <section class="card">
+    <h2>① 年度</h2>
+    <div class="fld">
+      <label>年度（4月始まり）　<input type="number" id="fiscalYear" style="width:100px;"> 年度</label>
+    </div>
+    <div class="hint">「2026年度」なら 2026 を入力してください（2026年4月〜2027年3月を指します）。</div>
+  </section>
+
+  <section class="card">
+    <h2>② 学期の区切り</h2>
+    <div class="fld">
+      <label><input type="radio" name="termSystem" value="3term"> 1〜3学期制</label>
+      <label><input type="radio" name="termSystem" value="2term"> 前期・後期制</label>
+    </div>
+    <div id="termRows"></div>
+    <div id="termGapInfo"></div>
+  </section>
+
+  <section class="card">
+    <h2>③ 休日設定</h2>
+    <div class="fld">
+      <button id="btnAutoHolidays">日本の祝日を自動入力</button>
+      <span class="hint">年度の期間（4月〜翌3月）の祝日・振替休日・国民の休日を計算して追加します。</span>
+    </div>
+    <div class="hint" style="margin-bottom:12px;">自動計算は通常のルールに基づく概算です。2020・2021年度は五輪特例で日付が変則的だったため、その年度を扱う場合は内容をご確認ください。開校記念日など学校独自の休みはカレンダーから手動で追加してください。</div>
+    <div id="holidayCalendar"></div>
+  </section>
+
+  <section class="card">
+    <h2>④ 担当授業とクラス</h2>
+    <div class="fld">クラス（組）</div>
+    <div class="chipInputRow">
+      <input type="text" id="classInput" placeholder="例：1-1" style="width:140px;">
+      <button id="btnAddClass">＋追加</button>
+    </div>
+    <div id="classChips" class="chipList"></div>
+
+    <div class="fld" style="margin-top:16px;">教科</div>
+    <div id="subjectChecks" class="subjChecks"></div>
+    <div class="chipInputRow">
+      <input type="text" id="subjectInput" placeholder="上記以外の教科を追加" style="width:200px;">
+      <button id="btnAddSubject">＋追加</button>
+    </div>
+    <div id="subjectChips" class="chipList"></div>
+    <div class="hint">ここで指定したクラス・教科は、教務手帳の時間割コマ入力がドロップダウンになります。</div>
+  </section>
+
+  <div class="saveBar">
+    <button class="primary" id="btnSave">この内容で保存する</button>
+    <span id="saveMsg"></span>
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = "kyoumu_techou_v1";
+function escHtml(s){ return (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function escAttr(s){ return escHtml(s).replace(/"/g,"&quot;"); }
+function dateStr(y,m,d){ return y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
+function iso3(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDaysStr(iso,n){ const d=new Date(iso+"T00:00:00"); d.setDate(d.getDate()+n); return iso3(d); }
+function dayDiff(a,b){ return Math.round((new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/86400000); }
+
+function loadDB(){
+  let db=null;
+  try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) db=JSON.parse(raw); }catch(e){}
+  if(!db) db={v:1, teacherName:"", weeks:{}};
+  if(!db.weeks) db.weeks={};
+  if(!db.tasks) db.tasks=[];
+  if(!db.annualHours) db.annualHours={asOfWeek:null, data:{}};
+  return db;
+}
+const DB = loadDB();
+const existingSettings = DB.settings || {};
+
+function inferFiscalYear(){
+  const t=new Date();
+  return (t.getMonth()+1>=4) ? t.getFullYear() : t.getFullYear()-1;
+}
+function getFiscalYear(){
+  return parseInt(document.getElementById("fiscalYear").value,10) || inferFiscalYear();
+}
+
+/* ============================================================
+   日本の祝日の自動計算（元日・成人の日などの固定/移動祝日、
+   振替休日、国民の休日）。あくまで通常ルールに基づく概算。
+   ============================================================ */
+function nthWeekdayOfMonth(year,month,n){ // その月のn番目の月曜日（日付）
+  const d=new Date(year,month-1,1);
+  const dow=d.getDay();
+  const firstMon = 1 + ((8-dow)%7);
+  return firstMon + (n-1)*7;
+}
+function shunbunDay(year){ return Math.floor(20.8431+0.242194*(year-1980)) - Math.floor((year-1980)/4); }
+function shuubunDay(year){ return Math.floor(23.2488+0.242194*(year-1980)) - Math.floor((year-1980)/4); }
+function baseHolidaysOfYear(year){
+  const H=[];
+  H.push({date:dateStr(year,1,1), name:"元日"});
+  H.push({date:dateStr(year,1,nthWeekdayOfMonth(year,1,2)), name:"成人の日"});
+  H.push({date:dateStr(year,2,11), name:"建国記念の日"});
+  if(year>=2020) H.push({date:dateStr(year,2,23), name:"天皇誕生日"});
+  H.push({date:dateStr(year,3,shunbunDay(year)), name:"春分の日"});
+  H.push({date:dateStr(year,4,29), name:"昭和の日"});
+  H.push({date:dateStr(year,5,3), name:"憲法記念日"});
+  H.push({date:dateStr(year,5,4), name:"みどりの日"});
+  H.push({date:dateStr(year,5,5), name:"こどもの日"});
+  H.push({date:dateStr(year,7,nthWeekdayOfMonth(year,7,3)), name:"海の日"});
+  H.push({date:dateStr(year,8,11), name:"山の日"});
+  H.push({date:dateStr(year,9,nthWeekdayOfMonth(year,9,3)), name:"敬老の日"});
+  H.push({date:dateStr(year,9,shuubunDay(year)), name:"秋分の日"});
+  H.push({date:dateStr(year,10,nthWeekdayOfMonth(year,10,2)), name:"スポーツの日"});
+  H.push({date:dateStr(year,11,3), name:"文化の日"});
+  H.push({date:dateStr(year,11,23), name:"勤労感謝の日"});
+  return H;
+}
+function computeNationalHolidaysForYear(year){
+  const base = baseHolidaysOfYear(year);
+  base.sort((a,b)=>a.date<b.date?-1:1);
+  const set = new Set(base.map(h=>h.date));
+  const result = [...base];
+  // 振替休日：祝日が日曜なら、直後の祝日でない日を振替休日にする
+  base.forEach(h=>{
+    if(new Date(h.date+"T00:00:00").getDay()===0){
+      let d = addDaysStr(h.date,1);
+      while(set.has(d)) d = addDaysStr(d,1);
+      result.push({date:d, name:"振替休日"});
+      set.add(d);
+    }
+  });
+  // 国民の休日：前後を祝日に挟まれた祝日でない日
+  let cur = new Date(year,0,1);
+  const end = new Date(year,11,31);
+  const gapAdds=[];
+  while(cur<=end){
+    const iso = iso3(cur);
+    if(!set.has(iso)){
+      if(set.has(addDaysStr(iso,-1)) && set.has(addDaysStr(iso,1))) gapAdds.push({date:iso, name:"国民の休日"});
+    }
+    cur.setDate(cur.getDate()+1);
+  }
+  gapAdds.forEach(g=>{ result.push(g); set.add(g.date); });
+  result.sort((a,b)=>a.date<b.date?-1:1);
+  return result;
+}
+
+/* ============================================================
+   ② 学期の区切り
+   ============================================================ */
+function currentTermNames(){
+  const sys = document.querySelector('input[name="termSystem"]:checked').value;
+  return sys==="3term" ? ["1学期","2学期","3学期"] : ["前期","後期"];
+}
+function renderTermRows(){
+  const names = currentTermNames();
+  const existing = existingSettings.terms || [];
+  const wrap = document.getElementById("termRows");
+  wrap.innerHTML = names.map((name,i)=>{
+    const t = existing[i] || {};
+    return `<div class="termRow">
+      <span class="termName">${escHtml(name)}</span>
+      <label>開始日 <input type="date" class="termStart" data-i="${i}" value="${escAttr(t.start||"")}"></label>
+      <label>終了日 <input type="date" class="termEnd" data-i="${i}" value="${escAttr(t.end||"")}"></label>
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll(".termStart,.termEnd").forEach(inp=>{ inp.onchange=updateTermGapInfo; });
+  updateTermGapInfo();
+}
+function readTermsFromForm(){
+  const names = currentTermNames();
+  return names.map((name,i)=>({
+    name,
+    start: (document.querySelector(`.termStart[data-i="${i}"]`)||{}).value || "",
+    end: (document.querySelector(`.termEnd[data-i="${i}"]`)||{}).value || ""
+  }));
+}
+function updateTermGapInfo(){
+  const terms = readTermsFromForm();
+  const parts=[];
+  for(let i=0;i<terms.length-1;i++){
+    const a=terms[i], b=terms[i+1];
+    if(!a.end || !b.start) continue;
+    if(b.start<=a.end){
+      parts.push(`<div class="warn">⚠ ${escHtml(a.name)}の終了日が${escHtml(b.name)}の開始日と同じか、後になっています。</div>`);
+    } else {
+      const gapStart=addDaysStr(a.end,1), gapEnd=addDaysStr(b.start,-1);
+      const days=dayDiff(gapStart,gapEnd)+1;
+      parts.push(`<div>${escHtml(a.name)}終了（${a.end}）の翌日 〜 ${escHtml(b.name)}開始（${b.start}）の前日：${gapStart}〜${gapEnd}（${days}日間）が学期の間の休みになります。</div>`);
+    }
+  }
+  document.getElementById("termGapInfo").innerHTML = parts.join("");
+}
+document.querySelectorAll('input[name="termSystem"]').forEach(r=>r.onchange=renderTermRows);
+
+/* ============================================================
+   ③ 休日設定
+   ============================================================ */
+let workingHolidays = [...(existingSettings.holidays||[])];
+function renderHolidayCalendar(){
+  const fy = getFiscalYear();
+  const wrap = document.getElementById("holidayCalendar");
+  wrap.innerHTML="";
+  const months=[];
+  for(let m=4;m<=12;m++) months.push({y:fy,m});
+  for(let m=1;m<=3;m++) months.push({y:fy+1,m});
+  months.forEach(({y,m})=> wrap.appendChild(buildMonthCalendar(y,m)));
+}
+function buildMonthCalendar(y,m){
+  const box=document.createElement("div"); box.className="miniCal";
+  const title=document.createElement("div"); title.className="miniCalTitle"; title.textContent=`${y}年${m}月`;
+  box.appendChild(title);
+  const grid=document.createElement("div"); grid.className="miniCalGrid";
+  ["月","火","水","木","金","土","日"].forEach(w=>{
+    const wd=document.createElement("div"); wd.className="miniCalWd"; wd.textContent=w; grid.appendChild(wd);
+  });
+  const first=new Date(y,m-1,1);
+  const firstDow=(first.getDay()+6)%7;
+  for(let i=0;i<firstDow;i++) grid.appendChild(document.createElement("div"));
+  const daysInMonth=new Date(y,m,0).getDate();
+  for(let d=1; d<=daysInMonth; d++){
+    const iso=dateStr(y,m,d);
+    const cell=document.createElement("div"); cell.className="miniCalDay";
+    const h = workingHolidays.find(x=>x.date===iso);
+    if(h) cell.classList.add("holiday");
+    cell.innerHTML = `<b>${d}</b>${h?`<small>${escHtml(h.label)}</small>`:""}`;
+    cell.onclick=()=>toggleHoliday(iso);
+    grid.appendChild(cell);
+  }
+  box.appendChild(grid);
+  return box;
+}
+function toggleHoliday(iso){
+  const idx = workingHolidays.findIndex(x=>x.date===iso);
+  if(idx>=0){
+    if(confirm(`${iso}（${workingHolidays[idx].label}）を休日から外しますか？`)){
+      workingHolidays.splice(idx,1);
+      renderHolidayCalendar();
+    }
+  } else {
+    const label = prompt(`${iso} を休日として追加します。名前を入力してください（例：開校記念日）`, "休業日");
+    if(label===null) return;
+    workingHolidays.push({date:iso, label: label.trim()||"休業日"});
+    renderHolidayCalendar();
+  }
+}
+document.getElementById("btnAutoHolidays").onclick=()=>{
+  const fy=getFiscalYear();
+  const computed=[...computeNationalHolidaysForYear(fy), ...computeNationalHolidaysForYear(fy+1)];
+  const startIso=dateStr(fy,4,1), endIso=dateStr(fy+1,3,31);
+  let added=0;
+  computed.filter(h=>h.date>=startIso && h.date<=endIso).forEach(h=>{
+    if(!workingHolidays.some(x=>x.date===h.date)){ workingHolidays.push({date:h.date,label:h.name}); added++; }
+  });
+  renderHolidayCalendar();
+  alert(`${added}件の祝日を追加しました。内容を確認し、必要に応じて調整してください。`);
+};
+document.getElementById("fiscalYear").addEventListener("change", renderHolidayCalendar);
+
+/* ============================================================
+   ④ 担当授業とクラス
+   ============================================================ */
+const PRESET_SUBJECTS = ["国語","社会","数学","理科","音楽","美術","保体","技術","家庭","英語","道徳","総合","学活","自立","作業","生単"];
+let workingClasses = [...(existingSettings.classes||[])];
+let workingSubjects = [...(existingSettings.subjects||[])];
+
+function renderClassChips(){
+  const wrap=document.getElementById("classChips");
+  wrap.innerHTML = workingClasses.map((c,i)=>`<span class="chip">${escHtml(c)}<button data-i="${i}" class="chipDel" title="削除">×</button></span>`).join("");
+  wrap.querySelectorAll(".chipDel").forEach(b=>b.onclick=()=>{ workingClasses.splice(+b.dataset.i,1); renderClassChips(); });
+}
+function addClass(){
+  const inp=document.getElementById("classInput");
+  const v=inp.value.trim();
+  if(!v) return;
+  if(!workingClasses.includes(v)) workingClasses.push(v);
+  inp.value="";
+  renderClassChips();
+}
+document.getElementById("btnAddClass").onclick=addClass;
+document.getElementById("classInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); addClass(); } });
+
+function renderSubjectChecks(){
+  const wrap=document.getElementById("subjectChecks");
+  wrap.innerHTML = PRESET_SUBJECTS.map(s=>`<label class="subjCheck"><input type="checkbox" value="${escAttr(s)}" ${workingSubjects.includes(s)?"checked":""}> ${escHtml(s)}</label>`).join("");
+  wrap.querySelectorAll("input").forEach(cb=>{
+    cb.onchange=()=>{
+      if(cb.checked){ if(!workingSubjects.includes(cb.value)) workingSubjects.push(cb.value); }
+      else { workingSubjects = workingSubjects.filter(s=>s!==cb.value); }
+    };
+  });
+}
+function renderSubjectChips(){
+  const customs = workingSubjects.filter(s=>!PRESET_SUBJECTS.includes(s));
+  const wrap=document.getElementById("subjectChips");
+  wrap.innerHTML = customs.map(s=>`<span class="chip">${escHtml(s)}<button data-s="${escAttr(s)}" class="chipDel" title="削除">×</button></span>`).join("");
+  wrap.querySelectorAll(".chipDel").forEach(b=>b.onclick=()=>{ workingSubjects = workingSubjects.filter(s=>s!==b.dataset.s); renderSubjectChips(); });
+}
+function addSubject(){
+  const inp=document.getElementById("subjectInput");
+  const v=inp.value.trim();
+  if(!v) return;
+  if(!workingSubjects.includes(v)) workingSubjects.push(v);
+  inp.value="";
+  renderSubjectChips();
+}
+document.getElementById("btnAddSubject").onclick=addSubject;
+document.getElementById("subjectInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); addSubject(); } });
+
+/* ============================================================
+   保存
+   ============================================================ */
+document.getElementById("btnSave").onclick=()=>{
+  const fiscalYear = parseInt(document.getElementById("fiscalYear").value,10);
+  if(!fiscalYear){ alert("年度を入力してください。"); return; }
+  const termSystem = document.querySelector('input[name="termSystem"]:checked').value;
+  const terms = readTermsFromForm();
+  for(const t of terms){
+    if(!t.start || !t.end){ alert(`${t.name}の開始日・終了日を入力してください。`); return; }
+  }
+  DB.settings = {
+    fiscalYear, termSystem, terms,
+    holidays: workingHolidays.slice().sort((a,b)=>a.date<b.date?-1:1),
+    classes: workingClasses.slice(),
+    subjects: workingSubjects.slice()
+  };
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+    document.getElementById("saveMsg").textContent="保存しました。「教務手帳に戻る」から確認してください。";
+  }catch(e){
+    alert("保存に失敗しました：\n"+(e.message||e));
+  }
+};
+
+/* ============================================================
+   初期化
+   ============================================================ */
+(function init(){
+  document.getElementById("fiscalYear").value = existingSettings.fiscalYear || inferFiscalYear();
+  const sys = existingSettings.termSystem || "3term";
+  document.querySelector(`input[name="termSystem"][value="${sys}"]`).checked = true;
+  renderTermRows();
+  renderHolidayCalendar();
+  renderClassChips();
+  renderSubjectChecks();
+  renderSubjectChips();
+})();
+</script>
+</body>
+</html>

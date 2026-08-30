@@ -68,8 +68,9 @@ textarea{resize:vertical;line-height:1.6;}
 .menu{display:none;position:absolute;top:38px;right:0;min-width:190px;background:var(--panel);
   border:1px solid var(--line);border-radius:11px;box-shadow:0 16px 34px -18px rgba(48,40,28,.5);padding:6px;z-index:40;}
 .menu.open{display:flex;flex-direction:column;gap:2px;}
-.menu button{border:none;background:transparent;text-align:left;height:36px;padding:0 10px;border-radius:8px;width:100%;}
-.menu button:hover{background:var(--wash);}
+.menu button,.menu a{border:none;background:transparent;text-align:left;height:36px;padding:0 10px;border-radius:8px;width:100%;
+  display:flex;align-items:center;box-sizing:border-box;color:#57503f;text-decoration:none;font-size:12.5px;}
+.menu button:hover,.menu a:hover{background:var(--wash);}
 .syncDot{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ok);flex:none;}
 .syncDot i{width:6px;height:6px;border-radius:50%;background:currentColor;}
 
@@ -120,14 +121,15 @@ textarea{resize:vertical;line-height:1.6;}
 .cell.off{background:transparent;}
 .cell.off:hover{background:var(--paper);}
 .badge{display:flex;align-items:center;gap:6px;min-height:22px;}
-.badge input{background:transparent;border:none;border-radius:5px;padding:2px 4px;min-width:0;width:auto;}
-.badge input.clsInput{flex:0 0 30%;font-size:10px;font-weight:700;text-align:center;
+.badge input,.badge select{background:transparent;border:none;border-radius:5px;padding:2px 4px;min-width:0;width:auto;
+  appearance:none;-webkit-appearance:none;font-family:inherit;}
+.badge .clsInput{flex:0 0 30%;font-size:10px;font-weight:700;text-align:center;
   background:var(--panel);color:#6b5b3a;letter-spacing:.03em;}
-.badge input.subjInput{flex:1;font-size:13px;font-weight:700;letter-spacing:.02em;}
+.badge .subjInput{flex:1;font-size:13px;font-weight:700;letter-spacing:.02em;}
 .badge input::placeholder{color:var(--ghost);font-weight:400;}
-.badge input:hover{background:rgba(255,255,255,.6);}
-.badge input:focus{background:#fff;box-shadow:0 0 0 1.5px var(--accentLine);}
-.cell.off .badge input.clsInput{background:transparent;}
+.badge input:hover,.badge select:hover{background:rgba(255,255,255,.6);}
+.badge input:focus,.badge select:focus{background:#fff;box-shadow:0 0 0 1.5px var(--accentLine);}
+.cell.off .badge .clsInput{background:transparent;}
 .taskChip{font-size:9.5px;font-weight:700;background:var(--taskWash);color:var(--task);
   border-radius:5px;padding:3px 6px;line-height:1.4;align-self:flex-start;}
 .taskChip.done{background:#e9f0e6;color:#5f7a5f;text-decoration:line-through;}
@@ -274,8 +276,8 @@ textarea{resize:vertical;line-height:1.6;}
   .grid.dayFocus{min-width:0;grid-template-columns:38px 1fr!important;}
   .grid.dayFocus .hideCol{display:none;}
   .grid.dayFocus .cell{min-height:132px;padding:11px 13px;}
-  .grid.dayFocus .badge input.subjInput{font-size:15px;}
-  .grid.dayFocus .badge input.clsInput{flex:0 0 56px;font-size:11px;}
+  .grid.dayFocus .badge .subjInput{font-size:15px;}
+  .grid.dayFocus .badge .clsInput{flex:0 0 56px;font-size:11px;}
   .grid.dayFocus .cell textarea{font-size:13px;min-height:62px;}
   .grid.dayFocus .dayhead{padding:11px 13px;}
   .grid.dayFocus .dayfoot textarea{font-size:12px;}
@@ -284,7 +286,7 @@ textarea{resize:vertical;line-height:1.6;}
   .modal h2{font-size:16px;}
   .previewTable,.progTable,.taskTable{font-size:11px;}
   .menu{right:-4px;min-width:210px;}
-  .menu button{height:44px;}
+  .menu button,.menu a{height:44px;}
 }
 
 @media print{
@@ -321,6 +323,7 @@ textarea{resize:vertical;line-height:1.6;}
     <div class="menuWrap">
       <button id="btnMore" class="icon" title="その他">⋯</button>
       <div class="menu" id="moreMenu">
+        <a id="btnSetup" href="setup.html">⚙ 初期設定</a>
         <button id="btnExport">バックアップ書き出し</button>
         <button id="btnImportJson">バックアップ読み込み</button>
       </div>
@@ -448,6 +451,10 @@ textarea{resize:vertical;line-height:1.6;}
   <div class="modal" style="max-width:480px;">
     <h2>🗓 年間予定を準備</h2>
     <div class="hint" style="margin-bottom:10px;">PDFを読み込む前に、この期間の週ページを空の状態で用意します。まだ授業が決まっていない週にも先に小テストの予定などを入れられるようになります。あとでPDFを読み込むと、既に用意した週にコマの内容だけが自動で書き込まれます（入力済みのメモは残ります）。</div>
+    <div class="modalRow" id="calFromSettingsRow" style="display:none;flex-direction:column;align-items:stretch;gap:6px;background:var(--wash);padding:10px;border-radius:8px;">
+      <button id="calFromSettings">⚙ 初期設定の学期に沿って自動作成</button>
+      <span class="hint">下の時限数・曜日の設定を使い、初期設定で登録した学期ごとに一括で週を作成します。学期の間の休みは自動的に除外され、登録済みの休日はその日のメモ欄に反映されます。</span>
+    </div>
     <div class="modalRow" style="flex-direction:column;align-items:stretch;gap:8px;">
       <label class="fld">開始日（月曜が目安）<br><input type="date" id="calStart" style="width:100%;"></label>
       <label class="fld">終了日<br><input type="date" id="calEnd" style="width:100%;"></label>
@@ -722,17 +729,42 @@ function normalizeAnnualHours(a){
   }
   return { asOfWeek: isIsoDateStr(a.asOfWeek) ? a.asOfWeek : null, data };
 }
+// setup.htmlで作成される初期設定（年度・学期・休日・クラス/教科）
+function normalizeTerm(t){
+  if(!t || typeof t!=="object") t={};
+  return { name: sanitizeStr(t.name,20), start: isIsoDateStr(t.start)?t.start:"", end: isIsoDateStr(t.end)?t.end:"" };
+}
+function normalizeHoliday(h){
+  if(!h || typeof h!=="object") h={};
+  return { date: isIsoDateStr(h.date)?h.date:"", label: sanitizeStr(h.label,40) };
+}
+function normalizeSettings(raw){
+  if(!raw || typeof raw!=="object") return null;
+  const fiscalYear = Number.isInteger(raw.fiscalYear) ? raw.fiscalYear : parseInt(raw.fiscalYear,10);
+  if(!fiscalYear) return null;
+  return {
+    fiscalYear,
+    termSystem: raw.termSystem==="2term" ? "2term" : "3term",
+    terms: Array.isArray(raw.terms) ? raw.terms.slice(0,6).map(normalizeTerm) : [],
+    holidays: Array.isArray(raw.holidays) ? raw.holidays.slice(0,500).map(normalizeHoliday).filter(h=>h.date) : [],
+    classes: Array.isArray(raw.classes) ? [...new Set(raw.classes.slice(0,200).map(c=>sanitizeStr(c,40)).filter(Boolean))] : [],
+    subjects: Array.isArray(raw.subjects) ? [...new Set(raw.subjects.slice(0,100).map(s=>sanitizeStr(s,40)).filter(Boolean))] : []
+  };
+}
 function normalizeDB(raw){
   if(!raw || typeof raw!=="object" || !raw.weeks || typeof raw.weeks!=="object") throw new Error("形式が違います");
   const weeks={};
   Object.keys(raw.weeks).filter(isIsoDateStr).slice(0,2000).forEach(k=>{ weeks[k]=normalizeWeek(raw.weeks[k]); });
-  return {
+  const db = {
     v:1,
     teacherName: sanitizeStr(raw.teacherName,100),
     weeks,
     tasks: Array.isArray(raw.tasks) ? raw.tasks.slice(0,5000).map(normalizeTask) : [],
     annualHours: normalizeAnnualHours(raw.annualHours)
   };
+  const settings = normalizeSettings(raw.settings);
+  if(settings) db.settings = settings;
+  return db;
 }
 
 /* ============================================================
@@ -1308,7 +1340,8 @@ function collectTaughtCombos(teacherName){
 
 // 年間予定を先に準備する：指定期間の各週について、まだ存在しない週だけ「空の週」を作る
 // （既にPDFを読み込んだ週や、既に準備済みの週には手を触れない）
-function prepareCalendar(startIso, endIso, weekdayOffsets, periodsCount){
+function prepareCalendar(startIso, endIso, weekdayOffsets, periodsCount, holidaysByDate){
+  holidaysByDate = holidaysByDate || {};
   let created=0;
   let cur = mondayOf(new Date(startIso+"T00:00:00"));
   const end = new Date(endIso+"T00:00:00");
@@ -1319,7 +1352,7 @@ function prepareCalendar(startIso, endIso, weekdayOffsets, periodsCount){
         const date = addDays(wkKey, off);
         if(date<startIso || new Date(date+"T00:00:00")>end) return null;
         return {
-          date, weekday: weekdayOf(date), events:"", dayNote:"",
+          date, weekday: weekdayOf(date), events: holidaysByDate[date]||"", dayNote:"",
           periods: Array.from({length:periodsCount}, (_,i)=>({n:i+1, cls:"", subject:"", note:""}))
         };
       }).filter(Boolean);
@@ -1389,6 +1422,24 @@ function subjectClass(s){
   return SUBJECT_CLASS_NAMES.has(base) ? "s-"+base : "";
 }
 
+// 初期設定（setup.html）でクラス・教科が登録されていれば、コマ入力を自由入力からドロップダウンにする
+function hasClassSettings(){ return !!(DB.settings && Array.isArray(DB.settings.classes) && DB.settings.classes.length); }
+function hasSubjectSettings(){ return !!(DB.settings && Array.isArray(DB.settings.subjects) && DB.settings.subjects.length); }
+function classOptionsHtml(current){
+  const list = (DB.settings && DB.settings.classes) || [];
+  const opts = ['<option value="">（空き）</option>'];
+  list.forEach(c=> opts.push(`<option value="${escAttr(c)}" ${c===current?"selected":""}>${escHtml(c)}</option>`));
+  if(current && !list.includes(current)) opts.push(`<option value="${escAttr(current)}" selected>${escHtml(current)}</option>`);
+  return opts.join("");
+}
+function subjectOptionsHtml(current){
+  const list = (DB.settings && DB.settings.subjects) || [];
+  const opts = ['<option value="">（空きコマ）</option>'];
+  list.forEach(s=> opts.push(`<option value="${escAttr(s)}" ${s===current?"selected":""}>${escHtml(s)}</option>`));
+  if(current && !list.includes(current)) opts.push(`<option value="${escAttr(current)}" selected>${escHtml(current)}</option>`);
+  return opts.join("");
+}
+
 function renderWeek(){
   const main=document.getElementById("mainArea");
   const wkLabel=document.getElementById("wkLabel");
@@ -1445,10 +1496,16 @@ function renderWeek(){
       const hasContent = cell.cls || cell.subject;
       const badgeCls = hasContent? subjectClass(cell.subject) : "";
       const chips = dayTaskInfo[di].perPeriod[p]||[];
+      const clsField = hasClassSettings()
+        ? `<select class="clsInput" data-day="${di}" data-p="${p}" data-f="cls">${classOptionsHtml(cell.cls)}</select>`
+        : `<input class="clsInput" data-day="${di}" data-p="${p}" data-f="cls" value="${escAttr(cell.cls)}" placeholder="組" size="1">`;
+      const subjField = hasSubjectSettings()
+        ? `<select class="subjInput" data-day="${di}" data-p="${p}" data-f="subject">${subjectOptionsHtml(cell.subject)}</select>`
+        : `<input class="subjInput" data-day="${di}" data-p="${p}" data-f="subject" value="${escAttr(cell.subject)}" placeholder="教科（空きコマ）" size="1">`;
       h += `<div class="cell ${hasContent?badgeCls:"off"}">
         <div class="badge ${badgeCls}">
-          <input class="clsInput" data-day="${di}" data-p="${p}" data-f="cls" value="${escAttr(cell.cls)}" placeholder="組" size="1">
-          <input class="subjInput" data-day="${di}" data-p="${p}" data-f="subject" value="${escAttr(cell.subject)}" placeholder="教科（空きコマ）" size="1">
+          ${clsField}
+          ${subjField}
         </div>
         ${chips.map(t=>`<div class="taskChip ${t.status==="実施済み"?"done":""}" title="${escAttr(t.type)}：${escAttr(t.title)}">📝 ${escHtml(t.title)}</div>`).join("")}
         <textarea data-day="${di}" data-p="${p}" placeholder="授業内容・進捗・メモ">${escHtml(cell.note||"")}</textarea>
@@ -1470,7 +1527,7 @@ function renderWeek(){
     };
   });
   main.querySelectorAll(".clsInput,.subjInput").forEach(inp=>{
-    inp.oninput=()=>{
+    const handleCellFieldChange=()=>{
       const di=+inp.dataset.day, p=+inp.dataset.p, f=inp.dataset.f;
       const cell = DB.weeks[curWeek].days[di].periods[p];
       cell[f]=inp.value;
@@ -1481,6 +1538,8 @@ function renderWeek(){
       badge.className = "badge" + (hasContent? " "+subjectClass(cell.subject) : "");
       cellEl.classList.toggle("off", !hasContent);
     };
+    inp.addEventListener("input", handleCellFieldChange);
+    inp.addEventListener("change", handleCellFieldChange);
   });
   main.querySelectorAll("textarea[data-daynote]").forEach(ta=>{
     ta.oninput=()=>{
@@ -1765,7 +1824,11 @@ async function fetchSubmissionStatus(courseId, courseWorkId){
 /* ============================================================
    年間予定の準備（空の週を先に用意）
    ============================================================ */
-document.getElementById("btnCalendar").onclick=()=>{ document.getElementById("calendarModal").style.display="flex"; };
+document.getElementById("btnCalendar").onclick=()=>{
+  document.getElementById("calFromSettingsRow").style.display =
+    (DB.settings && DB.settings.terms && DB.settings.terms.length) ? "flex" : "none";
+  document.getElementById("calendarModal").style.display="flex";
+};
 document.getElementById("calendarCancel").onclick=()=>{ document.getElementById("calendarModal").style.display="none"; };
 document.getElementById("calendarApply").onclick=()=>{
   const start=document.getElementById("calStart").value;
@@ -1780,6 +1843,22 @@ document.getElementById("calendarApply").onclick=()=>{
   if(!curWeek) curWeek = Object.keys(DB.weeks).sort()[0]||null;
   renderWeekList(); renderWeek();
   alert(`${created}週分の空の週ページを用意しました。`);
+};
+document.getElementById("calFromSettings").onclick=()=>{
+  const terms = (DB.settings && DB.settings.terms) || [];
+  const periods=Math.max(1, parseInt(document.getElementById("calPeriods").value,10)||6);
+  const offsets=[...document.querySelectorAll(".calWd:checked")].map(cb=>+cb.value);
+  if(!offsets.length){ alert("対象の曜日を1つ以上選んでください。"); return; }
+  const validTerms = terms.filter(t=>t.start && t.end);
+  if(!validTerms.length){ alert("初期設定で学期の開始日・終了日が登録されていません。"); return; }
+  const holidaysByDate = {};
+  ((DB.settings && DB.settings.holidays) || []).forEach(h=>{ holidaysByDate[h.date]=h.label; });
+  let created=0;
+  validTerms.forEach(t=>{ created += prepareCalendar(t.start, t.end, offsets, periods, holidaysByDate); });
+  document.getElementById("calendarModal").style.display="none";
+  if(!curWeek) curWeek = Object.keys(DB.weeks).sort()[0]||null;
+  renderWeekList(); renderWeek();
+  alert(`${created}週分の空の週ページを用意しました（${validTerms.length}学期分）。`);
 };
 
 document.getElementById("btnBulkDelete").onclick=()=>{ document.getElementById("bulkDeleteModal").style.display="flex"; };
@@ -1877,7 +1956,7 @@ function escAttr(s){ return escHtml(s).replace(/"/g,"&quot;"); }
   const menu = document.getElementById("moreMenu");
   document.getElementById("btnMore").onclick = (e)=>{ e.stopPropagation(); menu.classList.toggle("open"); };
   document.addEventListener("click", (e)=>{ if(!e.target.closest(".menuWrap")) menu.classList.remove("open"); });
-  menu.querySelectorAll("button").forEach(b=>b.addEventListener("click", ()=>menu.classList.remove("open")));
+  menu.querySelectorAll("button,a").forEach(b=>b.addEventListener("click", ()=>menu.classList.remove("open")));
 
   const MK = "kyoumu_ui_mobile_v1";
   let mode = "day", focusDay = 0;
