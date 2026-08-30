@@ -71,6 +71,9 @@ textarea{resize:vertical;line-height:1.6;}
 .menu button,.menu a{border:none;background:transparent;text-align:left;height:36px;padding:0 10px;border-radius:8px;width:100%;
   display:flex;align-items:center;box-sizing:border-box;color:#57503f;text-decoration:none;font-size:12.5px;}
 .menu button:hover,.menu a:hover{background:var(--wash);}
+.menu button.danger{color:var(--accent);}
+.menu button.danger:hover{background:var(--accentWash);}
+.menuDiv{height:1px;background:var(--line2);margin:4px 2px;}
 .syncDot{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ok);flex:none;}
 .syncDot i{width:6px;height:6px;border-radius:50%;background:currentColor;}
 
@@ -332,6 +335,8 @@ textarea{resize:vertical;line-height:1.6;}
         <a id="btnSetup" href="setup.html">⚙ 初期設定</a>
         <button id="btnExport">バックアップ書き出し</button>
         <button id="btnImportJson">バックアップ読み込み</button>
+        <div class="menuDiv"></div>
+        <button id="btnFactoryReset" class="danger">🗑 全データを消去（テスト用）</button>
       </div>
     </div>
   </div>
@@ -659,6 +664,7 @@ window.fbSync = {
    状態・保存
    ============================================================ */
 const STORAGE_KEY = "kyoumu_techou_v1";
+const RESET_PASSWORD = "techou-reset"; // 「全データを消去」の誤操作防止用パスワード。変更したい場合はここを書き換える
 let DB = loadDB();
 let curWeek = null; // ISO monday date string of the week currently shown
 
@@ -1608,6 +1614,26 @@ document.getElementById("jsonFile").onchange=async(e)=>{
     curWeek = Object.keys(DB.weeks).sort()[0] || null;
     renderWeekList(); renderWeek();
   }catch(err){ alert("読み込みに失敗しました：\n"+(err.message||err)); }
+};
+
+document.getElementById("btnFactoryReset").onclick=async()=>{
+  const pw = prompt("全データを消去します（この端末のデータ、ログイン中の場合はクラウド側のデータも含みます）。\n続行するにはパスワードを入力してください。");
+  if(pw===null) return;
+  if(pw!==RESET_PASSWORD){ alert("パスワードが違います。"); return; }
+  if(!confirm("本当にすべてのデータ（週の時間割・タスク・初期設定）を消去しますか？\nこの操作は取り消せません。")) return;
+  DB = {v:1, teacherName:"", weeks:{}, tasks:[], annualHours:{asOfWeek:null, data:{}}};
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
+  curWeek = null;
+  if(currentUser && window.fbSync && window.fbSync.configured){
+    try{
+      lastKnownRemoteUpdatedAt = await window.fbSync.push(currentUser.uid, DB, null);
+    }catch(err){
+      console.error(err);
+      alert("この端末のデータは消去しましたが、クラウド側の消去に失敗しました：\n"+(err.message||err));
+    }
+  }
+  renderWeekList(); renderWeek();
+  alert("すべてのデータを消去しました。");
 };
 
 /* ============================================================
