@@ -168,6 +168,12 @@ textarea{resize:vertical;line-height:1.6;}
 .cell.s-作業{background:#eee9f0;box-shadow:inset 3px 0 0 #a596ab;}
 .cell.s-生単{background:#f2ecdd;box-shadow:inset 3px 0 0 #b8a882;}
 
+/* ---------- 休日（初期設定で登録した日） ---------- */
+.dayhead.holidayDay{background:var(--accentWash);}
+.dayhead.holidayDay .dt,.dayhead.holidayDay .wd{color:#8d3f28;}
+.cell.holidayDay{background:var(--accentWash)!important;box-shadow:inset 3px 0 0 var(--accent)!important;}
+.cell.holidayDay.off:hover{background:#f8e6df!important;}
+
 /* ---------- modal ---------- */
 .overlay{position:fixed;inset:0;background:rgba(40,32,24,.42);display:flex;align-items:center;
   justify-content:center;z-index:100;padding:24px;backdrop-filter:blur(2px);}
@@ -1477,14 +1483,19 @@ function renderWeek(){
     return {perPeriod, unmatched};
   });
 
+  // 初期設定で登録した休日を、その日付だけで判定する（eventsの手入力内容とは独立に色分けできるように）
+  const holidaysByDate = {};
+  ((DB.settings && DB.settings.holidays) || []).forEach(hd=>{ holidaysByDate[hd.date]=hd.label; });
+
   const maxP = Math.max(1, ...w.days.map(d=>d.periods.length));
   let h = `<div class="grid" style="grid-template-columns:44px repeat(${w.days.length},1fr);">`;
   h += `<div class="corner">時限</div>`;
   w.days.forEach((d,di)=>{
     const unmatched = dayTaskInfo[di].unmatched;
-    h += `<div class="dayhead">
+    const holidayLabel = holidaysByDate[d.date];
+    h += `<div class="dayhead ${holidayLabel?"holidayDay":""}">
       <span class="dt">${escHtml(d.date||"")}</span><span class="wd">${escHtml(d.weekday||"")}</span>
-      <div class="ev">${escHtml(d.events||"")}</div>
+      <div class="ev">${escHtml(d.events || holidayLabel || "")}</div>
       ${unmatched.length? `<div class="dayTaskBanner">${unmatched.map(t=>`📝 ${escHtml(t.title)}`).join("<br>")}</div>` : ""}
     </div>`;
   });
@@ -1492,7 +1503,8 @@ function renderWeek(){
     h += `<div class="periodhead">${p+1}</div>`;
     w.days.forEach((d,di)=>{
       const cell = d.periods[p];
-      if(!cell){ h+=`<div class="cell off"></div>`; return; }
+      const holidayCls = holidaysByDate[d.date] ? " holidayDay" : "";
+      if(!cell){ h+=`<div class="cell off${holidayCls}"></div>`; return; }
       const hasContent = cell.cls || cell.subject;
       const badgeCls = hasContent? subjectClass(cell.subject) : "";
       const chips = dayTaskInfo[di].perPeriod[p]||[];
@@ -1502,7 +1514,7 @@ function renderWeek(){
       const subjField = hasSubjectSettings()
         ? `<select class="subjInput" data-day="${di}" data-p="${p}" data-f="subject">${subjectOptionsHtml(cell.subject)}</select>`
         : `<input class="subjInput" data-day="${di}" data-p="${p}" data-f="subject" value="${escAttr(cell.subject)}" placeholder="教科（空きコマ）" size="1">`;
-      h += `<div class="cell ${hasContent?badgeCls:"off"}">
+      h += `<div class="cell ${hasContent?badgeCls:"off"}${holidayCls}">
         <div class="badge ${badgeCls}">
           ${clsField}
           ${subjField}
