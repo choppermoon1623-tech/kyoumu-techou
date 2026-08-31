@@ -225,12 +225,66 @@ textarea{resize:vertical;line-height:1.6;}
 .taskRow.done td{color:var(--ghost);text-decoration:line-through;}
 .taskDel{color:var(--accent);cursor:pointer;background:none;border:none;font-size:13px;height:auto;padding:0;}
 .taskDel:hover{background:none;}
+.taskGrade{height:26px;padding:0 8px;font-size:11px;margin-right:8px;}
+.taskGrade.on{border-color:#c9b98e;background:#f6efdd;color:#6b5a2e;}
 
 .searchHit{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;background:#fff;}
 .searchHit:hover{border-color:#cfc5b1;background:var(--wash2);}
 .searchHit .meta{font-size:10.5px;color:var(--faint);margin-bottom:4px;}
 .searchHit .txt{font-size:12.5px;line-height:1.7;color:var(--ink2);}
 .searchHit mark{background:#f6e3bd;padding:0 2px;border-radius:3px;}
+
+/* ---------- 成績 ---------- */
+.gTabs{display:flex;gap:4px;border-bottom:1px solid var(--line2);margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.gTab{height:34px;padding:0 14px;border:1px solid transparent;border-bottom:none;background:transparent;
+  border-radius:8px 8px 0 0;color:var(--sub);font-size:12.5px;}
+.gTab:hover{background:var(--wash);}
+.gTab.on{background:var(--panel);border-color:var(--line);color:var(--ink);font-weight:600;box-shadow:0 1px 0 var(--panel);}
+.gPane{display:none;} .gPane.on{display:block;}
+.gLocalNote{background:var(--wash);border:1px solid var(--line);border-radius:10px;
+  padding:9px 12px;font-size:11px;color:var(--sub);line-height:1.7;margin-bottom:14px;}
+.gLocalNote b{color:var(--ink2);}
+.gRosterGrid{display:grid;grid-template-columns:1fr 220px;gap:18px;align-items:start;}
+.gRosterGrid textarea{width:100%;min-height:320px;font-size:12.5px;line-height:1.9;font-family:var(--sans);white-space:pre;}
+.gRosterList{border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:12px;max-height:360px;overflow-y:auto;background:#fff;}
+.gRosterList div{display:flex;gap:8px;padding:5px 10px;border-bottom:1px solid var(--line2);}
+.gRosterList div:last-child{border-bottom:none;}
+.gRosterList .n{color:var(--faint);width:26px;text-align:right;flex:none;}
+.gRosterList .empty{color:var(--faint);justify-content:center;}
+.gCount{font-size:11px;color:var(--sub);margin-top:6px;}
+.gAssessForm{background:var(--wash);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:12px;}
+.gAssessForm .modalRow{margin-bottom:0;}
+.gAssessForm label.small{display:flex;align-items:center;gap:4px;}
+.gScoreStats{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);
+  background:var(--wash);border:1px solid var(--line);border-radius:9px;padding:8px 12px;margin-bottom:10px;}
+.gScoreStats b{color:var(--ink);font-weight:700;}
+.gScoreList{border:1px solid var(--line);border-radius:10px;overflow:hidden;max-height:52vh;overflow-y:auto;background:#fff;}
+.gScoreRow{display:flex;align-items:center;gap:10px;padding:4px 12px;border-bottom:1px solid var(--line2);}
+.gScoreRow:last-child{border-bottom:none;}
+.gScoreRow .n{width:28px;text-align:right;color:var(--faint);font-size:12px;flex:none;}
+.gScoreRow .nm{flex:1;font-size:12.5px;}
+.gScoreRow input{width:88px;text-align:center;flex:none;}
+.gMxTable{border-collapse:separate;border-spacing:0;font-size:11.5px;border:1px solid var(--line);
+  border-radius:10px;overflow:hidden;white-space:nowrap;}
+.gMxTable th,.gMxTable td{border-bottom:1px solid var(--line2);border-right:1px solid var(--line2);padding:5px 8px;text-align:center;}
+.gMxTable th{background:var(--wash);color:#7b7365;font-weight:500;font-size:10.5px;}
+.gMxTable td.nm{text-align:left;}
+.gMxTable td.num{font-variant-numeric:tabular-nums;}
+.gMxTable tr.foot td{background:var(--wash2);font-weight:600;color:var(--ink2);}
+.gMxTable .colTotal{background:var(--accentWash);}
+.gHist{display:flex;flex-direction:column;gap:4px;margin-top:8px;max-width:440px;}
+.gHistRow{display:flex;align-items:center;gap:8px;font-size:11px;}
+.gHistRow .lbl{width:66px;text-align:right;color:var(--sub);flex:none;font-variant-numeric:tabular-nums;}
+.gHistRow .bar{height:14px;background:#b39a6b;border-radius:3px;min-width:2px;flex:none;}
+.gHistRow .cnt{color:var(--ink2);}
+.gcTable{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.gcTable th,.gcTable td{border-bottom:1px solid var(--line2);border-right:1px solid var(--line2);padding:6px 9px;text-align:left;}
+.gcTable th{background:var(--wash);font-size:10.5px;color:#7b7365;font-weight:500;}
+.gcTable td.g{text-align:center;font-variant-numeric:tabular-nums;}
+.gcTable tr.unmatched td{background:var(--accentWash);}
+.gcTable select{font-size:11.5px;padding:3px 6px;max-width:190px;}
+.gcSummary{font-size:11.5px;color:var(--ink2);margin:10px 0;}
+@media (max-width:760px){ .gRosterGrid{grid-template-columns:1fr;} .gRosterGrid textarea{min-height:220px;} }
 
 @media (max-width:1180px){
   .topbar{gap:8px;padding:0 12px;}
@@ -335,6 +389,7 @@ textarea{resize:vertical;line-height:1.6;}
   <div class="searchWrap"><span class="mag">⌕</span><input id="searchBox" type="text" placeholder="メモを検索"></div>
   <div class="tbicons">
     <button id="btnTasks" class="icon" title="小テスト・提出物">✓</button>
+    <button id="btnGrades" class="icon" title="成績（この端末のみ）">成</button>
     <button id="btnProgress" class="icon" title="集計・進捗">▦</button>
     <button id="btnPrint" class="icon" title="印刷">⎙</button>
     <div class="menuWrap">
@@ -344,12 +399,16 @@ textarea{resize:vertical;line-height:1.6;}
         <button id="btnExport">バックアップ書き出し</button>
         <button id="btnImportJson">バックアップ読み込み</button>
         <div class="menuDiv"></div>
+        <button id="btnGradesExport">成績バックアップ書き出し</button>
+        <button id="btnGradesImport">成績バックアップ読み込み</button>
+        <div class="menuDiv"></div>
         <button id="btnFactoryReset" class="danger">🗑 全データを消去（テスト用）</button>
       </div>
     </div>
   </div>
   <input type="file" id="pdfFile" accept="application/pdf" hidden>
   <input type="file" id="jsonFile" accept="application/json" hidden>
+  <input type="file" id="gradesFile" accept="application/json" hidden>
   <button class="primary" id="btnImport">時間割PDFを読み込む</button>
   <div class="syncDot" id="syncDot" style="display:none;"><i></i><span>同期済み</span></div>
 </div>
@@ -511,6 +570,134 @@ textarea{resize:vertical;line-height:1.6;}
     <div class="modalActions">
       <button id="bulkDeleteCancel">キャンセル</button>
       <button class="primary" id="bulkDeleteApply">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 成績モーダル -->
+<div class="overlay" id="gradesModal" style="display:none;">
+  <div class="modal">
+    <h2>📋 成績</h2>
+    <div class="gLocalNote">
+      <b>この端末にのみ保存されます。</b> 生徒の氏名・成績はクラウド同期の対象外で、別の端末には引き継がれません。
+      持ち出し・引き継ぎは「その他(⋯)」メニューの <b>成績バックアップ</b> から行えます（氏名を含むファイルの取り扱いに注意）。
+    </div>
+    <div class="gTabs">
+      <button class="gTab on" data-gpane="roster">名簿</button>
+      <button class="gTab" data-gpane="scores">得点入力</button>
+      <button class="gTab" data-gpane="matrix">一覧表</button>
+      <button class="gTab" data-gpane="indiv">個人</button>
+    </div>
+    <datalist id="gSubjectList"></datalist>
+
+    <div class="gPane on" id="gPane-roster">
+      <div class="modalRow">
+        <span class="small">クラス</span>
+        <select id="gRosterClass"></select>
+        <input type="text" id="gRosterNewClass" placeholder="クラスを追加（例：1年A組）" style="width:190px;">
+        <button id="gRosterAddClass">追加</button>
+      </div>
+      <div class="gRosterGrid">
+        <div>
+          <div class="hint" style="margin-bottom:6px;">1行に1人。「番号〔タブ / スペース〕氏名」の形式で、番号を省くと上から順に振ります。Excelの列をそのまま貼り付けできます。</div>
+          <textarea id="gRosterText" spellcheck="false" placeholder="1&#9;山田 太郎&#10;2&#9;鈴木 花子&#10;3&#9;佐藤 次郎"></textarea>
+          <div class="gCount" id="gRosterCount"></div>
+          <div class="modalRow" style="margin-top:10px;">
+            <button class="primary" id="gRosterSave">この名簿を保存</button>
+            <button id="gRosterRevert">編集を取り消す</button>
+          </div>
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:6px;">保存済みの名簿</div>
+          <div class="gRosterList" id="gRosterView"><div class="empty">まだありません</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gPane" id="gPane-scores">
+      <div class="modalRow">
+        <span class="small">クラス</span>
+        <select id="gScoreClass"></select>
+        <span class="small">評価</span>
+        <select id="gScoreAssessment" style="max-width:280px;"></select>
+        <button id="gScoreNew">＋ 新しい評価</button>
+        <button id="gcOpen">🎓 Classroomから点数</button>
+        <button id="gScoreEditMeta" style="display:none;">編集</button>
+        <button id="gScoreDelete" style="display:none;color:var(--accent);">削除</button>
+      </div>
+
+      <div class="gAssessForm" id="gAssessForm" style="display:none;">
+        <div class="modalRow" style="flex-wrap:wrap;">
+          <input type="text" id="gAsName" placeholder="評価名（例：1学期中間 ／ 漢字テスト第3回）" style="flex:1;min-width:200px;">
+          <input type="text" id="gAsSubject" list="gSubjectList" placeholder="教科" style="width:100px;">
+          <select id="gAsKind">
+            <option>定期テスト</option><option>小テスト</option><option>提出物</option><option>観点別</option><option>その他</option>
+          </select>
+          <label class="small">実施日<input type="date" id="gAsDate"></label>
+          <label class="small">満点<input type="number" id="gAsMax" value="100" min="1" style="width:66px;"></label>
+          <select id="gAsTerm"></select>
+          <input type="text" id="gAsViewpoint" placeholder="観点（任意）" style="width:120px;">
+          <button class="primary" id="gAsSave">保存</button>
+          <button id="gAsCancel">キャンセル</button>
+        </div>
+      </div>
+
+      <div class="gScoreStats" id="gScoreStats"></div>
+      <div class="gScoreList" id="gScoreList"></div>
+      <div class="hint" id="gScoreHint" style="margin-top:8px;">Enter で次の生徒へ移動します。「欠」など数字以外もそのまま記録できます（平均には含めません）。</div>
+    </div>
+
+    <div class="gPane" id="gPane-matrix">
+      <div class="modalRow">
+        <span class="small">クラス</span>
+        <select id="gMxClass"></select>
+        <span style="flex:1;"></span>
+        <button id="gMxPrint">🖨 一覧表を印刷</button>
+      </div>
+      <div id="gMxWrap" style="overflow-x:auto;"></div>
+      <div class="modalRow" style="margin-top:16px;">
+        <span class="small">度数分布</span>
+        <select id="gMxHistAssess" style="max-width:280px;"></select>
+      </div>
+      <div id="gMxHist"></div>
+    </div>
+
+    <div class="gPane" id="gPane-indiv">
+      <div class="modalRow">
+        <span class="small">クラス</span>
+        <select id="gIvClass"></select>
+        <span class="small">生徒</span>
+        <select id="gIvStudent" style="max-width:200px;"></select>
+        <span style="flex:1;"></span>
+        <button id="gIvPrint">🖨 個人票を印刷</button>
+      </div>
+      <div id="gIvWrap"></div>
+    </div>
+
+    <div class="modalActions"><button id="gradesClose">閉じる</button></div>
+  </div>
+</div>
+
+<!-- Classroom 点数取り込みモーダル -->
+<div class="overlay" id="gcImportModal" style="display:none;">
+  <div class="modal" style="max-width:760px;">
+    <h2>🎓 Classroomから点数を取り込む</h2>
+    <div id="gcWarn"></div>
+    <div class="modalRow">
+      <span class="small">取り込み先クラス</span><b id="gcTargetClass"></b>
+      <span class="hint">（「得点入力」で選択中のクラスの名簿に取り込みます）</span>
+    </div>
+    <div class="modalRow">
+      <span class="small">コース</span>
+      <select id="gcCourse" style="max-width:220px;"><option>読み込み中…</option></select>
+      <span class="small">課題</span>
+      <select id="gcWork" style="max-width:240px;"><option value="">コースを選ぶと表示されます</option></select>
+      <button id="gcLoad">点数を読み込む</button>
+    </div>
+    <div id="gcPreviewWrap"></div>
+    <div class="modalActions">
+      <button id="gcCancel">キャンセル</button>
+      <button class="primary" id="gcApply" disabled>この内容で取り込む</button>
     </div>
   </div>
 </div>
@@ -1681,9 +1868,10 @@ document.getElementById("btnFactoryReset").onclick=async()=>{
   const pw = prompt("全データを消去します（この端末のデータ、ログイン中の場合はクラウド側のデータも含みます）。\n続行するにはパスワードを入力してください。");
   if(pw===null) return;
   if(pw!==RESET_PASSWORD){ alert("パスワードが違います。"); return; }
-  if(!confirm("本当にすべてのデータ（週の時間割・タスク・初期設定）を消去しますか？\nこの操作は取り消せません。")) return;
+  if(!confirm("本当にすべてのデータ（週の時間割・タスク・初期設定・成績）を消去しますか？\nこの操作は取り消せません。")) return;
   DB = {v:1, teacherName:"", weeks:{}, tasks:[], annualHours:{asOfWeek:null, data:{}}};
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
+  try{ localStorage.removeItem("kyoumu_techou_grades_v1"); GRADES={v:1, rosters:{}, assessments:[], classroomMap:{}}; }catch(e){}
   curWeek = null;
   if(currentUser && window.fbSync && window.fbSync.configured){
     try{
@@ -1773,8 +1961,10 @@ function renderTasks(){
   if(!DB.tasks.length){ wrap.innerHTML='<div class="hint">まだ登録がありません。</div>'; return; }
   const sorted=[...DB.tasks].sort((a,b)=> (a.date||"").localeCompare(b.date||""));
   let h='<table class="taskTable"><tr><th>日付</th><th>クラス</th><th>教科</th><th>種別</th><th>タイトル</th><th>状態</th><th>提出状況</th><th></th></tr>';
+  const gradedIds = (typeof GRADES!=="undefined") ? new Set(GRADES.assessments.filter(a=>a.taskId).map(a=>a.taskId)) : new Set();
   sorted.forEach(t=>{
     const isClassroom = t.classroomCourseId && t.classroomCourseWorkId;
+    const graded = gradedIds.has(t.id);
     h+=`<tr class="taskRow ${t.status==="実施済み"?"done":""}">
       <td>${escHtml(t.date||"")}</td><td>${escHtml(t.cls)}</td><td>${escHtml(t.subject)}</td>
       <td>${escHtml(t.type)}${isClassroom?' <span class="hint">🎓</span>':''}</td><td>${escHtml(t.title)}</td>
@@ -1785,7 +1975,10 @@ function renderTasks(){
       <td class="submitStatus" data-id="${escAttr(t.id)}">${isClassroom
         ? (t.submitStatus? escHtml(t.submitStatus)+` <button class="btnCheckSubmit" data-id="${escAttr(t.id)}">↻</button>` : `<button class="btnCheckSubmit" data-id="${escAttr(t.id)}">確認</button>`)
         : '<span class="hint">－</span>'}</td>
-      <td><button class="taskDel" data-id="${escAttr(t.id)}">✕</button></td>
+      <td style="white-space:nowrap;">
+        <button class="taskGrade ${graded?"on":""}" data-id="${escAttr(t.id)}" title="この予定の得点を入力">${graded?"結果 ✓":"結果を入力"}</button>
+        <button class="taskDel" data-id="${escAttr(t.id)}">✕</button>
+      </td>
     </tr>`;
   });
   h+="</table>";
@@ -1801,6 +1994,12 @@ function renderTasks(){
       if(!confirm("削除しますか？")) return;
       DB.tasks = DB.tasks.filter(x=>x.id!==btn.dataset.id);
       saveDB(); renderTasks(); renderWeek();
+    };
+  });
+  wrap.querySelectorAll(".taskGrade").forEach(btn=>{
+    btn.onclick=()=>{
+      const t=DB.tasks.find(x=>x.id===btn.dataset.id);
+      if(t && typeof gOpenAssessmentForTask==="function") gOpenAssessmentForTask(t);
     };
   });
   wrap.querySelectorAll(".btnCheckSubmit").forEach(btn=>{
@@ -2066,6 +2265,776 @@ function escAttr(s){ return escHtml(s).replace(/"/g,"&quot;"); }
   renderWeek();
   initSync();
 })();
+</script>
+
+<script>
+/* ============================================================
+   成績（この端末のみ・クラウド非同期）
+   - DB とは別の localStorage キーに保存し、scheduleCloudPush は呼ばない
+   - バックアップも専用ファイル（氏名を含むため通常バックアップと分離）
+   ============================================================ */
+const GRADES_KEY = "kyoumu_techou_grades_v1";
+let GRADES = loadGrades();
+
+function loadGrades(){
+  let g=null;
+  try{ const raw=localStorage.getItem(GRADES_KEY); if(raw) g=JSON.parse(raw); }catch(e){}
+  return normalizeGrades(g);
+}
+function saveGrades(){
+  try{ localStorage.setItem(GRADES_KEY, JSON.stringify(GRADES)); }catch(e){ console.error(e); }
+  /* クラウド同期はしない（意図的に scheduleCloudPush を呼ばない） */
+}
+function normalizeGrades(raw){
+  const g = { v:1, rosters:{}, assessments:[], classroomMap:{} };
+  if(!raw || typeof raw!=="object") return g;
+  if(raw.rosters && typeof raw.rosters==="object"){
+    Object.keys(raw.rosters).slice(0,300).forEach(k=>{
+      const cls = sanitizeStr(k,40); if(!cls) return;
+      const arr = Array.isArray(raw.rosters[k]) ? raw.rosters[k] : [];
+      g.rosters[cls] = arr.slice(0,100).map((s,i)=>({
+        no: (s && Number.isFinite(+s.no) && +s.no>0) ? Math.floor(+s.no) : i+1,
+        name: sanitizeStr(s && s.name, 40)
+      })).filter(s=>s.name);
+    });
+  }
+  if(Array.isArray(raw.assessments)){
+    g.assessments = raw.assessments.slice(0,3000).map(a=>{
+      if(!a || typeof a!=="object") a={};
+      const scores={};
+      if(a.scores && typeof a.scores==="object"){
+        Object.keys(a.scores).slice(0,200).forEach(k=>{
+          const v=a.scores[k];
+          scores[sanitizeStr(k,8)] = (typeof v==="number" && isFinite(v)) ? v : sanitizeStr(v,8);
+        });
+      }
+      return {
+        id: sanitizeStr(a.id,60) || (Date.now()+"_"+Math.random().toString(36).slice(2,7)),
+        classKey: sanitizeStr(a.classKey,40),
+        subject: sanitizeStr(a.subject,40),
+        name: sanitizeStr(a.name,60),
+        kind: sanitizeStr(a.kind,20),
+        date: isIsoDateStr(a.date) ? a.date : "",
+        maxScore: (Number.isFinite(+a.maxScore) && +a.maxScore>0) ? +a.maxScore : 100,
+        viewpoint: sanitizeStr(a.viewpoint,20),
+        term: sanitizeStr(a.term,20),
+        taskId: (a.taskId!=null) ? sanitizeStr(a.taskId,100) : null,
+        classroomCourseId: (a.classroomCourseId!=null) ? sanitizeStr(a.classroomCourseId,60) : null,
+        classroomCourseWorkId: (a.classroomCourseWorkId!=null) ? sanitizeStr(a.classroomCourseWorkId,60) : null,
+        scores
+      };
+    });
+  }
+  if(raw.classroomMap && typeof raw.classroomMap==="object"){
+    Object.keys(raw.classroomMap).slice(0,200).forEach(cid=>{
+      const e = raw.classroomMap[cid];
+      if(!e || typeof e!=="object") return;
+      const map={};
+      if(e.map && typeof e.map==="object"){
+        Object.keys(e.map).slice(0,400).forEach(uid=>{
+          const n = parseInt(e.map[uid],10);
+          if(Number.isFinite(n) && n>0) map[sanitizeStr(uid,64)] = n;
+        });
+      }
+      g.classroomMap[sanitizeStr(cid,64)] = { classKey: sanitizeStr(e.classKey,40), map };
+    });
+  }
+  return g;
+}
+
+/* ---- クラス選択肢（初期設定のクラス ＋ 名簿を作成済みのクラス） ---- */
+function gRosterClassList(){
+  const set = new Set();
+  ((DB.settings && DB.settings.classes) || []).forEach(c=>{ if(c) set.add(c); });
+  Object.keys(GRADES.rosters).forEach(c=>set.add(c));
+  GRADES.assessments.forEach(a=>{ if(a.classKey) set.add(a.classKey); });
+  return [...set].sort((a,b)=>a.localeCompare(b,"ja"));
+}
+function gParseRoster(text){
+  const out=[]; let auto=0;
+  (text||"").split(/\r?\n/).forEach(line=>{
+    const s=line.trim(); if(!s) return;
+    auto++;
+    const m = s.match(/^(\d{1,3})[\s,、，.．]+(.+)$/);
+    if(m){ out.push({ no:+m[1]>0?+m[1]:auto, name:m[2].trim().slice(0,40) }); }
+    else { out.push({ no:auto, name:s.slice(0,40) }); }
+  });
+  return out;
+}
+function gRosterToText(list){ return (list||[]).map(s=>s.no+"\t"+s.name).join("\n"); }
+
+let gCurClass = "";
+function gRenderRosterClassSel(){
+  const sel=document.getElementById("gRosterClass");
+  const list=gRosterClassList();
+  if(!list.length){ sel.innerHTML='<option value="">（クラス未登録）</option>'; gCurClass=""; return; }
+  if(!list.includes(gCurClass)) gCurClass=list[0];
+  sel.innerHTML=list.map(c=>`<option value="${escAttr(c)}" ${c===gCurClass?"selected":""}>${escHtml(c)}</option>`).join("");
+}
+function gUpdateRosterCount(){
+  const n=gParseRoster(document.getElementById("gRosterText").value).length;
+  document.getElementById("gRosterCount").textContent = n ? n+"人" : "";
+}
+function gRenderRosterView(){
+  const wrap=document.getElementById("gRosterView");
+  const list=GRADES.rosters[gCurClass]||[];
+  wrap.innerHTML = list.length
+    ? list.map(s=>`<div><span class="n">${s.no}</span><span>${escHtml(s.name)}</span></div>`).join("")
+    : '<div class="empty">まだありません</div>';
+}
+function gLoadRosterIntoEditor(){
+  document.getElementById("gRosterText").value = gRosterToText(GRADES.rosters[gCurClass]||[]);
+  gUpdateRosterCount();
+  gRenderRosterView();
+}
+
+function gPopulateSubjectDatalist(){
+  const dl=document.getElementById("gSubjectList");
+  dl.innerHTML=((DB.settings&&DB.settings.subjects)||[]).map(s=>`<option value="${escAttr(s)}"></option>`).join("");
+}
+function gShowPane(pane){
+  document.querySelectorAll("#gradesModal .gTab").forEach(t=>t.classList.toggle("on", t.getAttribute("data-gpane")===pane));
+  document.querySelectorAll("#gradesModal .gPane").forEach(p=>p.classList.toggle("on", p.id==="gPane-"+pane));
+  if(pane==="roster"){ gRenderRosterClassSel(); gLoadRosterIntoEditor(); }
+  if(pane==="scores"){ gRenderScoreClassSel(); gRenderAssessmentSel(); gRenderScoreList(); }
+  if(pane==="matrix"){ gRenderMxClassSel(); gRenderMatrix(); }
+  if(pane==="indiv"){ gRenderIvClassSel(); gRenderIvStudentSel(); gRenderIndiv(); }
+}
+document.querySelectorAll("#gradesModal .gTab").forEach(tab=>{
+  tab.onclick=()=>gShowPane(tab.getAttribute("data-gpane"));
+});
+
+document.getElementById("btnGrades").onclick=()=>{
+  gPopulateSubjectDatalist();
+  gShowPane("roster");
+  document.getElementById("gradesModal").style.display="flex";
+};
+document.getElementById("gradesClose").onclick=()=>{ document.getElementById("gradesModal").style.display="none"; };
+document.getElementById("gRosterClass").onchange=(e)=>{ gCurClass=e.target.value; gLoadRosterIntoEditor(); };
+document.getElementById("gRosterText").addEventListener("input", gUpdateRosterCount);
+document.getElementById("gRosterAddClass").onclick=()=>{
+  const inp=document.getElementById("gRosterNewClass");
+  const v=inp.value.trim(); if(!v) return;
+  if(!GRADES.rosters[v]) GRADES.rosters[v]=[];
+  gCurClass=v; inp.value="";
+  saveGrades();
+  gRenderRosterClassSel(); gLoadRosterIntoEditor();
+};
+document.getElementById("gRosterSave").onclick=()=>{
+  if(!gCurClass){ alert("先にクラスを選択・追加してください。"); return; }
+  const list=gParseRoster(document.getElementById("gRosterText").value);
+  const nos=list.map(s=>s.no);
+  if(nos.some((n,i)=>nos.indexOf(n)!==i) && !confirm("出席番号が重複しています。このまま保存しますか？")) return;
+  GRADES.rosters[gCurClass]=list;
+  saveGrades();
+  gRenderRosterView(); gUpdateRosterCount();
+  alert(`「${gCurClass}」の名簿を保存しました（${list.length}人）。`);
+};
+document.getElementById("gRosterRevert").onclick=gLoadRosterIntoEditor;
+
+/* ============================================================
+   Step2: 評価の作成・得点入力
+   ============================================================ */
+const G_KINDS = ["定期テスト","小テスト","提出物","観点別","その他"];
+let gScoreClass = "";
+let gCurAssessmentId = null;
+let gEditingAssessmentId = null;
+let gScoreSaveTimer = null;
+
+function gAssessmentsForClass(cls){
+  return GRADES.assessments
+    .filter(a=>a.classKey===cls)
+    .sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.name.localeCompare(b.name,"ja"));
+}
+function gAssessLabel(a){
+  return (a.classroomCourseWorkId? "🎓" : "") + (a.subject? a.subject+"・" : "") + (a.name||"(無題)") + (a.date? "（"+a.date.slice(5)+"）" : "");
+}
+function gCurAssessment(){ return GRADES.assessments.find(a=>a.id===gCurAssessmentId) || null; }
+
+function gRenderScoreClassSel(){
+  const sel=document.getElementById("gScoreClass");
+  const list=gRosterClassList();
+  if(!list.length){ sel.innerHTML='<option value="">（クラス未登録）</option>'; gScoreClass=""; return; }
+  if(!list.includes(gScoreClass)) gScoreClass=list[0];
+  sel.innerHTML=list.map(c=>`<option value="${escAttr(c)}" ${c===gScoreClass?"selected":""}>${escHtml(c)}</option>`).join("");
+}
+function gRenderAssessmentSel(){
+  const sel=document.getElementById("gScoreAssessment");
+  const list=gAssessmentsForClass(gScoreClass);
+  if(!list.length){
+    sel.innerHTML='<option value="">（評価がありません）</option>';
+    gCurAssessmentId=null;
+  } else {
+    if(!list.some(a=>a.id===gCurAssessmentId)) gCurAssessmentId=list[0].id;
+    sel.innerHTML=list.map(a=>`<option value="${escAttr(a.id)}" ${a.id===gCurAssessmentId?"selected":""}>${escHtml(gAssessLabel(a))}</option>`).join("");
+  }
+  const has=!!gCurAssessmentId;
+  document.getElementById("gScoreEditMeta").style.display=has?"":"none";
+  document.getElementById("gScoreDelete").style.display=has?"":"none";
+}
+function gRenderTermOptions(sel, cur){
+  const terms=((DB.settings&&DB.settings.terms)||[]).map(t=>t.name).filter(Boolean);
+  let h='<option value="">（学期なし）</option>'+terms.map(t=>`<option value="${escAttr(t)}" ${t===cur?"selected":""}>${escHtml(t)}</option>`).join("");
+  if(cur && !terms.includes(cur)) h+=`<option value="${escAttr(cur)}" selected>${escHtml(cur)}</option>`;
+  sel.innerHTML=h;
+}
+function gOpenAssessForm(editing){
+  gEditingAssessmentId = editing ? gCurAssessmentId : null;
+  const a = editing ? gCurAssessment() : null;
+  document.getElementById("gAsName").value = a ? a.name : "";
+  document.getElementById("gAsSubject").value = a ? a.subject : "";
+  document.getElementById("gAsKind").value = a ? (G_KINDS.includes(a.kind)?a.kind:"その他") : "定期テスト";
+  document.getElementById("gAsDate").value = a ? a.date : "";
+  document.getElementById("gAsMax").value = a ? a.maxScore : 100;
+  gRenderTermOptions(document.getElementById("gAsTerm"), a ? a.term : "");
+  document.getElementById("gAsViewpoint").value = a ? a.viewpoint : "";
+  document.getElementById("gAssessForm").style.display="block";
+  document.getElementById("gAsName").focus();
+}
+function gCloseAssessForm(){ document.getElementById("gAssessForm").style.display="none"; gEditingAssessmentId=null; }
+
+document.getElementById("gScoreClass").onchange=(e)=>{
+  gScoreClass=e.target.value; gCurAssessmentId=null;
+  gCloseAssessForm(); gRenderAssessmentSel(); gRenderScoreList();
+};
+document.getElementById("gScoreAssessment").onchange=(e)=>{ gCurAssessmentId=e.target.value; gRenderScoreList(); };
+document.getElementById("gScoreNew").onclick=()=>{
+  if(!gScoreClass){ alert("先に「名簿」タブでクラスを登録してください。"); return; }
+  gOpenAssessForm(false);
+};
+document.getElementById("gScoreEditMeta").onclick=()=>{ if(gCurAssessment()) gOpenAssessForm(true); };
+document.getElementById("gAsCancel").onclick=gCloseAssessForm;
+document.getElementById("gAsSave").onclick=()=>{
+  const name=document.getElementById("gAsName").value.trim();
+  if(!name){ alert("評価名を入力してください。"); return; }
+  const payload={
+    name: name.slice(0,60),
+    subject: document.getElementById("gAsSubject").value.trim().slice(0,40),
+    kind: document.getElementById("gAsKind").value,
+    date: document.getElementById("gAsDate").value || "",
+    maxScore: Math.max(1, parseInt(document.getElementById("gAsMax").value,10) || 100),
+    term: document.getElementById("gAsTerm").value || "",
+    viewpoint: document.getElementById("gAsViewpoint").value.trim().slice(0,20)
+  };
+  if(gEditingAssessmentId){
+    const a=GRADES.assessments.find(x=>x.id===gEditingAssessmentId);
+    if(a) Object.assign(a, payload);
+  } else {
+    const a={ id: Date.now()+"_"+Math.random().toString(36).slice(2,7), classKey:gScoreClass, taskId:null, classroomCourseId:null, classroomCourseWorkId:null, scores:{}, ...payload };
+    GRADES.assessments.push(a);
+    gCurAssessmentId=a.id;
+  }
+  saveGrades();
+  gCloseAssessForm();
+  gRenderAssessmentSel();
+  gRenderScoreList();
+};
+document.getElementById("gScoreDelete").onclick=()=>{
+  const a=gCurAssessment(); if(!a) return;
+  if(!confirm(`評価「${a.name}」と、入力済みの得点をすべて削除します。よろしいですか？`)) return;
+  GRADES.assessments = GRADES.assessments.filter(x=>x.id!==a.id);
+  gCurAssessmentId=null;
+  saveGrades();
+  gRenderAssessmentSel();
+  gRenderScoreList();
+};
+
+function gToHalf(s){
+  return String(s).replace(/[０-９．]/g, d=>"0123456789."["０１２３４５６７８９．".indexOf(d)]);
+}
+function gScoreNum(v){
+  if(typeof v==="number") return isFinite(v)?v:null;
+  if(typeof v==="string" && v.trim()!==""){ const n=parseFloat(gToHalf(v)); return isFinite(n)?n:null; }
+  return null;
+}
+function gRenderScoreList(){
+  const wrap=document.getElementById("gScoreList");
+  const stats=document.getElementById("gScoreStats");
+  const hint=document.getElementById("gScoreHint");
+  const a=gCurAssessment();
+  if(!a){
+    wrap.innerHTML=""; stats.innerHTML="";
+    hint.textContent = gScoreClass ? "「＋ 新しい評価」から作成してください。" : "「名簿」タブでクラスを登録してください。";
+    return;
+  }
+  const roster=GRADES.rosters[a.classKey]||[];
+  if(!roster.length){
+    wrap.innerHTML=""; stats.innerHTML="";
+    hint.textContent="このクラスの名簿がありません。「名簿」タブで登録してください。";
+    return;
+  }
+  hint.textContent = "Enter で次の生徒へ移動します。" + (a.viewpoint? "／観点："+a.viewpoint : "") + (a.taskId? "／「小テスト・提出物」と連携" : "");
+  wrap.innerHTML = roster.map(s=>{
+    const raw=a.scores[s.no];
+    const val=(raw==null? "" : String(raw));
+    return `<div class="gScoreRow"><span class="n">${s.no}</span><span class="nm">${escHtml(s.name)}</span>`+
+      `<input type="text" inputmode="numeric" data-no="${escAttr(String(s.no))}" value="${escAttr(val)}" aria-label="${escAttr(s.name)}の得点"></div>`;
+  }).join("");
+  const inputs=[...wrap.querySelectorAll("input")];
+  inputs.forEach((inp,i)=>{
+    inp.addEventListener("input", onScoreInput);
+    inp.addEventListener("keydown", e=>{
+      if(e.key==="Enter"){ e.preventDefault(); (inputs[i+1]||inp).focus(); if(!inputs[i+1]) inp.blur(); }
+    });
+  });
+  gUpdateScoreStats();
+}
+function onScoreInput(e){
+  const a=gCurAssessment(); if(!a) return;
+  const no=e.target.getAttribute("data-no");
+  const v=e.target.value.trim();
+  if(v===""){ delete a.scores[no]; }
+  else if(/^[0-9０-９.．\s]+$/.test(v)){ const n=gScoreNum(v); a.scores[no] = (n!=null? n : v); }
+  else { a.scores[no] = v.slice(0,8); }
+  gUpdateScoreStats();
+  clearTimeout(gScoreSaveTimer);
+  gScoreSaveTimer=setTimeout(saveGrades, 400);
+}
+function gUpdateScoreStats(){
+  const a=gCurAssessment(); if(!a) return;
+  const roster=GRADES.rosters[a.classKey]||[];
+  const nums=[]; let entered=0;
+  roster.forEach(s=>{
+    const raw=a.scores[s.no];
+    if(raw!=null && String(raw)!==""){ entered++; const n=gScoreNum(raw); if(n!=null) nums.push(n); }
+  });
+  const avg = nums.length ? nums.reduce((x,y)=>x+y,0)/nums.length : null;
+  document.getElementById("gScoreStats").innerHTML =
+    `<span>入力 <b>${entered}</b>/${roster.length}</span>`+
+    `<span>平均 <b>${avg==null?"–":avg.toFixed(1)}</b></span>`+
+    `<span>最高 <b>${nums.length?Math.max(...nums):"–"}</b></span>`+
+    `<span>最低 <b>${nums.length?Math.min(...nums):"–"}</b></span>`+
+    `<span class="hint">満点 ${a.maxScore}</span>`;
+}
+
+/* ============================================================
+   Step3: 成績一覧表・度数分布・印刷
+   ============================================================ */
+let gMxClass = "";
+function gStd(nums){
+  if(!nums.length) return null;
+  const m=nums.reduce((a,b)=>a+b,0)/nums.length;
+  return Math.sqrt(nums.reduce((a,b)=>a+(b-m)*(b-m),0)/nums.length);
+}
+function gRenderMxClassSel(){
+  const sel=document.getElementById("gMxClass");
+  const list=gRosterClassList();
+  if(!list.length){ sel.innerHTML='<option value="">（クラス未登録）</option>'; gMxClass=""; return; }
+  if(!list.includes(gMxClass)) gMxClass=list[0];
+  sel.innerHTML=list.map(c=>`<option value="${escAttr(c)}" ${c===gMxClass?"selected":""}>${escHtml(c)}</option>`).join("");
+}
+function gRenderMatrix(){
+  const wrap=document.getElementById("gMxWrap");
+  const histSel=document.getElementById("gMxHistAssess");
+  const roster=GRADES.rosters[gMxClass]||[];
+  const assess=gAssessmentsForClass(gMxClass);
+  if(!roster.length){ wrap.innerHTML='<div class="hint">このクラスの名簿がありません。「名簿」タブで登録してください。</div>'; histSel.innerHTML=""; document.getElementById("gMxHist").innerHTML=""; return; }
+  if(!assess.length){ wrap.innerHTML='<div class="hint">まだ評価がありません。「得点入力」タブで作成してください。</div>'; histSel.innerHTML=""; document.getElementById("gMxHist").innerHTML=""; return; }
+
+  const colNums = assess.map(a=> roster.map(s=>gScoreNum(a.scores[s.no])).filter(n=>n!=null));
+
+  let h='<table class="gMxTable"><thead><tr><th>番号</th><th>氏名</th>';
+  assess.forEach(a=>{
+    h+=`<th>${escHtml(a.subject? a.subject+" " : "")}${escHtml(a.name)}<br><span class="hint">${a.date?escHtml(a.date.slice(5)):"日付なし"} / ${a.maxScore}点</span></th>`;
+  });
+  h+='<th class="colTotal">合計</th><th class="colTotal">平均</th></tr></thead><tbody>';
+  roster.forEach(s=>{
+    h+=`<tr><td class="num">${s.no}</td><td class="nm">${escHtml(s.name)}</td>`;
+    let sum=0,cnt=0;
+    assess.forEach(a=>{
+      const raw=a.scores[s.no];
+      const n=gScoreNum(raw);
+      if(n!=null){ sum+=n; cnt++; }
+      h+=`<td class="num">${(raw==null||String(raw)==="")?"":escHtml(String(raw))}</td>`;
+    });
+    h+=`<td class="num colTotal">${cnt?Math.round(sum*10)/10:""}</td><td class="num colTotal">${cnt?(sum/cnt).toFixed(1):""}</td></tr>`;
+  });
+  h+='</tbody><tfoot>';
+  const footRow=(label,fn)=>{
+    let r=`<tr class="foot"><td colspan="2">${label}</td>`;
+    colNums.forEach(nums=>{ r+=`<td class="num">${nums.length?fn(nums):"–"}</td>`; });
+    return r+'<td class="colTotal"></td><td class="colTotal"></td></tr>';
+  };
+  h+=footRow("クラス平均", n=>(n.reduce((a,b)=>a+b,0)/n.length).toFixed(1));
+  h+=footRow("最高", n=>Math.max(...n));
+  h+=footRow("最低", n=>Math.min(...n));
+  h+=footRow("標準偏差", n=>gStd(n).toFixed(1));
+  h+=footRow("受験者数", n=>n.length);
+  h+='</tfoot></table>';
+  wrap.innerHTML=h;
+
+  const keep=histSel.value;
+  histSel.innerHTML=assess.map(a=>`<option value="${escAttr(a.id)}">${escHtml(gAssessLabel(a))}</option>`).join("");
+  histSel.value = assess.some(a=>a.id===keep) ? keep : assess[0].id;
+  gRenderHist();
+}
+function gRenderHist(){
+  const wrap=document.getElementById("gMxHist");
+  const a=GRADES.assessments.find(x=>x.id===document.getElementById("gMxHistAssess").value);
+  const roster=a ? (GRADES.rosters[a.classKey]||[]) : [];
+  if(!a || !roster.length){ wrap.innerHTML=""; return; }
+  const nums=roster.map(s=>gScoreNum(a.scores[s.no])).filter(n=>n!=null);
+  if(!nums.length){ wrap.innerHTML='<div class="hint">得点がまだ入力されていません。</div>'; return; }
+  const max=a.maxScore||100;
+  const bins=Math.max(1,Math.ceil(max/10));
+  const counts=new Array(bins).fill(0);
+  nums.forEach(n=>{ let b=Math.floor(n/10); if(b>=bins) b=bins-1; if(b<0) b=0; counts[b]++; });
+  const peak=Math.max(...counts,1);
+  const mean=nums.reduce((x,y)=>x+y,0)/nums.length;
+  const sorted=[...nums].sort((x,y)=>x-y);
+  const median=sorted.length%2 ? sorted[(sorted.length-1)/2] : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
+  let h=`<div class="hint" style="margin:4px 0 8px;">平均 ${mean.toFixed(1)} ／ 中央値 ${Math.round(median*10)/10} ／ 標準偏差 ${gStd(nums).toFixed(1)} ／ n=${nums.length}</div><div class="gHist">`;
+  for(let i=bins-1;i>=0;i--){
+    const lo=i*10, hi=(i===bins-1)?max:(i*10+9);
+    h+=`<div class="gHistRow"><span class="lbl">${lo}–${hi}</span><span class="bar" style="width:${Math.round(counts[i]/peak*220)}px"></span><span class="cnt">${counts[i]}</span></div>`;
+  }
+  wrap.innerHTML=h+'</div>';
+}
+function gPrintMatrix(){
+  const tbl=document.querySelector("#gMxWrap .gMxTable");
+  if(!tbl){ alert("印刷できる一覧表がありません。"); return; }
+  const w=window.open("","_blank");
+  if(!w){ alert("ポップアップがブロックされました。ブラウザで許可してください。"); return; }
+  const today=new Date().toLocaleDateString("ja-JP");
+  w.document.write('<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>成績一覧表 '+escHtml(gMxClass)+'</title>'+
+    '<style>body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;margin:14mm 10mm;color:#222;}'+
+    'h1{font-size:15px;margin:0 0 3px;}.sub{font-size:11px;color:#666;margin-bottom:10px;}'+
+    'table{border-collapse:collapse;font-size:10px;width:100%;}th,td{border:1px solid #999;padding:3px 5px;text-align:center;}'+
+    'th{background:#eee;}td:nth-child(2){text-align:left;white-space:nowrap;}tfoot td{background:#f3f3f3;font-weight:bold;}'+
+    '@page{size:landscape;}</style></head><body>'+
+    '<h1>成績一覧表　'+escHtml(gMxClass)+'</h1>'+
+    '<div class="sub">'+escHtml(DB.teacherName||"")+'　印刷日：'+today+'</div>'+
+    tbl.outerHTML+
+    '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>');
+  w.document.close();
+}
+document.getElementById("gMxClass").onchange=(e)=>{ gMxClass=e.target.value; gRenderMatrix(); };
+document.getElementById("gMxHistAssess").onchange=gRenderHist;
+document.getElementById("gMxPrint").onclick=gPrintMatrix;
+
+/* ============================================================
+   Step4: 個人票
+   ============================================================ */
+let gIvClass = "", gIvStudentNo = null;
+function gRenderIvClassSel(){
+  const sel=document.getElementById("gIvClass");
+  const list=gRosterClassList();
+  if(!list.length){ sel.innerHTML='<option value="">（クラス未登録）</option>'; gIvClass=""; return; }
+  if(!list.includes(gIvClass)) gIvClass=list[0];
+  sel.innerHTML=list.map(c=>`<option value="${escAttr(c)}" ${c===gIvClass?"selected":""}>${escHtml(c)}</option>`).join("");
+}
+function gRenderIvStudentSel(){
+  const sel=document.getElementById("gIvStudent");
+  const roster=GRADES.rosters[gIvClass]||[];
+  if(!roster.length){ sel.innerHTML='<option value="">（名簿なし）</option>'; gIvStudentNo=null; return; }
+  if(!roster.some(s=>String(s.no)===String(gIvStudentNo))) gIvStudentNo=roster[0].no;
+  sel.innerHTML=roster.map(s=>`<option value="${escAttr(String(s.no))}" ${String(s.no)===String(gIvStudentNo)?"selected":""}>${s.no}　${escHtml(s.name)}</option>`).join("");
+}
+function gRenderIndiv(){
+  const wrap=document.getElementById("gIvWrap");
+  const roster=GRADES.rosters[gIvClass]||[];
+  const stu=roster.find(s=>String(s.no)===String(gIvStudentNo));
+  if(!stu){ wrap.innerHTML='<div class="hint">このクラスの名簿がありません。「名簿」タブで登録してください。</div>'; return; }
+  const assess=gAssessmentsForClass(gIvClass);
+  if(!assess.length){ wrap.innerHTML='<div class="hint">まだ評価がありません。</div>'; return; }
+  let rows="", rateSum=0, rateCnt=0;
+  assess.forEach(a=>{
+    const nums=roster.map(s=>gScoreNum(a.scores[s.no])).filter(n=>n!=null);
+    const raw=a.scores[stu.no];
+    const n=gScoreNum(raw);
+    const avg=nums.length ? nums.reduce((x,y)=>x+y,0)/nums.length : null;
+    let scoreCell, rateCell="", avgCell=(avg==null?"–":avg.toFixed(1)), diffCell="", rankCell="";
+    if(n!=null){
+      scoreCell=String(n);
+      if(a.maxScore){ const rate=n/a.maxScore*100; rateSum+=rate; rateCnt++; rateCell=rate.toFixed(0)+"%"; }
+      if(avg!=null) diffCell=(n-avg>=0?"+":"")+(n-avg).toFixed(1);
+      rankCell=(1+nums.filter(x=>x>n).length)+" / "+nums.length;
+    } else {
+      scoreCell=(raw==null||String(raw)==="") ? '<span class="hint">—</span>' : escHtml(String(raw));
+    }
+    rows+=`<tr><td class="nm">${escHtml(a.subject? a.subject+" " : "")}${escHtml(a.name)}${a.taskId?' <span class="hint">🔗</span>':''}</td>`+
+      `<td>${a.date?escHtml(a.date.slice(5)):"–"}</td>`+
+      `<td class="num">${scoreCell}</td><td class="num">${a.maxScore}</td>`+
+      `<td class="num">${rateCell}</td><td class="num">${avgCell}</td>`+
+      `<td class="num">${diffCell}</td><td class="num">${rankCell}</td></tr>`;
+  });
+  const summary=`<div class="gScoreStats"><span><b>${escHtml(gIvClass)}　${stu.no} ${escHtml(stu.name)}</b></span>`+
+    `<span>評価数 <b>${assess.length}</b></span>`+
+    `<span>平均得点率 <b>${rateCnt?(rateSum/rateCnt).toFixed(1)+"%":"–"}</b></span></div>`;
+  wrap.innerHTML=summary+'<div style="overflow-x:auto;"><table class="gMxTable"><thead><tr>'+
+    '<th>評価</th><th>日付</th><th>得点</th><th>満点</th><th>得点率</th><th>クラス平均</th><th>平均差</th><th>順位</th>'+
+    `</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function gPrintIndiv(){
+  const tbl=document.querySelector("#gIvWrap .gMxTable");
+  const roster=GRADES.rosters[gIvClass]||[];
+  const stu=roster.find(s=>String(s.no)===String(gIvStudentNo));
+  if(!tbl || !stu){ alert("印刷できる個人票がありません。"); return; }
+  const w=window.open("","_blank");
+  if(!w){ alert("ポップアップがブロックされました。ブラウザで許可してください。"); return; }
+  const today=new Date().toLocaleDateString("ja-JP");
+  w.document.write('<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>個人成績票 '+escHtml(stu.name)+'</title>'+
+    '<style>body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;margin:16mm 14mm;color:#222;}'+
+    'h1{font-size:16px;margin:0 0 3px;}.sub{font-size:11px;color:#666;margin-bottom:12px;}'+
+    'table{border-collapse:collapse;font-size:11px;width:100%;}th,td{border:1px solid #999;padding:4px 7px;text-align:center;}'+
+    'th{background:#eee;}td:first-child{text-align:left;white-space:nowrap;}</style></head><body>'+
+    '<h1>個人成績票　'+escHtml(gIvClass)+'　'+stu.no+'番　'+escHtml(stu.name)+'</h1>'+
+    '<div class="sub">'+escHtml(DB.teacherName||"")+'　作成日：'+today+'</div>'+
+    tbl.outerHTML+
+    '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>');
+  w.document.close();
+}
+document.getElementById("gIvClass").onchange=(e)=>{ gIvClass=e.target.value; gIvStudentNo=null; gRenderIvStudentSel(); gRenderIndiv(); };
+document.getElementById("gIvStudent").onchange=(e)=>{ gIvStudentNo=e.target.value; gRenderIndiv(); };
+document.getElementById("gIvPrint").onclick=gPrintIndiv;
+
+/* ============================================================
+   Step4: 「小テスト・提出物」との連携
+   ============================================================ */
+function gTaskTypeToKind(type){
+  if(type==="小テスト") return "小テスト";
+  if(type==="提出物") return "提出物";
+  return "その他";
+}
+function gOpenAssessmentForTask(task){
+  let a = GRADES.assessments.find(x=>x.taskId===task.id);
+  if(!a){
+    if(!task.cls){ alert("この予定にはクラスが設定されていません。先に「小テスト・提出物」でクラスを入力してください。"); return; }
+    a = {
+      id: Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      classKey: task.cls,
+      subject: task.subject || "",
+      name: task.title || "評価",
+      kind: gTaskTypeToKind(task.type),
+      date: isIsoDateStr(task.date) ? task.date : "",
+      maxScore: 100,
+      viewpoint: "",
+      term: "",
+      taskId: task.id,
+      scores: {}
+    };
+    GRADES.assessments.push(a);
+    saveGrades();
+  }
+  gScoreClass = a.classKey;
+  gCurAssessmentId = a.id;
+  gPopulateSubjectDatalist();
+  document.getElementById("taskModal").style.display="none";
+  document.getElementById("gradesModal").style.display="flex";
+  gShowPane("scores");
+}
+
+/* ============================================================
+   Classroom から点数を取り込む（読み取りのみ・既存スコープの範囲内）
+   ============================================================ */
+let gcTargetClass = "", gcRows = [], gcCtx = null;
+
+function gcNorm(s){ return String(s||"").normalize("NFKC").replace(/\s+/g,"").toLowerCase(); }
+function gcResolve(name, roster, savedNo){
+  if(savedNo && roster.some(s=>s.no===savedNo)) return savedNo;
+  const exact = roster.find(s=>s.name===name);
+  if(exact) return exact.no;
+  const n=gcNorm(name);
+  const hits = roster.filter(s=>gcNorm(s.name)===n);
+  return hits.length===1 ? hits[0].no : null;
+}
+function gcWorkKind(wt){ return (wt==="SHORT_ANSWER_QUESTION"||wt==="MULTIPLE_CHOICE_QUESTION") ? "小テスト" : "提出物"; }
+function gcToday(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+
+document.getElementById("gcOpen").onclick=async()=>{
+  if(!gScoreClass){ alert("先に「名簿」タブでクラスを登録してください。"); return; }
+  gcTargetClass = gScoreClass;
+  gcRows=[]; gcCtx=null;
+  document.getElementById("gcTargetClass").textContent = gScoreClass;
+  const warn=document.getElementById("gcWarn"); warn.innerHTML="";
+  document.getElementById("gcPreviewWrap").innerHTML="";
+  document.getElementById("gcApply").disabled=true;
+  if(!(GRADES.rosters[gScoreClass]||[]).length){
+    warn.innerHTML='<div class="warnBox">このクラスの名簿がまだありません。「名簿」タブで登録してから取り込んでください。</div>';
+  }
+  document.getElementById("gcImportModal").style.display="flex";
+  const cSel=document.getElementById("gcCourse");
+  cSel.innerHTML='<option>読み込み中…</option>';
+  document.getElementById("gcWork").innerHTML='<option value="">コースを選ぶと表示されます</option>';
+  try{
+    const courses = await loadClassroomCourses();
+    if(!courses.length){ cSel.innerHTML='<option value="">（担当コースが見つかりません）</option>'; return; }
+    const cur=gCurAssessment();
+    let pre = cur && cur.classroomCourseId;
+    if(!pre){ for(const cid in GRADES.classroomMap){ if(GRADES.classroomMap[cid].classKey===gScoreClass){ pre=cid; break; } } }
+    cSel.innerHTML = courses.map(c=>`<option value="${escAttr(c.id)}" ${c.id===pre?"selected":""}>${escHtml(c.name)}</option>`).join("");
+    await gcLoadWorkList();
+  }catch(err){
+    cSel.innerHTML='<option value="">読み込み失敗</option>';
+    warn.innerHTML=`<div class="warnBox">Classroomの読み込みに失敗しました：${escHtml(err.message||String(err))}</div>`;
+  }
+};
+document.getElementById("gcCancel").onclick=()=>{ document.getElementById("gcImportModal").style.display="none"; };
+
+async function gcLoadWorkList(){
+  const courseId=document.getElementById("gcCourse").value;
+  const wSel=document.getElementById("gcWork");
+  document.getElementById("gcPreviewWrap").innerHTML="";
+  document.getElementById("gcApply").disabled=true;
+  if(!courseId){ wSel.innerHTML='<option value="">—</option>'; return; }
+  wSel.innerHTML='<option>読み込み中…</option>';
+  try{
+    const items = await classroomFetchAll(`courses/${courseId}/courseWork?courseWorkStates=PUBLISHED&pageSize=100&orderBy=dueDate desc`, "courseWork");
+    if(!items.length){ wSel.innerHTML='<option value="">（課題がありません）</option>'; return; }
+    const cur=gCurAssessment();
+    wSel.innerHTML = items.map(w=>{
+      const due = w.dueDate ? `${w.dueDate.year}-${String(w.dueDate.month).padStart(2,"0")}-${String(w.dueDate.day).padStart(2,"0")}` : "";
+      const mp = (w.maxPoints!=null) ? String(w.maxPoints) : "";
+      const sel = (cur && cur.classroomCourseWorkId===w.id) ? "selected" : "";
+      return `<option value="${escAttr(w.id)}" data-title="${escAttr(w.title||"")}" data-type="${escAttr(w.workType||"")}" data-max="${escAttr(mp)}" data-due="${escAttr(due)}" ${sel}>${escHtml(w.title||"(無題)")}${mp!==""?" ／ "+mp+"点":""}</option>`;
+    }).join("");
+  }catch(err){
+    wSel.innerHTML='<option value="">読み込み失敗</option>';
+    document.getElementById("gcWarn").innerHTML=`<div class="warnBox">課題の読み込みに失敗しました：${escHtml(err.message||String(err))}</div>`;
+  }
+}
+document.getElementById("gcCourse").onchange=gcLoadWorkList;
+
+document.getElementById("gcLoad").onclick=async()=>{
+  const courseId=document.getElementById("gcCourse").value;
+  const wSel=document.getElementById("gcWork");
+  const opt=wSel.selectedOptions && wSel.selectedOptions[0];
+  const workId=wSel.value;
+  const wrap=document.getElementById("gcPreviewWrap");
+  if(!courseId || !workId || !opt){ alert("コースと課題を選んでください。"); return; }
+  const roster=GRADES.rosters[gcTargetClass]||[];
+  if(!roster.length){ alert("このクラスの名簿がありません。"); return; }
+  wrap.innerHTML='<div class="hint">Classroomから読み込み中…</div>';
+  document.getElementById("gcApply").disabled=true;
+  try{
+    const [subs, students] = await Promise.all([
+      classroomFetchAll(`courses/${courseId}/courseWork/${workId}/studentSubmissions?pageSize=200`, "studentSubmissions"),
+      classroomFetchAll(`courses/${courseId}/students?pageSize=200`, "students")
+    ]);
+    const maxP = parseFloat(opt.dataset.max);
+    gcCtx = { courseId, workId, workTitle:opt.dataset.title||"", workType:opt.dataset.type||"", maxPoints: isFinite(maxP)?maxP:0, due:opt.dataset.due||"" };
+    const saved = (GRADES.classroomMap[courseId] && GRADES.classroomMap[courseId].map) || {};
+    gcRows = students.map(st=>{
+      const uid=st.userId;
+      const nm=(st.profile && st.profile.name && st.profile.name.fullName) || "(名前不明)";
+      const sub=subs.find(s=>s.userId===uid);
+      let grade=null;
+      if(sub) grade = (sub.assignedGrade!=null) ? sub.assignedGrade : ((sub.draftGrade!=null) ? sub.draftGrade : null);
+      return { uid, clsName:nm, grade, targetNo: gcResolve(nm, roster, saved[uid]) };
+    }).sort((a,b)=> (a.targetNo||999) - (b.targetNo||999));
+    if(!gcRows.length){ wrap.innerHTML='<div class="hint">この課題の生徒が取得できませんでした。</div>'; return; }
+    gcRenderPreview();
+  }catch(err){
+    wrap.innerHTML=`<div class="warnBox">読み込みに失敗しました：${escHtml(err.message||String(err))}</div>`;
+  }
+};
+
+function gcRenderPreview(){
+  const wrap=document.getElementById("gcPreviewWrap");
+  const roster=GRADES.rosters[gcTargetClass]||[];
+  let h='<div class="gcSummary" id="gcSummary"></div><table class="gcTable"><tr><th>Classroom の氏名</th><th>点数</th><th>→ 手帳の生徒</th></tr>';
+  gcRows.forEach((r,i)=>{
+    const cur=r.targetNo;
+    const opts='<option value="">（取り込まない）</option>'+roster.map(s=>`<option value="${s.no}" ${s.no===cur?"selected":""}>${s.no}　${escHtml(s.name)}</option>`).join("");
+    h+=`<tr class="${(r.grade!=null && !cur)?"unmatched":""}"><td>${escHtml(r.clsName)}</td>`+
+      `<td class="g">${r.grade!=null? r.grade : '<span class="hint">—</span>'}</td>`+
+      `<td><select class="gcSel" data-i="${i}">${opts}</select></td></tr>`;
+  });
+  wrap.innerHTML=h+'</table>';
+  wrap.querySelectorAll(".gcSel").forEach(sel=>{
+    sel.onchange=()=>{ gcRows[+sel.dataset.i].targetNo = sel.value? +sel.value : null; gcUpdateSummary(); gcRenderPreviewClasses(); };
+  });
+  gcUpdateSummary();
+}
+function gcRenderPreviewClasses(){
+  document.querySelectorAll("#gcPreviewWrap .gcTable tr").forEach((tr,idx)=>{
+    if(idx===0) return;
+    const r=gcRows[idx-1]; if(!r) return;
+    tr.classList.toggle("unmatched", r.grade!=null && !r.targetNo);
+  });
+}
+function gcUpdateSummary(){
+  const withGrade=gcRows.filter(r=>r.grade!=null);
+  const willApply=withGrade.filter(r=>r.targetNo);
+  const unresolved=withGrade.length-willApply.length;
+  const el=document.getElementById("gcSummary");
+  if(el) el.innerHTML = `点数あり <b>${withGrade.length}</b>人／取り込み <b>${willApply.length}</b>人`+
+    (unresolved? `／<span style="color:var(--accent)">未対応 ${unresolved}人</span>` : "")+
+    (gcCtx && gcCtx.maxPoints? `　（満点 ${gcCtx.maxPoints}）` : "");
+  document.getElementById("gcApply").disabled = willApply.length===0;
+}
+
+document.getElementById("gcApply").onclick=()=>{
+  if(!gcCtx){ return; }
+  const roster=GRADES.rosters[gcTargetClass]||[];
+  if(!roster.length){ alert("このクラスの名簿がありません。"); return; }
+  let a = GRADES.assessments.find(x=>x.classroomCourseWorkId===gcCtx.workId && x.classKey===gcTargetClass);
+  if(!a){
+    const curSubj = (gCurAssessment() && gCurAssessment().classKey===gcTargetClass) ? gCurAssessment().subject : "";
+    a = {
+      id: Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      classKey: gcTargetClass,
+      subject: curSubj,
+      name: gcCtx.workTitle || "Classroom課題",
+      kind: gcWorkKind(gcCtx.workType),
+      date: gcCtx.due || gcToday(),
+      maxScore: gcCtx.maxPoints>0 ? gcCtx.maxPoints : 100,
+      viewpoint:"", term:"", taskId:null,
+      classroomCourseId: gcCtx.courseId, classroomCourseWorkId: gcCtx.workId,
+      scores:{}
+    };
+    GRADES.assessments.push(a);
+  } else {
+    if(gcCtx.maxPoints>0) a.maxScore=gcCtx.maxPoints;
+    a.classroomCourseId=gcCtx.courseId;
+  }
+  const linkTask = DB.tasks.find(t=>t.classroomCourseWorkId===gcCtx.workId);
+  if(linkTask && !a.taskId) a.taskId=linkTask.id;
+
+  let applied=0, unresolved=0;
+  const newMap={};
+  gcRows.forEach(r=>{
+    if(r.targetNo) newMap[r.uid]=r.targetNo;
+    if(r.grade!=null && r.targetNo){ a.scores[String(r.targetNo)] = Number(r.grade); applied++; }
+    else if(r.grade!=null && !r.targetNo){ unresolved++; }
+  });
+  const prev = (GRADES.classroomMap[gcCtx.courseId] && GRADES.classroomMap[gcCtx.courseId].map) || {};
+  GRADES.classroomMap[gcCtx.courseId] = { classKey:gcTargetClass, map: Object.assign({}, prev, newMap) };
+  saveGrades();
+
+  gScoreClass=gcTargetClass; gCurAssessmentId=a.id;
+  document.getElementById("gcImportModal").style.display="none";
+  gRenderScoreClassSel(); gRenderAssessmentSel(); gRenderScoreList();
+  alert(`${applied}人の点数を取り込みました。` + (unresolved? `\n手帳の生徒に対応づけできず取り込めなかった生徒が ${unresolved}人います。` : ""));
+};
+
+/* ---- 成績専用バックアップ ---- */
+document.getElementById("btnGradesExport").onclick=()=>{
+  if(!confirm("成績バックアップには生徒の氏名・得点が含まれます。保存先の取り扱いに注意してください。\n書き出しますか？")) return;
+  const blob=new Blob([JSON.stringify({__kyoumuGrades:true, ...GRADES},null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="kyoumu-techou-grades.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+};
+document.getElementById("btnGradesImport").onclick=()=>document.getElementById("gradesFile").click();
+document.getElementById("gradesFile").onchange=async(e)=>{
+  const f=e.target.files[0]; e.target.value=""; if(!f) return;
+  try{
+    const data=JSON.parse(await f.text());
+    if(!data || data.__kyoumuGrades!==true) throw new Error("成績バックアップファイルではありません。");
+    if(!confirm("現在の成績データ（名簿・得点）に上書きして読み込みます。よろしいですか？")) return;
+    GRADES=normalizeGrades(data);
+    saveGrades();
+    gCurAssessmentId=null;
+    gRenderRosterClassSel(); gLoadRosterIntoEditor();
+    gRenderScoreClassSel(); gRenderAssessmentSel(); gRenderScoreList();
+    gRenderMxClassSel(); gRenderMatrix();
+    gRenderIvClassSel(); gRenderIvStudentSel(); gRenderIndiv();
+    alert("成績バックアップを読み込みました。");
+  }catch(err){ alert("読み込みに失敗しました：\n"+(err.message||err)); }
+};
 </script>
 
 <script>
