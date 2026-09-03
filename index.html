@@ -227,6 +227,49 @@ textarea{resize:vertical;line-height:1.6;}
 .taskDel:hover{background:none;}
 .taskGrade{height:26px;padding:0 8px;font-size:11px;margin-right:8px;}
 .taskGrade.on{border-color:#c9b98e;background:#f6efdd;color:#6b5a2e;}
+.taskNotice{height:26px;padding:0 8px;font-size:11px;margin-right:6px;}
+.taskNotice:hover{border-color:#cfc5b1;background:var(--wash2);}
+.taskPick{cursor:pointer;}
+.taskDateCell{white-space:nowrap;}
+.taskDateCell b{font-size:12.5px;font-weight:700;}
+.taskDateCell .rel{display:block;font-size:10px;color:var(--faint);margin-top:1px;}
+.taskDateCell .rel.soon{color:var(--accent);font-weight:700;}
+.taskDateCell .none{color:var(--ghost);font-weight:400;}
+
+/* ---- 小テスト・提出物 入力フォーム ---- */
+.taskForm{background:var(--wash);border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:12px;}
+.taskFormGrid{display:flex;flex-wrap:wrap;gap:11px 13px;align-items:flex-end;}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.fld>label{font-size:10.5px;color:#7b7365;letter-spacing:.04em;white-space:nowrap;}
+.fld.grow{flex:1;min-width:190px;}
+.kindSeg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;}
+.kindSeg button{border:none;border-radius:0;height:32px;padding:0 13px;font-size:12.5px;color:var(--sub);background:#fff;}
+.kindSeg button+button{border-left:1px solid var(--line);}
+.kindSeg button:hover{background:var(--wash2);}
+.kindSeg button.on{font-weight:700;}
+.kindSeg button.on[data-kind="小テスト"]{background:#fdf0ec;color:#a33a2a;}
+.kindSeg button.on[data-kind="提出物"]{background:#eaf0f8;color:#2f5788;}
+.kindSeg button.on[data-kind="その他"]{background:#efece5;color:#5b5344;}
+.kindBadge{display:inline-block;border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:700;white-space:nowrap;}
+.kindBadge.k-quiz{background:#fdf0ec;color:#a33a2a;border:1px solid #f0d6c9;}
+.kindBadge.k-sub{background:#eaf0f8;color:#2f5788;border:1px solid #d3e0f0;}
+.kindBadge.k-etc{background:#efece5;color:#5b5344;border:1px solid var(--line);}
+.taskFilters{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:9px;font-size:11.5px;color:var(--sub);}
+.taskFilters select{height:28px;padding:2px 7px;font-size:11.5px;}
+.taskFilters label{display:flex;align-items:center;gap:4px;}
+.taskCount{margin-left:auto;font-size:11px;color:var(--faint);}
+
+/* ---- 案内張り紙 ---- */
+.ntGrid{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;}
+.ntForm{flex:0 0 286px;min-width:250px;display:flex;flex-direction:column;gap:10px;}
+.ntForm .fld>input,.ntForm .fld>textarea,.ntForm .fld>select{width:100%;}
+.ntNav{display:flex;align-items:center;gap:6px;}
+.ntNav select{flex:1;min-width:0;}
+.ntOpts{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;border-top:1px solid var(--line2);padding-top:11px;}
+.ntChk{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--sub);height:30px;}
+.ntPrevWrap{flex:1;min-width:300px;}
+.ntStage{background:var(--wash);border:1px solid var(--line);border-radius:11px;padding:10px;overflow:hidden;}
+.ntScaler{transform-origin:top left;}
 
 .searchHit{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;background:#fff;}
 .searchHit:hover{border-color:#cfc5b1;background:var(--wash2);}
@@ -272,6 +315,23 @@ textarea{resize:vertical;line-height:1.6;}
 .gMxTable td.num{font-variant-numeric:tabular-nums;}
 .gMxTable tr.foot td{background:var(--wash2);font-weight:600;color:var(--ink2);}
 .gMxTable .colTotal{background:var(--accentWash);}
+.gMxTable th .kindTag{display:inline-block;border-radius:4px;padding:0 4px;font-size:9px;
+  background:#fff;border:1px solid var(--line);color:#8a8172;margin-right:3px;}
+.gMxTable td.txt{color:var(--sub);}
+
+/* 成績モーダル：戻る導線・タブ説明・書き出し */
+.gBack{border:none;background:transparent;color:var(--sub);padding:0;height:26px;font-size:12px;}
+.gBack:hover{background:transparent;color:var(--accent);text-decoration:underline;border-color:transparent;}
+.gPaneHint{background:var(--wash2);border:1px solid var(--line2);border-radius:9px;
+  padding:8px 11px;font-size:11.5px;color:var(--sub);line-height:1.7;margin-bottom:12px;}
+.gMxBar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:10px;}
+.gMxBar select{height:28px;padding:2px 7px;font-size:11.5px;}
+.gMxBar .small{white-space:nowrap;}
+.gExportRow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  border-top:1px solid var(--line2);padding-top:10px;margin-bottom:12px;}
+.gExportRow button{height:28px;font-size:11.5px;padding:0 10px;}
+#gMxCopyArea{width:100%;height:110px;font-family:ui-monospace,Consolas,"Courier New",monospace;
+  font-size:10.5px;margin-bottom:10px;white-space:pre;}
 .gHist{display:flex;flex-direction:column;gap:4px;margin-top:8px;max-width:440px;}
 .gHistRow{display:flex;align-items:center;gap:8px;font-size:11px;}
 .gHistRow .lbl{width:66px;text-align:right;color:var(--sub);flex:none;font-variant-numeric:tabular-nums;}
@@ -356,6 +416,8 @@ textarea{resize:vertical;line-height:1.6;}
   .modal{padding:16px 16px 18px;max-width:96vw!important;max-height:92vh;border-radius:12px;}
   .modal h2{font-size:16px;}
   .previewTable,.progTable,.taskTable{font-size:11px;}
+  .ntForm{flex:1 1 100%;}
+  .ntPrevWrap{flex:1 1 100%;}
   .menu{right:-4px;min-width:210px;}
   .menu button,.menu a{height:44px;}
 }
@@ -365,8 +427,10 @@ textarea{resize:vertical;line-height:1.6;}
   .main{padding:0;overflow:visible;}
   .grid{border-radius:0;min-width:0;}
   .cell textarea{border:1px solid #ddd;background:#fff;}
+  .ntSheet{display:none!important;}
 }
 </style>
+<style id="ntSheetStyle"></style>
 </head>
 <body>
 
@@ -481,23 +545,115 @@ textarea{resize:vertical;line-height:1.6;}
 <div class="overlay" id="taskModal" style="display:none;">
   <div class="modal">
     <h2>✅ 小テスト・提出物</h2>
+    <div class="taskForm">
+      <div class="taskFormGrid">
+        <div class="fld">
+          <label>種類</label>
+          <div class="kindSeg" id="taskKindSeg">
+            <button type="button" data-kind="小テスト" class="on">📝 小テスト</button>
+            <button type="button" data-kind="提出物">📮 提出物</button>
+            <button type="button" data-kind="その他">・ その他</button>
+          </div>
+        </div>
+        <div class="fld">
+          <label id="taskDateLabel">実施日</label>
+          <input type="date" id="taskDate">
+        </div>
+        <div class="fld">
+          <label>クラス</label>
+          <input type="text" id="taskCls" placeholder="1年A組" list="taskClsList" style="width:120px;">
+          <datalist id="taskClsList"></datalist>
+          <datalist id="classroomCourseList"></datalist>
+        </div>
+        <div class="fld">
+          <label>教科</label>
+          <input type="text" id="taskSubject" placeholder="社会" list="taskSubjList" style="width:100px;">
+          <datalist id="taskSubjList"></datalist>
+        </div>
+        <div class="fld grow">
+          <label id="taskTitleLabel">タイトル</label>
+          <input type="text" id="taskTitle" placeholder="例：漢字テスト第3回" style="width:100%;">
+        </div>
+        <div class="fld">
+          <label>&nbsp;</label>
+          <div style="display:flex;gap:6px;">
+            <button class="primary" id="taskAdd">＋ 追加</button>
+            <button id="taskAddNotice" title="登録して、そのまま案内張り紙をつくります">＋ 追加して張り紙</button>
+          </div>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:8px;">クラスと教科を入れておくと、週の時間割の該当コマに表示され、案内張り紙もそのまま作れます。</div>
+    </div>
     <div class="modalRow">
       <button id="btnClassroomImport">🎓 Classroomから課題の期限を取り込む</button>
       <span class="hint" id="classroomHint"></span>
     </div>
-    <div class="modalRow" style="flex-wrap:wrap;background:var(--wash);padding:8px;border-radius:6px;">
-      <input type="date" id="taskDate">
-      <input type="text" id="taskCls" placeholder="クラス" list="classroomCourseList" style="width:100px;">
-      <datalist id="classroomCourseList"></datalist>
-      <input type="text" id="taskSubject" placeholder="教科" style="width:80px;">
-      <select id="taskType">
-        <option>小テスト</option><option>提出物</option><option>その他</option>
+    <div class="taskFilters">
+      <span>絞り込み</span>
+      <select id="taskFilterKind">
+        <option value="">すべての種類</option><option>小テスト</option><option>提出物</option><option>その他</option>
       </select>
-      <input type="text" id="taskTitle" placeholder="タイトル（例：漢字テスト第3回）" style="flex:1;min-width:160px;">
-      <button class="primary" id="taskAdd">＋ 追加</button>
+      <select id="taskFilterCls"><option value="">すべてのクラス</option></select>
+      <label><input type="checkbox" id="taskFilterTodo">未実施のみ</label>
+      <label><input type="checkbox" id="taskFilterFuture">今日以降のみ</label>
+      <button id="taskNoticeBulk">🖨 選んだ分の張り紙をまとめて印刷</button>
+      <span class="taskCount" id="taskCount"></span>
     </div>
-    <div id="taskListWrap" style="margin-top:12px;"></div>
+    <div id="taskListWrap"></div>
     <div class="modalActions"><button id="taskClose">閉じる</button></div>
+  </div>
+</div>
+
+<!-- 案内張り紙モーダル -->
+<div class="overlay" id="noticeModal" style="display:none;">
+  <div class="modal" style="max-width:1160px;">
+    <h2>🖨 案内張り紙（A4横）</h2>
+    <div class="ntGrid">
+      <div class="ntForm">
+        <div class="ntNav">
+          <button class="icon" id="ntPrev" title="前の張り紙">‹</button>
+          <select id="ntTargetSel"></select>
+          <button class="icon" id="ntNext" title="次の張り紙">›</button>
+        </div>
+        <div class="fld"><label>クラス</label><input type="text" id="ntCls" list="taskClsList" placeholder="1年A組"></div>
+        <div class="fld"><label>教科</label><input type="text" id="ntSubject" list="taskSubjList" placeholder="社会"></div>
+        <div class="fld"><label>タイトル</label><input type="text" id="ntTitle" placeholder="例：レタリング課題"></div>
+        <div class="fld"><label id="ntDateCap">日付</label><input type="date" id="ntDate"></div>
+        <div class="fld">
+          <label>日付の言い方</label>
+          <input type="text" id="ntLabel" list="ntLabelList" placeholder="実施日">
+          <datalist id="ntLabelList">
+            <option value="実施日"></option><option value="提出締め切り"></option><option value="提出期限"></option>
+            <option value="実施予定日"></option><option value="発表日"></option><option value="返却日"></option>
+          </datalist>
+        </div>
+        <div class="fld">
+          <label>ひとこと</label>
+          <textarea id="ntMsg" rows="3" placeholder="しっかり勉強すること！"></textarea>
+          <span class="hint">空欄にすると本文なしで印刷します。</span>
+        </div>
+        <div class="ntOpts">
+          <div class="fld"><label>色</label>
+            <select id="ntColor">
+              <option value="auto">種類に合わせる</option><option value="red">赤</option>
+              <option value="blue">青</option><option value="green">緑</option><option value="black">黒</option>
+            </select>
+          </div>
+          <div class="fld"><label>文字サイズ</label>
+            <select id="ntScale"><option value="0.85">小</option><option value="1">標準</option><option value="1.15">大</option></select>
+          </div>
+          <label class="ntChk"><input type="checkbox" id="ntTeacher">担当者名を入れる</label>
+        </div>
+      </div>
+      <div class="ntPrevWrap">
+        <div class="hint" id="ntPrevInfo" style="margin-bottom:6px;"></div>
+        <div class="ntStage" id="ntStage"><div class="ntScaler" id="ntScaler"></div></div>
+      </div>
+    </div>
+    <div class="modalActions">
+      <button id="ntClose">閉じる</button>
+      <button class="primary" id="ntPrintBtn">🖨 印刷する</button>
+    </div>
   </div>
 </div>
 
@@ -577,6 +733,7 @@ textarea{resize:vertical;line-height:1.6;}
 <!-- 成績モーダル -->
 <div class="overlay" id="gradesModal" style="display:none;">
   <div class="modal">
+    <button class="gBack" id="gBackToTasks" style="display:none;">← 小テスト・提出物にもどる</button>
     <h2>📋 成績</h2>
     <div class="gLocalNote">
       <b>この端末にのみ保存されます。</b> 生徒の氏名・成績はクラウド同期の対象外で、別の端末には引き継がれません。
@@ -588,6 +745,7 @@ textarea{resize:vertical;line-height:1.6;}
       <button class="gTab" data-gpane="matrix">一覧表</button>
       <button class="gTab" data-gpane="indiv">個人</button>
     </div>
+    <div class="gPaneHint" id="gPaneHint"></div>
     <datalist id="gSubjectList"></datalist>
 
     <div class="gPane on" id="gPane-roster">
@@ -648,12 +806,27 @@ textarea{resize:vertical;line-height:1.6;}
     </div>
 
     <div class="gPane" id="gPane-matrix">
-      <div class="modalRow">
-        <span class="small">クラス</span>
-        <select id="gMxClass"></select>
+      <div class="gMxBar">
+        <span class="small">クラス</span><select id="gMxClass"></select>
+        <span class="small">教科</span><select id="gMxSubject"></select>
+        <span class="small">学期</span><select id="gMxTerm"></select>
+        <span class="small">種類</span><select id="gMxKind"></select>
+        <span class="small">表示</span>
+        <select id="gMxMode">
+          <option value="raw">素点</option>
+          <option value="rate">得点率(%)</option>
+        </select>
         <span style="flex:1;"></span>
-        <button id="gMxPrint">🖨 一覧表を印刷</button>
+        <button id="gMxPrint">🖨 印刷</button>
       </div>
+      <div class="gExportRow">
+        <span class="small">書き出し</span>
+        <button id="gMxCopy">📋 この表をコピー</button>
+        <button id="gMxCsv">⬇ この表をCSV</button>
+        <button id="gMxCsvLong">⬇ 全クラス明細CSV</button>
+        <span class="hint" id="gMxExportHint">コピーするとスプレッドシートやExcelにそのまま貼り付けられます（氏名を含みます）。</span>
+      </div>
+      <textarea id="gMxCopyArea" style="display:none;" spellcheck="false" readonly></textarea>
       <div id="gMxWrap" style="overflow-x:auto;"></div>
       <div class="modalRow" style="margin-top:16px;">
         <span class="small">度数分布</span>
@@ -674,7 +847,10 @@ textarea{resize:vertical;line-height:1.6;}
       <div id="gIvWrap"></div>
     </div>
 
-    <div class="modalActions"><button id="gradesClose">閉じる</button></div>
+    <div class="modalActions">
+      <button class="gBack" id="gBackToTasks2" style="display:none;margin-right:auto;">← 小テスト・提出物にもどる</button>
+      <button id="gradesClose">閉じる</button>
+    </div>
   </div>
 </div>
 
@@ -926,6 +1102,8 @@ function normalizeTask(t){
     title: sanitizeStr(t.title,300),
     status: sanitizeStr(t.status,20) || "未実施"
   };
+  if(t.note!=null) task.note = sanitizeStr(t.note,300);
+  if(t.noticeLabel!=null) task.noticeLabel = sanitizeStr(t.noticeLabel,40);
   if(t.classroomCourseId!=null) task.classroomCourseId = sanitizeStr(t.classroomCourseId,100);
   if(t.classroomCourseWorkId!=null) task.classroomCourseWorkId = sanitizeStr(t.classroomCourseWorkId,100);
   if(t.submitStatus!=null) task.submitStatus = sanitizeStr(t.submitStatus,40);
@@ -1943,31 +2121,150 @@ function renderProgress(){
    ============================================================ */
 document.getElementById("btnTasks").onclick=()=>{ renderTasks(); document.getElementById("taskModal").style.display="flex"; };
 document.getElementById("taskClose").onclick=()=>{ document.getElementById("taskModal").style.display="none"; };
-document.getElementById("taskAdd").onclick=()=>{
+
+/* ---- 種類（小テスト / 提出物 / その他） ---- */
+let taskFormKind = "小テスト";
+function taskKindClass(type){ return type==="小テスト"?"k-quiz" : type==="提出物"?"k-sub" : "k-etc"; }
+// 種類によって「日付」が意味するものが変わる（小テスト＝実施日／提出物＝締め切り）
+function taskDateWord(type){ return type==="提出物" ? "提出締め切り日" : type==="小テスト" ? "実施日" : "日付"; }
+function taskDateWordShort(type){ return type==="提出物" ? "締切" : type==="小テスト" ? "実施日" : "日付"; }
+function taskTitleWord(type){ return type==="提出物" ? "課題名" : type==="小テスト" ? "テスト名" : "タイトル"; }
+function taskTitlePlaceholder(type){
+  return type==="提出物" ? "例：レタリング課題" : type==="小テスト" ? "例：漢字テスト第3回" : "例：作品展の搬入";
+}
+function applyTaskKindUI(){
+  document.querySelectorAll("#taskKindSeg button").forEach(b=>b.classList.toggle("on", b.dataset.kind===taskFormKind));
+  document.getElementById("taskDateLabel").textContent = taskDateWord(taskFormKind);
+  document.getElementById("taskTitleLabel").textContent = taskTitleWord(taskFormKind);
+  document.getElementById("taskTitle").placeholder = taskTitlePlaceholder(taskFormKind);
+}
+document.querySelectorAll("#taskKindSeg button").forEach(b=>{
+  b.onclick=()=>{ taskFormKind = b.dataset.kind; applyTaskKindUI(); };
+});
+applyTaskKindUI();
+
+/* ---- 日付まわりの小道具 ---- */
+const NT_WD = ["日","月","火","水","木","金","土"];
+function taskDateParts(iso){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||"")) return null;
+  const [y,m,d] = iso.split("-").map(Number);
+  const dt = new Date(y, m-1, d);
+  if(dt.getFullYear()!==y || dt.getMonth()!==m-1 || dt.getDate()!==d) return null;
+  return {y, m, d, wd: NT_WD[dt.getDay()], dt};
+}
+function todayIsoStr(){
+  const t=new Date();
+  return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+}
+function taskRelHtml(iso){
+  const dp=taskDateParts(iso); if(!dp) return "";
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.round((dp.dt - today)/86400000);
+  if(diff<0) return `<span class="rel">${-diff}日前</span>`;
+  if(diff===0) return '<span class="rel soon">今日</span>';
+  if(diff===1) return '<span class="rel soon">明日</span>';
+  if(diff<=7) return `<span class="rel soon">あと${diff}日</span>`;
+  return `<span class="rel">あと${diff}日</span>`;
+}
+
+/* ---- クラス・教科の候補（初期設定＋時間割＋Classroom＋既存の予定） ---- */
+function collectTaskClassNames(){
+  const set=new Set();
+  ((DB.settings && DB.settings.classes) || []).forEach(c=>{ if(c) set.add(c); });
+  (classroomCourses||[]).forEach(c=>{ if(c && c.name) set.add(c.name); });
+  Object.values(DB.weeks).forEach(w=>(w.days||[]).forEach(d=>(d.periods||[]).forEach(pd=>{ if(pd.cls) set.add(pd.cls); })));
+  DB.tasks.forEach(t=>{ if(t.cls) set.add(t.cls); });
+  return [...set].sort((a,b)=>a.localeCompare(b,"ja"));
+}
+function collectTaskSubjects(){
+  const set=new Set();
+  ((DB.settings && DB.settings.subjects) || []).forEach(sj=>{ if(sj) set.add(sj); });
+  Object.values(DB.weeks).forEach(w=>(w.days||[]).forEach(d=>(d.periods||[]).forEach(pd=>{ if(pd.subject) set.add(pd.subject); })));
+  DB.tasks.forEach(t=>{ if(t.subject) set.add(t.subject); });
+  return [...set].sort((a,b)=>a.localeCompare(b,"ja"));
+}
+function populateTaskDatalists(){
+  const classes=collectTaskClassNames();
+  document.getElementById("taskClsList").innerHTML = classes.map(c=>`<option value="${escAttr(c)}"></option>`).join("");
+  document.getElementById("taskSubjList").innerHTML = collectTaskSubjects().map(sj=>`<option value="${escAttr(sj)}"></option>`).join("");
+  const fc=document.getElementById("taskFilterCls");
+  const keep=fc.value;
+  const used=[...new Set(DB.tasks.map(t=>t.cls).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));
+  fc.innerHTML='<option value="">すべてのクラス</option>'+used.map(c=>`<option value="${escAttr(c)}">${escHtml(c)}</option>`).join("");
+  fc.value = used.includes(keep) ? keep : "";
+}
+
+/* ---- 追加 ---- */
+function addTaskFromForm(){
   const date=document.getElementById("taskDate").value;
   const cls=document.getElementById("taskCls").value.trim();
   const subject=document.getElementById("taskSubject").value.trim();
-  const type=document.getElementById("taskType").value;
   const title=document.getElementById("taskTitle").value.trim();
-  if(!title){ alert("タイトルを入力してください。"); return; }
-  DB.tasks.push({id: Date.now()+"_"+Math.random().toString(36).slice(2,7), date, cls, subject, type, title, status:"未実施"});
+  if(!title){ alert(taskTitleWord(taskFormKind)+"を入力してください。"); return null; }
+  const task={id: Date.now()+"_"+Math.random().toString(36).slice(2,7),
+    date, cls, subject, type: taskFormKind, title, status:"未実施"};
+  DB.tasks.push(task);
   saveDB();
   document.getElementById("taskTitle").value="";
   renderTasks();
   renderWeek();
+  return task;
+}
+document.getElementById("taskAdd").onclick=()=>{ addTaskFromForm(); };
+document.getElementById("taskAddNotice").onclick=()=>{
+  const t=addTaskFromForm();
+  if(!t) return;
+  if(!t.cls || !t.date){
+    if(!confirm("クラスまたは日付が空のままです。このまま張り紙をつくりますか？（張り紙の画面でも直せます）")) return;
+  }
+  openNoticeModal([t]);
 };
+
+/* ---- 一覧 ---- */
+function taskFilterState(){
+  return {
+    kind: document.getElementById("taskFilterKind").value,
+    cls: document.getElementById("taskFilterCls").value,
+    todo: document.getElementById("taskFilterTodo").checked,
+    future: document.getElementById("taskFilterFuture").checked
+  };
+}
+["taskFilterKind","taskFilterCls","taskFilterTodo","taskFilterFuture"].forEach(id=>{
+  document.getElementById(id).onchange=()=>renderTasks();
+});
+
 function renderTasks(){
+  populateTaskDatalists();
   const wrap=document.getElementById("taskListWrap");
-  if(!DB.tasks.length){ wrap.innerHTML='<div class="hint">まだ登録がありません。</div>'; return; }
-  const sorted=[...DB.tasks].sort((a,b)=> (a.date||"").localeCompare(b.date||""));
-  let h='<table class="taskTable"><tr><th>日付</th><th>クラス</th><th>教科</th><th>種別</th><th>タイトル</th><th>状態</th><th>提出状況</th><th></th></tr>';
+  const countEl=document.getElementById("taskCount");
+  const f=taskFilterState();
+  const today=todayIsoStr();
+  const shown=[...DB.tasks]
+    .filter(t=>{
+      if(f.kind && t.type!==f.kind) return false;
+      if(f.cls && t.cls!==f.cls) return false;
+      if(f.todo && t.status==="実施済み") return false;
+      if(f.future && t.date && t.date<today) return false;
+      return true;
+    })
+    .sort((a,b)=> (a.date||"9999").localeCompare(b.date||"9999") || (a.cls||"").localeCompare(b.cls||"","ja"));
+  countEl.textContent = DB.tasks.length ? `${shown.length}件を表示（全${DB.tasks.length}件）` : "";
+  if(!DB.tasks.length){ wrap.innerHTML='<div class="hint">まだ登録がありません。上のフォームから追加してください。</div>'; return; }
+  if(!shown.length){ wrap.innerHTML='<div class="hint">条件に合う予定がありません。絞り込みを変えてください。</div>'; return; }
+
   const gradedIds = (typeof GRADES!=="undefined") ? new Set(GRADES.assessments.filter(a=>a.taskId).map(a=>a.taskId)) : new Set();
-  sorted.forEach(t=>{
+  let h='<table class="taskTable"><tr><th style="width:28px;"><input type="checkbox" id="taskCheckAll" title="すべて選択"></th>'+
+    '<th>日付</th><th>クラス</th><th>教科</th><th>種類</th><th>タイトル</th><th>状態</th><th>提出状況</th><th></th></tr>';
+  shown.forEach(t=>{
     const isClassroom = t.classroomCourseId && t.classroomCourseWorkId;
     const graded = gradedIds.has(t.id);
+    const dp = taskDateParts(t.date);
     h+=`<tr class="taskRow ${t.status==="実施済み"?"done":""}">
-      <td>${escHtml(t.date||"")}</td><td>${escHtml(t.cls)}</td><td>${escHtml(t.subject)}</td>
-      <td>${escHtml(t.type)}${isClassroom?' <span class="hint">🎓</span>':''}</td><td>${escHtml(t.title)}</td>
+      <td><input type="checkbox" class="taskPick" data-id="${escAttr(t.id)}"></td>
+      <td class="taskDateCell">${dp?`<b>${dp.m}/${dp.d}（${dp.wd}）</b>`:'<b class="none">日付なし</b>'}${taskRelHtml(t.date)}<span class="rel">${escHtml(taskDateWordShort(t.type))}</span></td>
+      <td>${escHtml(t.cls)}</td><td>${escHtml(t.subject)}</td>
+      <td><span class="kindBadge ${taskKindClass(t.type)}">${escHtml(t.type||"その他")}</span>${isClassroom?' <span class="hint">🎓</span>':''}</td>
+      <td>${escHtml(t.title)}</td>
       <td><select class="taskStatus ${t.status==="実施済み"?"done":""}" data-id="${escAttr(t.id)}">
         <option ${t.status==="未実施"?"selected":""}>未実施</option>
         <option ${t.status==="実施済み"?"selected":""}>実施済み</option>
@@ -1976,6 +2273,7 @@ function renderTasks(){
         ? (t.submitStatus? escHtml(t.submitStatus)+` <button class="btnCheckSubmit" data-id="${escAttr(t.id)}">↻</button>` : `<button class="btnCheckSubmit" data-id="${escAttr(t.id)}">確認</button>`)
         : '<span class="hint">－</span>'}</td>
       <td style="white-space:nowrap;">
+        <button class="taskNotice" data-id="${escAttr(t.id)}" title="この予定の案内張り紙をつくる">🖨 張り紙</button>
         <button class="taskGrade ${graded?"on":""}" data-id="${escAttr(t.id)}" title="この予定の得点を入力">${graded?"結果 ✓":"結果を入力"}</button>
         <button class="taskDel" data-id="${escAttr(t.id)}">✕</button>
       </td>
@@ -1983,6 +2281,8 @@ function renderTasks(){
   });
   h+="</table>";
   wrap.innerHTML=h;
+  const all=document.getElementById("taskCheckAll");
+  all.onchange=()=>{ wrap.querySelectorAll(".taskPick").forEach(cb=>{ cb.checked=all.checked; }); };
   wrap.querySelectorAll(".taskStatus").forEach(sel=>{
     sel.onchange=()=>{
       const t=DB.tasks.find(x=>x.id===sel.dataset.id);
@@ -1994,6 +2294,12 @@ function renderTasks(){
       if(!confirm("削除しますか？")) return;
       DB.tasks = DB.tasks.filter(x=>x.id!==btn.dataset.id);
       saveDB(); renderTasks(); renderWeek();
+    };
+  });
+  wrap.querySelectorAll(".taskNotice").forEach(btn=>{
+    btn.onclick=()=>{
+      const t=DB.tasks.find(x=>x.id===btn.dataset.id);
+      if(t) openNoticeModal([t]);
     };
   });
   wrap.querySelectorAll(".taskGrade").forEach(btn=>{
@@ -2018,6 +2324,207 @@ function renderTasks(){
     };
   });
 }
+
+document.getElementById("taskNoticeBulk").onclick=()=>{
+  const ids=[...document.querySelectorAll(".taskPick:checked")].map(cb=>cb.dataset.id);
+  if(!ids.length){ alert("張り紙にする予定にチェックを入れてください。"); return; }
+  openNoticeModal(ids.map(id=>DB.tasks.find(t=>t.id===id)).filter(Boolean));
+};
+
+/* ============================================================
+   案内張り紙（A4横）
+   ============================================================ */
+const NOTICE_THEMES = {
+  "小テスト": {accent:"#c0392b", label:"実施日",       msg:"しっかり勉強すること！"},
+  "提出物":   {accent:"#1f5fa8", label:"提出締め切り", msg:"期限までに必ず提出しましょう。"},
+  "その他":   {accent:"#3f7a55", label:"実施日",       msg:""}
+};
+const NOTICE_COLORS = {red:"#c0392b", blue:"#1f5fa8", green:"#3f7a55", black:"#222222"};
+function noticeTheme(t){ return NOTICE_THEMES[(t&&t.type)||""] || NOTICE_THEMES["その他"]; }
+
+const NOTICE_CSS = [
+'.ntSheet{width:297mm;height:210mm;box-sizing:border-box;background:#fff;color:#111;',
+' font-family:"Yu Gothic","YuGothic","Hiragino Kaku Gothic ProN","Meiryo","MS PGothic",sans-serif;',
+' font-weight:700;padding:16mm 18mm;display:flex;flex-direction:column;position:relative;overflow:hidden;}',
+'.ntSheet .ntFrame{position:absolute;left:5mm;top:5mm;right:5mm;bottom:5mm;border:2.4mm solid var(--nt-accent);border-radius:3mm;}',
+'.ntSheet .ntFrame2{position:absolute;left:8.5mm;top:8.5mm;right:8.5mm;bottom:8.5mm;border:0.5mm solid var(--nt-accent);border-radius:1.5mm;opacity:.45;}',
+'.ntSheet .ntHead,.ntSheet .ntBody,.ntSheet .ntFoot{position:relative;z-index:1;}',
+'.ntHead{display:flex;align-items:flex-end;justify-content:space-between;gap:8mm;border-bottom:1.2mm solid #111;padding-bottom:3mm;}',
+'.ntWho{display:flex;align-items:baseline;gap:6mm;min-width:0;}',
+'.ntCls{font-size:calc(38pt * var(--nt-scale));letter-spacing:.04em;white-space:nowrap;}',
+'.ntSubj{font-size:calc(28pt * var(--nt-scale));white-space:nowrap;}',
+'.ntKind{flex:none;background:var(--nt-accent);color:#fff;border-radius:2.5mm;padding:1.5mm 6mm;',
+' font-size:calc(20pt * var(--nt-scale));letter-spacing:.1em;white-space:nowrap;}',
+'.ntBody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8mm;text-align:center;width:100%;min-height:0;}',
+'.ntTitle{font-size:calc(var(--nt-title) * var(--nt-scale));line-height:1.25;letter-spacing:.02em;max-width:100%;word-break:break-word;}',
+'.ntDateLine{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:0 4mm;}',
+'.ntLead{font-size:calc(32pt * var(--nt-scale));}',
+'.ntDate{display:inline-block;color:var(--nt-accent);font-size:calc(62pt * var(--nt-scale));line-height:1.15;',
+' border-bottom:1.6mm solid var(--nt-accent);padding:0 1mm 1mm;}',
+'.ntWd{font-size:calc(36pt * var(--nt-scale));}',
+'.ntDate.ntNoDate{color:#bbb;border-bottom-color:#bbb;}',
+'.ntMsg{font-size:calc(var(--nt-msg) * var(--nt-scale));line-height:1.5;white-space:pre-wrap;max-width:100%;word-break:break-word;}',
+'.ntFoot{display:flex;justify-content:flex-end;align-items:flex-end;font-size:calc(15pt * var(--nt-scale));color:#333;min-height:1em;}'
+].join("\n");
+document.getElementById("ntSheetStyle").textContent = NOTICE_CSS;
+
+const NT_OPTS_KEY = "kyoumu_techou_notice_v1";
+let NT_OPTS = {scale:"1", color:"auto", teacher:true};
+try{ Object.assign(NT_OPTS, JSON.parse(localStorage.getItem(NT_OPTS_KEY)||"{}")); }catch(e){}
+function ntSaveOpts(){ try{ localStorage.setItem(NT_OPTS_KEY, JSON.stringify(NT_OPTS)); }catch(e){} }
+
+function noticeLabelOf(t){
+  return (t.noticeLabel==null || t.noticeLabel==="") ? noticeTheme(t).label : t.noticeLabel;
+}
+function noticeMsgOf(t){
+  return (t.note==null) ? noticeTheme(t).msg : t.note;
+}
+function noticeSheetHtml(t, o){
+  const accent = NOTICE_COLORS[o.color] || noticeTheme(t).accent;
+  const scale = parseFloat(o.scale)||1;
+  const title = (t.title||"").trim();
+  const tlen = [...title].length;
+  const titlePt = tlen<=8 ? 54 : tlen<=14 ? 46 : tlen<=22 ? 36 : 28;
+  const msgText = noticeMsgOf(t) || "";
+  const msgLines = msgText ? msgText.split(/\r?\n/) : [];
+  const msgWide = msgLines.reduce((a,l)=>Math.max(a,[...l].length), 0);
+  const msgPt = (msgWide<=20 && msgLines.length<=2) ? 30
+              : (msgWide<=34 && msgLines.length<=3) ? 24
+              : (msgWide<=60 && msgLines.length<=4) ? 19 : 15;
+  const dp = taskDateParts(t.date);
+  const dateHtml = dp
+    ? `<span class="ntDate">${dp.m}月${dp.d}日<span class="ntWd">（${dp.wd}）</span></span>`
+    : '<span class="ntDate ntNoDate">＿月＿日</span>';
+  const msg = msgText;
+  return `<div class="ntSheet" style="--nt-accent:${accent};--nt-scale:${scale};--nt-title:${titlePt}pt;--nt-msg:${msgPt}pt;">
+  <div class="ntFrame"></div><div class="ntFrame2"></div>
+  <div class="ntHead">
+    <div class="ntWho"><span class="ntCls">${escHtml(t.cls||"　")}</span><span class="ntSubj">${escHtml(t.subject||"")}</span></div>
+    <div class="ntKind">${escHtml(t.type||"お知らせ")}</div>
+  </div>
+  <div class="ntBody">
+    ${title?`<div class="ntTitle">${escHtml(title)}</div>`:""}
+    <div class="ntDateLine"><span class="ntLead">${escHtml(noticeLabelOf(t))}は</span>${dateHtml}<span class="ntLead">です</span></div>
+    ${msg?`<div class="ntMsg">${escHtml(msg)}</div>`:""}
+  </div>
+  <div class="ntFoot">${(o.teacher && DB.teacherName)?"担当："+escHtml(DB.teacherName):""}</div>
+</div>`;
+}
+
+let ntTargets=[], ntIdx=0, ntSaveTimer=null;
+function ntCur(){ return ntTargets[ntIdx]||null; }
+function ntScheduleSave(){
+  clearTimeout(ntSaveTimer);
+  ntSaveTimer=setTimeout(()=>{ saveDB(); renderTasks(); renderWeek(); }, 500);
+}
+function openNoticeModal(tasks){
+  ntTargets=(tasks||[]).filter(Boolean);
+  if(!ntTargets.length){ alert("張り紙にする予定を選んでください。"); return; }
+  ntIdx=0;
+  document.getElementById("ntColor").value=NT_OPTS.color;
+  document.getElementById("ntScale").value=NT_OPTS.scale;
+  document.getElementById("ntTeacher").checked=!!NT_OPTS.teacher;
+  document.getElementById("noticeModal").style.display="flex";
+  ntRenderTargetSel();
+  ntLoadForm();
+}
+function ntRenderTargetSel(){
+  const sel=document.getElementById("ntTargetSel");
+  sel.innerHTML=ntTargets.map((t,i)=>{
+    const dp=taskDateParts(t.date);
+    const d=dp?`${dp.m}/${dp.d}`:"日付なし";
+    return `<option value="${i}" ${i===ntIdx?"selected":""}>${i+1}/${ntTargets.length}　${escHtml(d)}　${escHtml(t.cls||"クラス未設定")}　${escHtml(t.title||"")}</option>`;
+  }).join("");
+  const multi=ntTargets.length>1;
+  document.getElementById("ntPrev").style.display=multi?"":"none";
+  document.getElementById("ntNext").style.display=multi?"":"none";
+  sel.style.display=multi?"":"none";
+  document.getElementById("ntPrevInfo").textContent = multi
+    ? `プレビュー（${ntIdx+1}枚目 / 全${ntTargets.length}枚）　印刷すると全${ntTargets.length}枚をまとめて出力します。`
+    : "プレビュー（A4横・1枚）";
+}
+function ntLoadForm(){
+  const t=ntCur(); if(!t) return;
+  document.getElementById("ntCls").value=t.cls||"";
+  document.getElementById("ntSubject").value=t.subject||"";
+  document.getElementById("ntTitle").value=t.title||"";
+  document.getElementById("ntDate").value=t.date||"";
+  document.getElementById("ntLabel").value=noticeLabelOf(t);
+  document.getElementById("ntLabel").placeholder=noticeTheme(t).label;
+  document.getElementById("ntMsg").value=noticeMsgOf(t);
+  document.getElementById("ntMsg").placeholder=noticeTheme(t).msg||"（空欄でもかまいません）";
+  document.getElementById("ntDateCap").textContent=taskDateWord(t.type);
+  ntRenderPreview();
+}
+function ntRenderPreview(){
+  const t=ntCur(); if(!t) return;
+  const o={color:document.getElementById("ntColor").value,
+           scale:document.getElementById("ntScale").value,
+           teacher:document.getElementById("ntTeacher").checked};
+  document.getElementById("ntScaler").innerHTML=noticeSheetHtml(t,o);
+  ntFitPreview();
+}
+function ntFitPreview(){
+  const stage=document.getElementById("ntStage");
+  const scaler=document.getElementById("ntScaler");
+  const sheet=scaler.firstElementChild;
+  if(!sheet) return;
+  const avail=stage.clientWidth - 20;
+  const s=Math.max(.1, Math.min(1, avail / sheet.offsetWidth));
+  scaler.style.transform="scale("+s+")";
+  stage.style.height=(sheet.offsetHeight*s + 20)+"px";
+}
+window.addEventListener("resize", ()=>{
+  if(document.getElementById("noticeModal").style.display==="flex") ntFitPreview();
+});
+
+document.getElementById("ntTargetSel").onchange=(e)=>{ ntIdx=+e.target.value||0; ntRenderTargetSel(); ntLoadForm(); };
+document.getElementById("ntPrev").onclick=()=>{ if(!ntTargets.length) return; ntIdx=(ntIdx-1+ntTargets.length)%ntTargets.length; ntRenderTargetSel(); ntLoadForm(); };
+document.getElementById("ntNext").onclick=()=>{ if(!ntTargets.length) return; ntIdx=(ntIdx+1)%ntTargets.length; ntRenderTargetSel(); ntLoadForm(); };
+
+function ntBindField(id, apply){
+  const el=document.getElementById(id);
+  el.oninput=()=>{ const t=ntCur(); if(!t) return; apply(t, el.value); ntRenderPreview(); ntRenderTargetSel(); ntScheduleSave(); };
+}
+ntBindField("ntCls",     (t,v)=>{ t.cls=v.trim(); });
+ntBindField("ntSubject", (t,v)=>{ t.subject=v.trim(); });
+ntBindField("ntTitle",   (t,v)=>{ t.title=v.trim(); });
+ntBindField("ntDate",    (t,v)=>{ t.date=v; });
+ntBindField("ntLabel",   (t,v)=>{ t.noticeLabel=v; });
+ntBindField("ntMsg",     (t,v)=>{ t.note=v; });
+
+["ntColor","ntScale"].forEach(id=>{
+  document.getElementById(id).onchange=()=>{
+    NT_OPTS[id==="ntColor"?"color":"scale"]=document.getElementById(id).value;
+    ntSaveOpts(); ntRenderPreview();
+  };
+});
+document.getElementById("ntTeacher").onchange=()=>{
+  NT_OPTS.teacher=document.getElementById("ntTeacher").checked;
+  ntSaveOpts(); ntRenderPreview();
+};
+document.getElementById("ntClose").onclick=()=>{
+  document.getElementById("noticeModal").style.display="none";
+  clearTimeout(ntSaveTimer); saveDB(); renderTasks(); renderWeek();
+};
+document.getElementById("ntPrintBtn").onclick=()=>{
+  if(!ntTargets.length) return;
+  clearTimeout(ntSaveTimer); saveDB();
+  const o={color:document.getElementById("ntColor").value,
+           scale:document.getElementById("ntScale").value,
+           teacher:document.getElementById("ntTeacher").checked};
+  const w=window.open("","_blank");
+  if(!w){ alert("ポップアップがブロックされました。ブラウザで許可してください。"); return; }
+  const sheets=ntTargets.map(t=>noticeSheetHtml(t,o)).join("\n");
+  w.document.write('<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>案内張り紙</title><style>'+
+    '@page{size:A4 landscape;margin:0;}html,body{margin:0;padding:0;background:#fff;}'+
+    '.ntSheet{page-break-after:always;break-after:page;}'+
+    '.ntSheet:last-child{page-break-after:auto;break-after:auto;}'+
+    NOTICE_CSS+
+    '</style></head><body>'+sheets+
+    '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>');
+  w.document.close();
+};
 
 /* ============================================================
    Google Classroom 連携（任意機能）
@@ -2062,6 +2569,7 @@ async function loadClassroomCourses(){
   classroomCourses = courses.map(c=>({id:c.id, name:c.name}));
   const dl=document.getElementById("classroomCourseList");
   dl.innerHTML = classroomCourses.map(c=>`<option value="${escAttr(c.name)}">`).join("");
+  populateTaskDatalists(); // クラス欄の候補にもコース名を出す
   return classroomCourses;
 }
 
@@ -2392,7 +2900,14 @@ function gPopulateSubjectDatalist(){
   const dl=document.getElementById("gSubjectList");
   dl.innerHTML=((DB.settings&&DB.settings.subjects)||[]).map(s=>`<option value="${escAttr(s)}"></option>`).join("");
 }
+const G_PANE_HINTS = {
+  roster: "クラスごとに名簿を1つ作ります（教科では分けません）。ここで作った名簿に、「得点入力」で点を入れていきます。",
+  scores: "テストや提出物1つ＝「評価」として作り、生徒ごとに点を入れます。「小テスト・提出物」の予定から入ったときは、その予定とひもづいた評価が自動で用意されます。",
+  matrix: "1クラスの評価を横に並べた一覧表です。教科・学期・種類でしぼり込めます。コピーやCSVでスプレッドシート／Excelに渡せます。",
+  indiv:  "生徒1人ぶんの成績票です。得点率・クラス平均との差・順位が出ます。"
+};
 function gShowPane(pane){
+  document.getElementById("gPaneHint").textContent = G_PANE_HINTS[pane] || "";
   document.querySelectorAll("#gradesModal .gTab").forEach(t=>t.classList.toggle("on", t.getAttribute("data-gpane")===pane));
   document.querySelectorAll("#gradesModal .gPane").forEach(p=>p.classList.toggle("on", p.id==="gPane-"+pane));
   if(pane==="roster"){ gRenderRosterClassSel(); gLoadRosterIntoEditor(); }
@@ -2404,12 +2919,34 @@ document.querySelectorAll("#gradesModal .gTab").forEach(tab=>{
   tab.onclick=()=>gShowPane(tab.getAttribute("data-gpane"));
 });
 
+/* 「小テスト・提出物」→「結果を入力」で来たときは、そこへ戻れるようにする */
+let gCameFromTasks = false;
+function gSetBackToTasks(on){
+  gCameFromTasks = !!on;
+  ["gBackToTasks","gBackToTasks2"].forEach(id=>{
+    document.getElementById(id).style.display = on ? "" : "none";
+  });
+}
+function gReturnToTasks(){
+  document.getElementById("gradesModal").style.display="none";
+  gSetBackToTasks(false);
+  renderTasks();
+  document.getElementById("taskModal").style.display="flex";
+}
+["gBackToTasks","gBackToTasks2"].forEach(id=>{
+  document.getElementById(id).onclick = gReturnToTasks;
+});
+
 document.getElementById("btnGrades").onclick=()=>{
   gPopulateSubjectDatalist();
+  gSetBackToTasks(false);
   gShowPane("roster");
   document.getElementById("gradesModal").style.display="flex";
 };
-document.getElementById("gradesClose").onclick=()=>{ document.getElementById("gradesModal").style.display="none"; };
+document.getElementById("gradesClose").onclick=()=>{
+  document.getElementById("gradesModal").style.display="none";
+  gSetBackToTasks(false);
+};
 document.getElementById("gRosterClass").onchange=(e)=>{ gCurClass=e.target.value; gLoadRosterIntoEditor(); };
 document.getElementById("gRosterText").addEventListener("input", gUpdateRosterCount);
 document.getElementById("gRosterAddClass").onclick=()=>{
@@ -2466,7 +3003,14 @@ function gRenderAssessmentSel(){
     gCurAssessmentId=null;
   } else {
     if(!list.some(a=>a.id===gCurAssessmentId)) gCurAssessmentId=list[0].id;
-    sel.innerHTML=list.map(a=>`<option value="${escAttr(a.id)}" ${a.id===gCurAssessmentId?"selected":""}>${escHtml(gAssessLabel(a))}</option>`).join("");
+    // 教科ごとにまとめて出す（教科なしは最後）
+    const groups=new Map();
+    list.forEach(a=>{ const k=a.subject||""; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(a); });
+    const keys=[...groups.keys()].sort((x,y)=> (x?0:1)-(y?0:1) || x.localeCompare(y,"ja"));
+    const opt=a=>`<option value="${escAttr(a.id)}" ${a.id===gCurAssessmentId?"selected":""}>${escHtml(gAssessLabel(a))}</option>`;
+    sel.innerHTML = (keys.length<=1)
+      ? list.map(opt).join("")
+      : keys.map(k=>`<optgroup label="${escAttr(k||"（教科なし）")}">${groups.get(k).map(opt).join("")}</optgroup>`).join("");
   }
   const has=!!gCurAssessmentId;
   document.getElementById("gScoreEditMeta").style.display=has?"":"none";
@@ -2608,13 +3152,18 @@ function gUpdateScoreStats(){
 }
 
 /* ============================================================
-   Step3: 成績一覧表・度数分布・印刷
+   Step3: 成績一覧表・度数分布・書き出し・印刷
    ============================================================ */
-let gMxClass = "";
+let gMxClass = "", gMxSubject = "", gMxTerm = "", gMxKind = "", gMxMode = "raw";
 function gStd(nums){
   if(!nums.length) return null;
   const m=nums.reduce((a,b)=>a+b,0)/nums.length;
   return Math.sqrt(nums.reduce((a,b)=>a+(b-m)*(b-m),0)/nums.length);
+}
+function gRound1(n){ return Math.round(n*10)/10; }
+function gRateOf(a, no){
+  const n=gScoreNum(a.scores[no]);
+  return n==null ? null : gRound1(n/(a.maxScore||100)*100);
 }
 function gRenderMxClassSel(){
   const sel=document.getElementById("gMxClass");
@@ -2623,31 +3172,80 @@ function gRenderMxClassSel(){
   if(!list.includes(gMxClass)) gMxClass=list[0];
   sel.innerHTML=list.map(c=>`<option value="${escAttr(c)}" ${c===gMxClass?"selected":""}>${escHtml(c)}</option>`).join("");
 }
+// 教科・学期・種類のしぼり込み。選択肢はそのクラスに実在するものだけ出す。
+function gRenderMxFilters(){
+  const all=gAssessmentsForClass(gMxClass);
+  const fill=(id, values, cur)=>{
+    const sel=document.getElementById(id);
+    const list=[...new Set(values.filter(Boolean))].sort((x,y)=>x.localeCompare(y,"ja"));
+    sel.innerHTML='<option value="">すべて</option>'+
+      list.map(v=>`<option value="${escAttr(v)}">${escHtml(v)}</option>`).join("");
+    sel.value = list.includes(cur) ? cur : "";
+    sel.disabled = !list.length;
+    return sel.value;
+  };
+  gMxSubject = fill("gMxSubject", all.map(a=>a.subject), gMxSubject);
+  gMxTerm    = fill("gMxTerm",    all.map(a=>a.term),    gMxTerm);
+  gMxKind    = fill("gMxKind",    all.map(a=>a.kind),    gMxKind);
+  document.getElementById("gMxMode").value = gMxMode;
+}
+function gMxAssessments(){
+  return gAssessmentsForClass(gMxClass).filter(a=>
+    (!gMxSubject || (a.subject||"")===gMxSubject) &&
+    (!gMxTerm    || (a.term||"")===gMxTerm) &&
+    (!gMxKind    || (a.kind||"")===gMxKind));
+}
+// 表に出す数値（表示モードに従う。統計もこの値で計算する）
+function gMxCellNum(a, no){
+  const n=gScoreNum(a.scores[no]);
+  if(n==null) return null;
+  return gMxMode==="rate" ? gRound1(n/(a.maxScore||100)*100) : n;
+}
+// 表に出す文字列（「欠」などの数字以外はそのまま）
+function gMxCellText(a, no){
+  const raw=a.scores[no];
+  if(raw==null || String(raw)==="") return "";
+  const n=gMxCellNum(a, no);
+  return n==null ? String(raw) : String(n);
+}
+function gMxColHead(a){
+  return (a.subject? a.subject+" " : "") + (a.name||"(無題)") +
+         (a.date? "("+a.date.slice(5)+")" : "") + " /" + a.maxScore;
+}
 function gRenderMatrix(){
   const wrap=document.getElementById("gMxWrap");
   const histSel=document.getElementById("gMxHistAssess");
+  gRenderMxFilters();
   const roster=GRADES.rosters[gMxClass]||[];
-  const assess=gAssessmentsForClass(gMxClass);
-  if(!roster.length){ wrap.innerHTML='<div class="hint">このクラスの名簿がありません。「名簿」タブで登録してください。</div>'; histSel.innerHTML=""; document.getElementById("gMxHist").innerHTML=""; return; }
-  if(!assess.length){ wrap.innerHTML='<div class="hint">まだ評価がありません。「得点入力」タブで作成してください。</div>'; histSel.innerHTML=""; document.getElementById("gMxHist").innerHTML=""; return; }
+  const assess=gMxAssessments();
+  const clear=msg=>{ wrap.innerHTML=`<div class="hint">${msg}</div>`; histSel.innerHTML=""; document.getElementById("gMxHist").innerHTML=""; };
+  if(!roster.length) return clear("このクラスの名簿がありません。「名簿」タブで登録してください。");
+  if(!gAssessmentsForClass(gMxClass).length) return clear("まだ評価がありません。「得点入力」タブで作成してください。");
+  if(!assess.length) return clear("しぼり込みに合う評価がありません。教科・学期・種類の条件を変えてください。");
 
-  const colNums = assess.map(a=> roster.map(s=>gScoreNum(a.scores[s.no])).filter(n=>n!=null));
+  const colNums = assess.map(a=> roster.map(s=>gMxCellNum(a,s.no)).filter(n=>n!=null));
+  const unit = gMxMode==="rate" ? "%" : "点";
 
   let h='<table class="gMxTable"><thead><tr><th>番号</th><th>氏名</th>';
   assess.forEach(a=>{
-    h+=`<th>${escHtml(a.subject? a.subject+" " : "")}${escHtml(a.name)}<br><span class="hint">${a.date?escHtml(a.date.slice(5)):"日付なし"} / ${a.maxScore}点</span></th>`;
+    h+=`<th>${a.kind?`<span class="kindTag">${escHtml(a.kind)}</span>`:""}`+
+       `${escHtml(a.subject? a.subject+" " : "")}${escHtml(a.name||"(無題)")}<br>`+
+       `<span class="hint">${a.date?escHtml(a.date.slice(5)):"日付なし"} / ${a.maxScore}点${a.term?" / "+escHtml(a.term):""}</span></th>`;
   });
-  h+='<th class="colTotal">合計</th><th class="colTotal">平均</th></tr></thead><tbody>';
+  h+='<th class="colTotal">合計<br><span class="hint">素点</span></th>'+
+     '<th class="colTotal">得点率<br><span class="hint">平均 %</span></th></tr></thead><tbody>';
   roster.forEach(s=>{
     h+=`<tr><td class="num">${s.no}</td><td class="nm">${escHtml(s.name)}</td>`;
-    let sum=0,cnt=0;
+    let sum=0, cnt=0, rateSum=0;
     assess.forEach(a=>{
-      const raw=a.scores[s.no];
-      const n=gScoreNum(raw);
-      if(n!=null){ sum+=n; cnt++; }
-      h+=`<td class="num">${(raw==null||String(raw)==="")?"":escHtml(String(raw))}</td>`;
+      const txt=gMxCellText(a,s.no);
+      const isNum=gMxCellNum(a,s.no)!=null;
+      const n=gScoreNum(a.scores[s.no]);
+      if(n!=null){ sum+=n; cnt++; rateSum+=n/(a.maxScore||100)*100; }
+      h+=`<td class="${isNum?"num":"txt"}">${escHtml(txt)}</td>`;
     });
-    h+=`<td class="num colTotal">${cnt?Math.round(sum*10)/10:""}</td><td class="num colTotal">${cnt?(sum/cnt).toFixed(1):""}</td></tr>`;
+    h+=`<td class="num colTotal">${cnt?gRound1(sum):""}</td>`+
+       `<td class="num colTotal">${cnt?(rateSum/cnt).toFixed(1):""}</td></tr>`;
   });
   h+='</tbody><tfoot>';
   const footRow=(label,fn)=>{
@@ -2655,7 +3253,7 @@ function gRenderMatrix(){
     colNums.forEach(nums=>{ r+=`<td class="num">${nums.length?fn(nums):"–"}</td>`; });
     return r+'<td class="colTotal"></td><td class="colTotal"></td></tr>';
   };
-  h+=footRow("クラス平均", n=>(n.reduce((a,b)=>a+b,0)/n.length).toFixed(1));
+  h+=footRow("クラス平均（"+unit+"）", n=>(n.reduce((a,b)=>a+b,0)/n.length).toFixed(1));
   h+=footRow("最高", n=>Math.max(...n));
   h+=footRow("最低", n=>Math.min(...n));
   h+=footRow("標準偏差", n=>gStd(n).toFixed(1));
@@ -2690,6 +3288,102 @@ function gRenderHist(){
   }
   wrap.innerHTML=h+'</div>';
 }
+
+/* ---- 表計算ソフトへの書き出し ---- */
+// 画面の一覧表とまったく同じ内容を二次元配列で作る（DOMからは読まない）
+function gMxExportRows(){
+  const roster=GRADES.rosters[gMxClass]||[];
+  const assess=gMxAssessments();
+  const unit = gMxMode==="rate" ? "%" : "点";
+  const head=["番号","氏名"].concat(assess.map(gMxColHead)).concat(["合計(素点)","得点率平均(%)"]);
+  const rows=[head];
+  roster.forEach(s=>{
+    const r=[s.no, s.name];
+    let sum=0, cnt=0, rateSum=0;
+    assess.forEach(a=>{
+      r.push(gMxCellText(a,s.no));
+      const n=gScoreNum(a.scores[s.no]);
+      if(n!=null){ sum+=n; cnt++; rateSum+=n/(a.maxScore||100)*100; }
+    });
+    r.push(cnt?gRound1(sum):"", cnt?gRound1(rateSum/cnt):"");
+    rows.push(r);
+  });
+  const colNums = assess.map(a=> roster.map(s=>gMxCellNum(a,s.no)).filter(n=>n!=null));
+  const foot=(label,fn)=>[label,""].concat(colNums.map(n=>n.length?fn(n):"")).concat(["",""]);
+  rows.push(foot("クラス平均("+unit+")", n=>gRound1(n.reduce((a,b)=>a+b,0)/n.length)));
+  rows.push(foot("最高", n=>Math.max(...n)));
+  rows.push(foot("最低", n=>Math.min(...n)));
+  rows.push(foot("標準偏差", n=>gRound1(gStd(n))));
+  rows.push(foot("受験者数", n=>n.length));
+  return rows;
+}
+// 全クラス・全評価を1行1得点の縦持ちで。ピボットテーブルにかけやすい形。
+function gLongExportRows(){
+  const rows=[["クラス","出席番号","氏名","教科","評価名","種類","実施日","学期","観点","満点","得点","得点率(%)"]];
+  const list=[...GRADES.assessments].sort((a,b)=>
+    (a.classKey||"").localeCompare(b.classKey||"","ja") ||
+    (a.date||"").localeCompare(b.date||"") ||
+    (a.name||"").localeCompare(b.name||"","ja"));
+  list.forEach(a=>{
+    (GRADES.rosters[a.classKey]||[]).forEach(s=>{
+      const raw=a.scores[s.no];
+      const n=gScoreNum(raw);
+      rows.push([a.classKey, s.no, s.name, a.subject||"", a.name||"", a.kind||"",
+                 a.date||"", a.term||"", a.viewpoint||"", a.maxScore,
+                 (raw==null||String(raw)==="") ? "" : String(raw),
+                 n==null ? "" : gRateOf(a, s.no)]);
+    });
+  });
+  return rows;
+}
+function gToTsv(rows){
+  return rows.map(r=>r.map(v=>String(v==null?"":v).replace(/[\t\r\n]/g," ")).join("\t")).join("\n");
+}
+function gCsvCell(v){
+  const t=String(v==null?"":v);
+  return /[",\r\n]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t;
+}
+function gDownloadCsv(name, rows){
+  const csv=rows.map(r=>r.map(gCsvCell).join(",")).join("\r\n");
+  // Excelが文字化けしないよう BOM を付ける
+  const blob=new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+function gExportHint(msg){ document.getElementById("gMxExportHint").textContent=msg; }
+// クリップボードが使えない環境では、テキストエリアに出して手で選べるようにする
+function gCopyTsv(rows){
+  const text=gToTsv(rows);
+  const area=document.getElementById("gMxCopyArea");
+  const okMsg="コピーしました。スプレッドシートやExcelのセルを選んで貼り付けてください。";
+  const fallback=()=>{
+    area.style.display="block"; area.value=text;
+    area.focus(); area.select();
+    let ok=false;
+    try{ ok=document.execCommand("copy"); }catch(e){}
+    if(ok){ area.style.display="none"; gExportHint(okMsg); }
+    else gExportHint("自動コピーができませんでした。下の枠の中身を選んで Ctrl+C でコピーしてください。");
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>{ area.style.display="none"; gExportHint(okMsg); }, fallback);
+  } else fallback();
+}
+function gMxFileStamp(){
+  const t=new Date();
+  return t.getFullYear()+String(t.getMonth()+1).padStart(2,"0")+String(t.getDate()).padStart(2,"0");
+}
+function gMxFilterLabel(){
+  const parts=[];
+  if(gMxSubject) parts.push(gMxSubject);
+  if(gMxTerm) parts.push(gMxTerm);
+  if(gMxKind) parts.push(gMxKind);
+  parts.push(gMxMode==="rate" ? "得点率(%)" : "素点");
+  return parts.join("・");
+}
+
 function gPrintMatrix(){
   const tbl=document.querySelector("#gMxWrap .gMxTable");
   if(!tbl){ alert("印刷できる一覧表がありません。"); return; }
@@ -2701,16 +3395,42 @@ function gPrintMatrix(){
     'h1{font-size:15px;margin:0 0 3px;}.sub{font-size:11px;color:#666;margin-bottom:10px;}'+
     'table{border-collapse:collapse;font-size:10px;width:100%;}th,td{border:1px solid #999;padding:3px 5px;text-align:center;}'+
     'th{background:#eee;}td:nth-child(2){text-align:left;white-space:nowrap;}tfoot td{background:#f3f3f3;font-weight:bold;}'+
+    '.kindTag{font-size:8px;border:1px solid #bbb;border-radius:3px;padding:0 3px;margin-right:2px;}'+
     '@page{size:landscape;}</style></head><body>'+
     '<h1>成績一覧表　'+escHtml(gMxClass)+'</h1>'+
-    '<div class="sub">'+escHtml(DB.teacherName||"")+'　印刷日：'+today+'</div>'+
+    '<div class="sub">'+escHtml(gMxFilterLabel())+'　／　'+escHtml(DB.teacherName||"")+'　印刷日：'+today+'</div>'+
     tbl.outerHTML+
     '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>');
   w.document.close();
 }
-document.getElementById("gMxClass").onchange=(e)=>{ gMxClass=e.target.value; gRenderMatrix(); };
+["gMxClass","gMxSubject","gMxTerm","gMxKind","gMxMode"].forEach(id=>{
+  document.getElementById(id).onchange=(e)=>{
+    if(id==="gMxClass"){ gMxClass=e.target.value; gMxSubject=gMxTerm=gMxKind=""; }
+    else if(id==="gMxSubject") gMxSubject=e.target.value;
+    else if(id==="gMxTerm") gMxTerm=e.target.value;
+    else if(id==="gMxKind") gMxKind=e.target.value;
+    else gMxMode=e.target.value;
+    document.getElementById("gMxCopyArea").style.display="none";
+    gRenderMatrix();
+  };
+});
 document.getElementById("gMxHistAssess").onchange=gRenderHist;
 document.getElementById("gMxPrint").onclick=gPrintMatrix;
+document.getElementById("gMxCopy").onclick=()=>{
+  if(!document.querySelector("#gMxWrap .gMxTable")){ alert("書き出せる一覧表がありません。"); return; }
+  gCopyTsv(gMxExportRows());
+};
+document.getElementById("gMxCsv").onclick=()=>{
+  if(!document.querySelector("#gMxWrap .gMxTable")){ alert("書き出せる一覧表がありません。"); return; }
+  gDownloadCsv("成績一覧_"+(gMxClass||"クラス")+"_"+gMxFileStamp()+".csv", gMxExportRows());
+  gExportHint("CSVを保存しました。Excelでそのまま開けます。");
+};
+document.getElementById("gMxCsvLong").onclick=()=>{
+  if(!GRADES.assessments.length){ alert("書き出せる評価がありません。"); return; }
+  const rows=gLongExportRows();
+  gDownloadCsv("成績明細_全クラス_"+gMxFileStamp()+".csv", rows);
+  gExportHint((rows.length-1)+"行の明細CSVを保存しました。ピボットテーブルなどで集計できます。");
+};
 
 /* ============================================================
    Step4: 個人票
@@ -2821,6 +3541,7 @@ function gOpenAssessmentForTask(task){
   gPopulateSubjectDatalist();
   document.getElementById("taskModal").style.display="none";
   document.getElementById("gradesModal").style.display="flex";
+  gSetBackToTasks(true);
   gShowPane("scores");
 }
 
