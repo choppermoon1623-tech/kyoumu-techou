@@ -284,6 +284,8 @@ textarea{resize:vertical;line-height:1.6;}
 .gTab:hover{background:var(--wash);}
 .gTab.on{background:var(--panel);border-color:var(--line);color:var(--ink);font-weight:600;box-shadow:0 1px 0 var(--panel);}
 .gPane{display:none;} .gPane.on{display:block;}
+#storageAlert{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#b00020;color:#fff;
+  padding:10px 14px;font-size:13px;line-height:1.6;cursor:pointer;box-shadow:0 -2px 10px rgba(0,0,0,.25);}
 .gLocalNote{background:var(--wash);border:1px solid var(--line);border-radius:10px;
   padding:9px 12px;font-size:11px;color:var(--sub);line-height:1.7;margin-bottom:14px;}
 .gLocalNote b{color:var(--ink2);}
@@ -433,6 +435,8 @@ textarea{resize:vertical;line-height:1.6;}
 <style id="ntSheetStyle"></style>
 </head>
 <body>
+
+<div id="storageAlert" title="クリックで閉じます"></div>
 
 <div class="topbar">
   <button id="btnSidebarToggle" class="icon hamburger" title="週一覧">☰</button>
@@ -1014,15 +1018,21 @@ window.fbSync = {
   // expectedUpdatedAt: 直前に自分が把握していたサーバー側updatedAt。
   // 保存しようとした瞬間にサーバー側がそれと異なっていたら（＝別端末が先に書き込んでいたら）
   // 上書きせずに競合として例外を投げ、サーバー側の最新内容を持たせて返す。
-  async push(uid, dataObj, expectedUpdatedAt){
+  // opts.force=true は「全データ消去」など、上書きすると分かったうえでの操作のみ。
+  async push(uid, dataObj, expectedUpdatedAt, opts){
     const ref = doc(fbDb, "users", uid, "techou", "data");
+    const force = !!(opts && opts.force);
     return runTransaction(fbDb, async (tx)=>{
       const snap = await tx.get(ref);
       const serverUpdatedAt = snap.exists() ? (snap.data().updatedAt||null) : null;
-      if(expectedUpdatedAt!=null && serverUpdatedAt!=null && serverUpdatedAt!==expectedUpdatedAt){
+      // expectedUpdatedAt が null＝「サーバーにはまだ何も無いはず」という意味。
+      // 実際にはデータがあるなら、初回照合前の古い内容で上書きしようとしている可能性があるので競合扱いにする。
+      const conflict = force ? false
+        : (expectedUpdatedAt==null ? snap.exists() : serverUpdatedAt!==expectedUpdatedAt);
+      if(conflict){
         const err = new Error("別の端末が先に保存しています");
         err.code = "sync-conflict";
-        err.serverJson = snap.data().json;
+        err.serverJson = snap.exists() ? snap.data().json : null;
         err.serverUpdatedAt = serverUpdatedAt;
         throw err;
       }
@@ -1040,6 +1050,9 @@ window.fbSync = {
    ============================================================ */
 const STORAGE_KEY = "kyoumu_techou_v1";
 const RESET_PASSWORD = "techou-reset"; // 「全データを消去」の誤操作防止用パスワード。変更したい場合はここを書き換える
+const CONFLICT_KEY = "kyoumu_techou_conflict_v1"; // 競合で上書きされる直前のこの端末の内容
+let localDirty = false; // クラウドへ未送信のローカル変更があるか（受信で上書きしないための目印）
+let syncReady  = false; // 初回のクラウド照合が済んだか（済むまで push しない）
 let DB = loadDB();
 let curWeek = null; // ISO monday date string of the week currently shown
 
@@ -1056,8 +1069,28 @@ function loadDB(){
   return db;
 }
 function saveDB(){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){ console.error(e); }
+  let ok=true;
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
+  catch(e){ console.error(e); ok=false; notifyStorageFailure("週の時間割・予定をこの端末に保存できませんでした。"); }
+  localDirty = true;
   scheduleCloudPush();
+  return ok;
+}
+// localStorage への保存に失敗したとき（容量超過・保存禁止など）は必ず利用者に知らせる。
+// 黙って失敗すると、画面には残っているのに再読み込みで消える＝いちばん困る事故になる。
+function notifyStorageFailure(what){
+  const el=document.getElementById("storageAlert");
+  if(el){
+    el.textContent = "⚠ "+what+" ブラウザの保存領域がいっぱいか、保存が禁止されている可能性があります。"
+      + "この画面を閉じると入力内容が失われます。「その他(⋯)」からバックアップを書き出してください。";
+    el.style.display="block";
+  }
+  if(!notifyStorageFailure._shown){
+    notifyStorageFailure._shown = true;
+    alert(what+"\n\nブラウザの保存領域がいっぱいか、保存が禁止されている可能性があります。\n"
+      + "この画面を閉じたり再読み込みすると、いま入力した内容は失われます。\n"
+      + "「その他(⋯)」メニューからバックアップ（成績は成績バックアップ）を書き出してください。");
+  }
 }
 
 /* ============================================================
@@ -1176,21 +1209,51 @@ function setSyncStatus(state, detail){
   else if(state==="error"){ el.style.color="var(--accent)"; label.textContent="同期エラー"; }
 }
 
+// 競合でこの端末の内容が上書きされる前に、必ず退避しておく（localStorage ＋ ファイル書き出し）
+function stashLocalDB(){
+  try{ localStorage.setItem(CONFLICT_KEY, JSON.stringify({at:new Date().toISOString(), json:DB})); }catch(e){ console.error(e); }
+  try{
+    const blob=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download="kyoumu-techou-conflict-backup.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }catch(e){ console.error(e); }
+}
+
 function scheduleCloudPush(){
   if(!currentUser) return;
   const uid = currentUser.uid;
   setSyncStatus("pending");
   clearTimeout(cloudPushTimer);
+  if(!syncReady){
+    // 初回のクラウド照合が終わるまでは送らない。
+    // ここで送ってしまうと、まだ読み込んでいないクラウド側の内容を古いローカル内容で上書きしてしまう。
+    cloudPushTimer=setTimeout(()=>{ if(currentUser && currentUser.uid===uid) scheduleCloudPush(); }, 1000);
+    return;
+  }
   cloudPushTimer=setTimeout(async()=>{
     // 実行時に別アカウントへ切り替わっていたら送らない（ログアウト・アカウント切替時の誤送信防止）
     if(!currentUser || currentUser.uid!==uid) return;
     try{
       lastKnownRemoteUpdatedAt = await window.fbSync.push(uid, DB, lastKnownRemoteUpdatedAt);
+      localDirty = false;
       setSyncStatus("ok");
     }catch(err){
       if(err && err.code==="sync-conflict"){
         if(!currentUser || currentUser.uid!==uid) return;
-        alert("別の端末で保存された内容があるため、たった今の変更は保存されませんでした。\nこの端末を最新の内容に更新します。もう一度入力し直してください。");
+        if(err.serverJson==null){
+          // クラウド側のデータが消えている場合は、この端末の内容をあらためて送り直す
+          lastKnownRemoteUpdatedAt = null;
+          scheduleCloudPush();
+          return;
+        }
+        stashLocalDB();
+        alert("別の端末で保存された内容があるため、たった今の変更は保存されませんでした。\n\n"
+          + "この端末の内容は「kyoumu-techou-conflict-backup.json」として書き出しました。\n"
+          + "必要なら「その他(⋯)」→「バックアップから復元」で戻せます。\n\n"
+          + "この端末を最新の内容に更新します。");
         applyRemoteDB(err.serverJson);
         lastKnownRemoteUpdatedAt = err.serverUpdatedAt;
         setSyncStatus("ok");
@@ -1204,14 +1267,23 @@ function scheduleCloudPush(){
   }, 1200);
 }
 function isDbEmpty(db){
-  return !Object.keys(db.weeks||{}).length && !(db.tasks||[]).length;
+  // 初期設定だけ済ませた端末を「空」と誤判定すると、設定が確認なしで消える／クラウドを上書きするので全項目を見る
+  if(!db || typeof db!=="object") return true;
+  return !Object.keys(db.weeks||{}).length
+      && !(db.tasks||[]).length
+      && !db.settings
+      && !(db.teacherName||"")
+      && !Object.keys((db.annualHours && db.annualHours.data) || {}).length;
 }
 function applyRemoteDB(remote){
   let normalized;
   try{ normalized = normalizeDB(remote); }
   catch(e){ console.error("クラウドのデータ形式が不正です", e); return; }
+  clearTimeout(cloudPushTimer); // 適用前の内容を送り返さない
   DB = normalized;
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
+  localDirty = false;
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
+  catch(e){ console.error(e); notifyStorageFailure("クラウドから取り込んだ内容をこの端末に保存できませんでした。"); }
   const keys=Object.keys(DB.weeks).sort();
   if(!curWeek || !DB.weeks[curWeek]) curWeek = keys.length? keys[keys.length-1] : null;
   renderWeekList(); renderWeek();
@@ -1239,6 +1311,9 @@ function initSync(){
   window.fbSync.onAuthChange(user=>{
     currentUser=user;
     updateSyncButton();
+    syncReady = false;
+    // 成績・名簿はアカウントごとに分けて持つ（同じ端末を別の先生が使ったときに見えないように）
+    if(typeof gSwitchGradesProfile==="function") gSwitchGradesProfile(user? user.uid : null);
     if(!user){ clearTimeout(cloudPushTimer); clearTimeout(cloudRetryTimer); setSyncStatus("hidden"); return; }
     trySyncUser(user);
   });
@@ -1258,17 +1333,31 @@ async function trySyncUser(user){
         lastKnownRemoteUpdatedAt = remote.updatedAt;
       } else {
         clearTimeout(cloudPushTimer);
-        lastKnownRemoteUpdatedAt = await window.fbSync.push(user.uid, DB, remote.updatedAt);
+        // 利用者が「この端末のデータを使う」と選んだ明示的な上書き
+        lastKnownRemoteUpdatedAt = await window.fbSync.push(user.uid, DB, remote.updatedAt, {force:true});
+        localDirty = false;
       }
     } else if(remote && !isDbEmpty(remote.json)){
       applyRemoteDB(remote.json);
       lastKnownRemoteUpdatedAt = remote.updatedAt;
     } else {
       clearTimeout(cloudPushTimer);
-      lastKnownRemoteUpdatedAt = await window.fbSync.push(user.uid, DB, remote?remote.updatedAt:null);
+      lastKnownRemoteUpdatedAt = await window.fbSync.push(user.uid, DB, remote?remote.updatedAt:null, {force:!!remote});
+      localDirty = false;
     }
     if(currentUser!==user) return; // confirm()・push()待ち中に切り替わった場合も中断
-    window.fbSync.subscribe(user.uid, remote2=>{ applyRemoteDB(remote2.json); lastKnownRemoteUpdatedAt = remote2.updatedAt; setSyncStatus("ok"); });
+    window.fbSync.subscribe(user.uid, remote2=>{
+      if(localDirty){
+        // この端末にまだ送れていない変更がある間は取り込まない。
+        // （取り込むと編集中の内容が消える。送信時に競合として検出され、退避したうえで解決される）
+        setSyncStatus("pending", "この端末の未送信の変更を保存してから、他の端末の更新を取り込みます。");
+        return;
+      }
+      applyRemoteDB(remote2.json);
+      lastKnownRemoteUpdatedAt = remote2.updatedAt;
+      setSyncStatus("ok");
+    });
+    syncReady = true;
     setSyncStatus("ok");
   }catch(err){
     console.error(err);
@@ -1648,9 +1737,12 @@ function applyParsedWeek(parsed, row, teacherName){
   // 日付から月曜日の週キーを決定
   // 年度（4月始まり）が読み取れない場合は、今日の日付から年度開始年を推定する
   // （1〜3月に実行している＝前年度の年度内なので、そのまま今年をとると1年先にずれる）
+  // 初期設定の年度があればそれを優先する（過年度のPDFや、1〜3月に翌年度のPDFを読む場合に1年ずれるのを防ぐ）
   const today = new Date();
   const inferredFiscalStartYear = (today.getMonth()+1>=4) ? today.getFullYear() : today.getFullYear()-1;
-  const year = parsed.reiwa? reiwaToYear(parsed.reiwa) : inferredFiscalStartYear;
+  const settingsFiscalYear = (DB.settings && parseInt(DB.settings.fiscalYear,10)) || null;
+  const year = parsed.reiwa ? reiwaToYear(parsed.reiwa)
+             : (settingsFiscalYear || inferredFiscalStartYear);
   let firstIso=null;
   const daysMeta=[];
   for(let d=0; d<parsed.dayCount; d++){
@@ -1680,17 +1772,36 @@ function applyParsedWeek(parsed, row, teacherName){
         note: oldP ? (oldP.note||"") : ""
       });
     }
+    // 読み直したPDFの時限数が前より少なくても、メモが入っている時限は消さずに残す
+    const oldPeriods = (oldDay && Array.isArray(oldDay.periods)) ? oldDay.periods : [];
+    let lastNoted = -1;
+    for(let p=n; p<oldPeriods.length; p++){ if(oldPeriods[p] && (oldPeriods[p].note||"")) lastNoted=p; }
+    for(let p=n; p<=lastNoted; p++){
+      const op = oldPeriods[p] || {};
+      periods.push({ n:p+1, cls:op.cls||"", subject:op.subject||"", note:op.note||"" });
+    }
     return {
       date: meta.iso, weekday: meta.weekday, events: meta.events,
       dayNote: oldDay ? (oldDay.dayNote||"") : "",
       periods
     };
   });
+  // 今回のPDFに出てこなかった日でも、メモが残っている日は消さずに残す
+  const keptDays = [];
+  if(existing && Array.isArray(existing.days)){
+    existing.days.forEach(od=>{
+      if(!od || (od.date && newDays.some(nd=>nd.date===od.date))) return;
+      const hasNote = (od.dayNote||"") || (Array.isArray(od.periods) && od.periods.some(p=>p && (p.note||"")));
+      if(hasNote) keptDays.push(od);
+    });
+  }
+  const mergedDays = newDays.concat(keptDays)
+    .sort((a,b)=>String(a.date||"").localeCompare(String(b.date||"")));
   DB.weeks[wkKey] = {
     title: `${parsed.reiwa?("令和"+parsed.reiwa+"年度　"):""}`.trim(),
     teacherName,
     imported:true,
-    days:newDays
+    days:mergedDays
   };
   if(parsed.annualTables && parsed.annualTables.length){
     DB.annualHours = { asOfWeek: wkKey, data: buildAnnualLookup(parsed.annualTables) };
@@ -2018,6 +2129,11 @@ function shiftWeek(days){
   if(target>=0 && target<keys.length){ curWeek=keys[target]; renderWeek(); renderWeekList(); }
 }
 
+(function(){
+  const el=document.getElementById("storageAlert");
+  if(el) el.onclick=()=>{ el.style.display="none"; };
+})();
+
 document.getElementById("btnPrint").onclick=()=>window.print();
 
 document.getElementById("btnExport").onclick=()=>{
@@ -2049,11 +2165,19 @@ document.getElementById("btnFactoryReset").onclick=async()=>{
   if(!confirm("本当にすべてのデータ（週の時間割・タスク・初期設定・成績）を消去しますか？\nこの操作は取り消せません。")) return;
   DB = {v:1, teacherName:"", weeks:{}, tasks:[], annualHours:{asOfWeek:null, data:{}}};
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
-  try{ localStorage.removeItem("kyoumu_techou_grades_v1"); GRADES={v:1, rosters:{}, assessments:[], classroomMap:{}}; }catch(e){}
+  try{
+    localStorage.removeItem(gradesKey(gradesOwnerUid));
+    localStorage.removeItem(GRADES_KEY_BASE); // 旧バージョンの共有キーも消す
+    localStorage.removeItem(CONFLICT_KEY);
+    GRADES={v:1, rosters:{}, assessments:[], classroomMap:{}};
+  }catch(e){}
+  localDirty = false;
   curWeek = null;
   if(currentUser && window.fbSync && window.fbSync.configured){
     try{
-      lastKnownRemoteUpdatedAt = await window.fbSync.push(currentUser.uid, DB, null);
+      // 消去は「上書きすると分かったうえでの操作」なので force で送る
+      lastKnownRemoteUpdatedAt = await window.fbSync.push(currentUser.uid, DB, null, {force:true});
+      syncReady = true;
     }catch(err){
       console.error(err);
       alert("この端末のデータは消去しましたが、クラウド側の消去に失敗しました：\n"+(err.message||err));
@@ -2781,17 +2905,77 @@ function escAttr(s){ return escHtml(s).replace(/"/g,"&quot;"); }
    - DB とは別の localStorage キーに保存し、scheduleCloudPush は呼ばない
    - バックアップも専用ファイル（氏名を含むため通常バックアップと分離）
    ============================================================ */
-const GRADES_KEY = "kyoumu_techou_grades_v1";
-let GRADES = loadGrades();
+/* 成績・名簿は端末ローカル限定だが、同じ端末を複数の先生が使うと前の先生の氏名・得点が見えてしまう。
+   そのため保存キーをログイン中のアカウント(UID)ごとに分ける。未ログイン時は "__local"。 */
+const GRADES_KEY_BASE = "kyoumu_techou_grades_v1"; // 旧バージョンの共有キーでもある
+let gradesOwnerUid = null;
+function gradesKey(uid){ return GRADES_KEY_BASE + (uid ? "__"+uid : "__local"); }
+let GRADES = loadGrades(null);
 
-function loadGrades(){
+function loadGrades(uid){
   let g=null;
-  try{ const raw=localStorage.getItem(GRADES_KEY); if(raw) g=JSON.parse(raw); }catch(e){}
+  try{ const raw=localStorage.getItem(gradesKey(uid)); if(raw) g=JSON.parse(raw); }catch(e){}
   return normalizeGrades(g);
 }
 function saveGrades(){
-  try{ localStorage.setItem(GRADES_KEY, JSON.stringify(GRADES)); }catch(e){ console.error(e); }
   /* クラウド同期はしない（意図的に scheduleCloudPush を呼ばない） */
+  try{
+    localStorage.setItem(gradesKey(gradesOwnerUid), JSON.stringify(GRADES));
+    return true;
+  }catch(e){
+    console.error(e);
+    notifyStorageFailure("成績（名簿・得点）をこの端末に保存できませんでした。");
+    return false;
+  }
+}
+function gIsGradesEmpty(g){
+  return !g || (!Object.keys(g.rosters||{}).length && !(g.assessments||[]).length);
+}
+function gRefreshAllGradesViews(){
+  try{
+    gCurAssessmentId=null;
+    gRenderRosterClassSel(); gLoadRosterIntoEditor();
+    gRenderScoreClassSel(); gRenderAssessmentSel(); gRenderScoreList();
+    gRenderMxClassSel(); gRenderMatrix();
+    gRenderIvClassSel(); gRenderIvStudentSel(); gRenderIndiv();
+  }catch(e){ console.error(e); }
+}
+// ログイン／ログアウトで成績の持ち主を切り替える
+function gSwitchGradesProfile(uid){
+  const next = uid || null;
+  if(gradesOwnerUid === next) return;
+  gFlushScoreSave();
+  gradesOwnerUid = next;
+  GRADES = loadGrades(next);
+  gRefreshAllGradesViews();
+}
+// 旧バージョン（共有キー）の成績が残っている場合、引き継ぐかどうかを一度だけ確認する
+let gLegacyAsked = false;
+function gMaybeAdoptLegacyGrades(){
+  if(gLegacyAsked) return;
+  let raw=null;
+  try{ raw=localStorage.getItem(GRADES_KEY_BASE); }catch(e){ return; }
+  if(!raw) return;
+  let legacy=null;
+  try{ legacy=normalizeGrades(JSON.parse(raw)); }catch(e){ return; }
+  if(gIsGradesEmpty(legacy)){ try{ localStorage.removeItem(GRADES_KEY_BASE); }catch(e){} return; }
+  if(!gIsGradesEmpty(GRADES)) return; // 今のアカウントにすでにデータがある
+  gLegacyAsked = true;
+  const who = gradesOwnerUid
+    ? ((currentUser && (currentUser.email||currentUser.displayName)) || "ログイン中のアカウント")
+    : "ログインしていない状態";
+  const ok = confirm(
+    "以前のバージョンで保存された成績データがこの端末に残っています。\n"
+    + "（名簿 "+Object.keys(legacy.rosters||{}).length+"クラス／評価 "+(legacy.assessments||[]).length+"件）\n\n"
+    + "「OK」＝ "+who+" のデータとして引き継ぐ\n"
+    + "「キャンセル」＝ 引き継がない（データはこの端末に残したままにします）\n\n"
+    + "※ 同じ端末を複数の先生で使っている場合は、自分のデータであることを確かめてから引き継いでください。");
+  if(!ok) return;
+  GRADES = legacy;
+  if(saveGrades()){
+    try{ localStorage.removeItem(GRADES_KEY_BASE); }catch(e){}
+    gRefreshAllGradesViews();
+  }
 }
 function normalizeGrades(raw){
   const g = { v:1, rosters:{}, assessments:[], classroomMap:{} };
@@ -2844,7 +3028,14 @@ function normalizeGrades(raw){
           if(Number.isFinite(n) && n>0) map[sanitizeStr(uid,64)] = n;
         });
       }
-      g.classroomMap[sanitizeStr(cid,64)] = { classKey: sanitizeStr(e.classKey,40), map };
+      // 対応づけた当時の氏名。名簿が変わっていないかの確認に使う
+      const names={};
+      if(e.names && typeof e.names==="object"){
+        Object.keys(e.names).slice(0,400).forEach(uid=>{
+          const nm=sanitizeStr(e.names[uid],40); if(nm) names[sanitizeStr(uid,64)]=nm;
+        });
+      }
+      g.classroomMap[sanitizeStr(cid,64)] = { classKey: sanitizeStr(e.classKey,40), map, names };
     });
   }
   return g;
@@ -2870,6 +3061,69 @@ function gParseRoster(text){
   return out;
 }
 function gRosterToText(list){ return (list||[]).map(s=>s.no+"\t"+s.name).join("\n"); }
+
+/* 得点は出席番号をキーに保存しているため、名簿の並べ替え・行の挿入で番号がずれると
+   別の生徒の点になってしまう。氏名を手がかりに付け替え、決められない分は利用者に確認する。
+   戻り値 false = 保存を中止する */
+function gRemapScoresForRoster(cls, oldList, newList){
+  const targets = GRADES.assessments.filter(a=>a.classKey===cls && a.scores && Object.keys(a.scores).length);
+  if(!targets.length || !(oldList||[]).length) return true;
+
+  const oldByNo={}; oldList.forEach(s=>{ oldByNo[String(s.no)]=s.name; });
+  const newByNo={}; newList.forEach(s=>{ newByNo[String(s.no)]=s.name; });
+
+  // 実際に得点が入っている出席番号だけを対象にする
+  const usedNos=new Set();
+  targets.forEach(a=>Object.keys(a.scores).forEach(no=>{
+    const v=a.scores[no];
+    if(v!=null && String(v)!=="") usedNos.add(String(no));
+  }));
+
+  const nameToNos={};
+  newList.forEach(s=>{ const k=gcNorm(s.name); (nameToNos[k]=nameToNos[k]||[]).push(String(s.no)); });
+
+  const remap={}, moved=[], stuck=[];
+  usedNos.forEach(no=>{
+    const nm=oldByNo[no];
+    if(nm==null) return;          // 元の名簿に無い番号の得点はそのまま
+    if(newByNo[no]===nm) return;  // 同じ番号に同じ生徒 → 何もしない
+    const cand=nameToNos[gcNorm(nm)]||[];
+    if(cand.length===1 && cand[0]!==no){ remap[no]=cand[0]; moved.push(no+"番 "+nm+" → "+cand[0]+"番"); }
+    else if(cand.length!==1){ stuck.push(no+"番 "+nm+(cand.length>1?"（同姓同名が複数います）":"（新しい名簿にいません）")); }
+  });
+
+  if(!moved.length && !stuck.length) return true;
+
+  const cut=(arr)=>arr.slice(0,20).join("\n")+(arr.length>20?("\n…ほか"+(arr.length-20)+"件"):"");
+  let msg="このクラスには、すでに得点が入っている評価が "+targets.length+"件あります。\n"
+        + "名簿を変えると出席番号の対応がずれるため、次のように扱います。\n\n";
+  if(moved.length) msg+="【得点を移します】\n"+cut(moved)+"\n\n";
+  if(stuck.length) msg+="【移し先を決められません】\n"+cut(stuck)
+        + "\n→ この番号の得点はそのまま残るため、新しい名簿ではその番号の生徒の点として表示されます。\n"
+        + "　 心配な場合はキャンセルし、先に「その他(⋯)」→「成績バックアップ」を書き出してください。\n\n";
+  msg+="この内容で名簿を保存しますか？（キャンセルすると名簿は変更しません）";
+  if(!confirm(msg)) return false;
+
+  if(Object.keys(remap).length){
+    targets.forEach(a=>{
+      const next={};
+      // 動かさない分を先に置き、あとから移動分で上書きする（移動分を優先）
+      Object.keys(a.scores).forEach(no=>{ if(remap[no]==null) next[String(no)]=a.scores[no]; });
+      Object.keys(a.scores).forEach(no=>{ if(remap[no]!=null) next[String(remap[no])]=a.scores[no]; });
+      a.scores=next;
+    });
+    // Classroom の対応表も一緒に付け替える
+    Object.keys(GRADES.classroomMap||{}).forEach(cid=>{
+      const e=GRADES.classroomMap[cid];
+      if(!e || e.classKey!==cls || !e.map) return;
+      Object.keys(e.map).forEach(uid=>{
+        const n=remap[String(e.map[uid])];
+        if(n!=null) e.map[uid]=parseInt(n,10);
+      });
+    });
+  }
+  return true;
+}
 
 let gCurClass = "";
 function gRenderRosterClassSel(){
@@ -2907,6 +3161,7 @@ const G_PANE_HINTS = {
   indiv:  "生徒1人ぶんの成績票です。得点率・クラス平均との差・順位が出ます。"
 };
 function gShowPane(pane){
+  gFlushScoreSave();
   document.getElementById("gPaneHint").textContent = G_PANE_HINTS[pane] || "";
   document.querySelectorAll("#gradesModal .gTab").forEach(t=>t.classList.toggle("on", t.getAttribute("data-gpane")===pane));
   document.querySelectorAll("#gradesModal .gPane").forEach(p=>p.classList.toggle("on", p.id==="gPane-"+pane));
@@ -2928,6 +3183,7 @@ function gSetBackToTasks(on){
   });
 }
 function gReturnToTasks(){
+  gFlushScoreSave();
   document.getElementById("gradesModal").style.display="none";
   gSetBackToTasks(false);
   renderTasks();
@@ -2938,12 +3194,14 @@ function gReturnToTasks(){
 });
 
 document.getElementById("btnGrades").onclick=()=>{
+  gMaybeAdoptLegacyGrades();
   gPopulateSubjectDatalist();
   gSetBackToTasks(false);
   gShowPane("roster");
   document.getElementById("gradesModal").style.display="flex";
 };
 document.getElementById("gradesClose").onclick=()=>{
+  gFlushScoreSave();
   document.getElementById("gradesModal").style.display="none";
   gSetBackToTasks(false);
 };
@@ -2962,10 +3220,11 @@ document.getElementById("gRosterSave").onclick=()=>{
   const list=gParseRoster(document.getElementById("gRosterText").value);
   const nos=list.map(s=>s.no);
   if(nos.some((n,i)=>nos.indexOf(n)!==i) && !confirm("出席番号が重複しています。このまま保存しますか？")) return;
+  if(!gRemapScoresForRoster(gCurClass, GRADES.rosters[gCurClass]||[], list)) return;
   GRADES.rosters[gCurClass]=list;
-  saveGrades();
+  const saved=saveGrades();
   gRenderRosterView(); gUpdateRosterCount();
-  alert(`「${gCurClass}」の名簿を保存しました（${list.length}人）。`);
+  if(saved) alert(`「${gCurClass}」の名簿を保存しました（${list.length}人）。`);
 };
 document.getElementById("gRosterRevert").onclick=gLoadRosterIntoEditor;
 
@@ -3088,7 +3347,11 @@ function gToHalf(s){
 }
 function gScoreNum(v){
   if(typeof v==="number") return isFinite(v)?v:null;
-  if(typeof v==="string" && v.trim()!==""){ const n=parseFloat(gToHalf(v)); return isFinite(n)?n:null; }
+  if(typeof v==="string"){
+    // 「10点」「12欠」のような文字列を parseFloat で拾って平均に混ぜないよう、全体が数値のときだけ数える
+    const t=gToHalf(v).trim();
+    if(/^[+-]?(\d+(\.\d+)?|\.\d+)$/.test(t)){ const n=Number(t); return isFinite(n)?n:null; }
+  }
   return null;
 }
 function gRenderScoreList(){
@@ -3132,8 +3395,15 @@ function onScoreInput(e){
   else { a.scores[no] = v.slice(0,8); }
   gUpdateScoreStats();
   clearTimeout(gScoreSaveTimer);
-  gScoreSaveTimer=setTimeout(saveGrades, 400);
+  gScoreSaveTimer=setTimeout(()=>{ gScoreSaveTimer=null; saveGrades(); }, 400);
 }
+// 入力直後にタブを閉じる・再読み込みすると最後の1件が保存されないので、その前に書き出す
+function gFlushScoreSave(){
+  if(gScoreSaveTimer){ clearTimeout(gScoreSaveTimer); gScoreSaveTimer=null; saveGrades(); }
+}
+window.addEventListener("pagehide", gFlushScoreSave);
+window.addEventListener("beforeunload", gFlushScoreSave);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") gFlushScoreSave(); });
 function gUpdateScoreStats(){
   const a=gCurAssessment(); if(!a) return;
   const roster=GRADES.rosters[a.classKey]||[];
@@ -3336,11 +3606,17 @@ function gLongExportRows(){
   });
   return rows;
 }
+// 氏名や評価名が「=」などで始まると Excel が数式として解釈してしまうので、先頭に ' を付けて無害化する
+function gCsvSafe(v){
+  const t=String(v==null?"":v);
+  if(/^[+-]?(\d+(\.\d+)?|\.\d+)$/.test(t)) return t; // ふつうの数値はそのまま
+  return /^[=+\-@\t\r]/.test(t) ? "'"+t : t;
+}
 function gToTsv(rows){
-  return rows.map(r=>r.map(v=>String(v==null?"":v).replace(/[\t\r\n]/g," ")).join("\t")).join("\n");
+  return rows.map(r=>r.map(v=>gCsvSafe(v).replace(/[\t\r\n]/g," ")).join("\t")).join("\n");
 }
 function gCsvCell(v){
-  const t=String(v==null?"":v);
+  const t=gCsvSafe(v);
   return /[",\r\n]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t;
 }
 function gDownloadCsv(name, rows){
@@ -3551,13 +3827,25 @@ function gOpenAssessmentForTask(task){
 let gcTargetClass = "", gcRows = [], gcCtx = null;
 
 function gcNorm(s){ return String(s||"").normalize("NFKC").replace(/\s+/g,"").toLowerCase(); }
-function gcResolve(name, roster, savedNo){
-  if(savedNo && roster.some(s=>s.no===savedNo)) return savedNo;
-  const exact = roster.find(s=>s.name===name);
-  if(exact) return exact.no;
+function gcResolve(name, roster, savedNo, savedName){
+  // 保存済みの対応は、その番号の生徒が当時と同じ氏名のときだけ信用する
+  if(savedNo){
+    const s = roster.find(x=>x.no===savedNo);
+    if(s && (!savedName || gcNorm(s.name)===gcNorm(savedName))) return savedNo;
+  }
+  // 名簿に同姓同名が複数いる場合は、勝手に先頭の生徒に決めず未対応のままにして手で選ばせる
+  const exact = roster.filter(s=>s.name===name);
+  if(exact.length===1) return exact[0].no;
+  if(exact.length>1) return null;
   const n=gcNorm(name);
   const hits = roster.filter(s=>gcNorm(s.name)===n);
   return hits.length===1 ? hits[0].no : null;
+}
+// 同じ出席番号に複数の Classroom の生徒が割り当たったら、どちらも未対応に戻して手で選ばせる
+function gcDedupeTargets(rows){
+  const count={};
+  rows.forEach(r=>{ if(r.targetNo) count[r.targetNo]=(count[r.targetNo]||0)+1; });
+  rows.forEach(r=>{ if(r.targetNo && count[r.targetNo]>1) r.targetNo=null; });
 }
 function gcWorkKind(wt){ return (wt==="SHORT_ANSWER_QUESTION"||wt==="MULTIPLE_CHOICE_QUESTION") ? "小テスト" : "提出物"; }
 function gcToday(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -3634,15 +3922,20 @@ document.getElementById("gcLoad").onclick=async()=>{
     ]);
     const maxP = parseFloat(opt.dataset.max);
     gcCtx = { courseId, workId, workTitle:opt.dataset.title||"", workType:opt.dataset.type||"", maxPoints: isFinite(maxP)?maxP:0, due:opt.dataset.due||"" };
-    const saved = (GRADES.classroomMap[courseId] && GRADES.classroomMap[courseId].map) || {};
+    // 保存済みの対応表は、保存したときと同じクラスを選んでいるときだけ使う
+    const savedEntry = GRADES.classroomMap[courseId];
+    const sameClass = !!(savedEntry && savedEntry.classKey===gcTargetClass);
+    const saved      = (sameClass && savedEntry.map)   || {};
+    const savedNames = (sameClass && savedEntry.names) || {};
     gcRows = students.map(st=>{
       const uid=st.userId;
       const nm=(st.profile && st.profile.name && st.profile.name.fullName) || "(名前不明)";
       const sub=subs.find(s=>s.userId===uid);
       let grade=null;
       if(sub) grade = (sub.assignedGrade!=null) ? sub.assignedGrade : ((sub.draftGrade!=null) ? sub.draftGrade : null);
-      return { uid, clsName:nm, grade, targetNo: gcResolve(nm, roster, saved[uid]) };
+      return { uid, clsName:nm, grade, targetNo: gcResolve(nm, roster, saved[uid], savedNames[uid]) };
     }).sort((a,b)=> (a.targetNo||999) - (b.targetNo||999));
+    gcDedupeTargets(gcRows);
     if(!gcRows.length){ wrap.innerHTML='<div class="hint">この課題の生徒が取得できませんでした。</div>'; return; }
     gcRenderPreview();
   }catch(err){
@@ -3689,6 +3982,13 @@ document.getElementById("gcApply").onclick=()=>{
   if(!gcCtx){ return; }
   const roster=GRADES.rosters[gcTargetClass]||[];
   if(!roster.length){ alert("このクラスの名簿がありません。"); return; }
+  // 1人の生徒に複数の Classroom アカウントが割り当たっていると、あとの行の点で上書きされてしまう
+  const seen={}; let dupNo=null;
+  gcRows.forEach(r=>{ if(r.targetNo){ if(seen[r.targetNo]) dupNo=r.targetNo; seen[r.targetNo]=true; } });
+  if(dupNo!=null){
+    alert("出席番号 "+dupNo+"番 に複数の Classroom の生徒が割り当てられています。\n1人ずつになるよう選び直してください。");
+    return;
+  }
   let a = GRADES.assessments.find(x=>x.classroomCourseWorkId===gcCtx.workId && x.classKey===gcTargetClass);
   if(!a){
     const curSubj = (gCurAssessment() && gCurAssessment().classKey===gcTargetClass) ? gCurAssessment().subject : "";
@@ -3713,14 +4013,20 @@ document.getElementById("gcApply").onclick=()=>{
   if(linkTask && !a.taskId) a.taskId=linkTask.id;
 
   let applied=0, unresolved=0;
-  const newMap={};
+  const newMap={}, newNames={};
   gcRows.forEach(r=>{
-    if(r.targetNo) newMap[r.uid]=r.targetNo;
+    if(r.targetNo){ newMap[r.uid]=r.targetNo; newNames[r.uid]=r.clsName; }
     if(r.grade!=null && r.targetNo){ a.scores[String(r.targetNo)] = Number(r.grade); applied++; }
     else if(r.grade!=null && !r.targetNo){ unresolved++; }
   });
-  const prev = (GRADES.classroomMap[gcCtx.courseId] && GRADES.classroomMap[gcCtx.courseId].map) || {};
-  GRADES.classroomMap[gcCtx.courseId] = { classKey:gcTargetClass, map: Object.assign({}, prev, newMap) };
+  // 前回の対応表は、同じクラスに対するものだけ引き継ぐ
+  const prevEntry = GRADES.classroomMap[gcCtx.courseId];
+  const samePrev  = !!(prevEntry && prevEntry.classKey===gcTargetClass);
+  GRADES.classroomMap[gcCtx.courseId] = {
+    classKey: gcTargetClass,
+    map:   Object.assign({}, (samePrev && prevEntry.map)   || {}, newMap),
+    names: Object.assign({}, (samePrev && prevEntry.names) || {}, newNames)
+  };
   saveGrades();
 
   gScoreClass=gcTargetClass; gCurAssessmentId=a.id;
@@ -3747,13 +4053,9 @@ document.getElementById("gradesFile").onchange=async(e)=>{
     if(!data || data.__kyoumuGrades!==true) throw new Error("成績バックアップファイルではありません。");
     if(!confirm("現在の成績データ（名簿・得点）に上書きして読み込みます。よろしいですか？")) return;
     GRADES=normalizeGrades(data);
-    saveGrades();
-    gCurAssessmentId=null;
-    gRenderRosterClassSel(); gLoadRosterIntoEditor();
-    gRenderScoreClassSel(); gRenderAssessmentSel(); gRenderScoreList();
-    gRenderMxClassSel(); gRenderMatrix();
-    gRenderIvClassSel(); gRenderIvStudentSel(); gRenderIndiv();
-    alert("成績バックアップを読み込みました。");
+    const saved=saveGrades();
+    gRefreshAllGradesViews();
+    if(saved) alert("成績バックアップを読み込みました。");
   }catch(err){ alert("読み込みに失敗しました：\n"+(err.message||err)); }
 };
 </script>
