@@ -17,6 +17,22 @@ service cloud.firestore {
                    && request.resource.data.updatedAt is number;
     }
 
+    // QR提出チェックの記録は users/{uid}/submits/{sessionId} に置く。
+    // 生徒の氏名は入れない（クラス名・出席番号・提出時刻だけ）。
+    // スマホとPCの両方が marks を1件ずつ merge で書くため、
+    // フィールド名だけを制限し、書き込み自体は本人に許可する。
+    match /users/{uid}/submits/{sessionId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+
+      allow create, update: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.data.keys().hasOnly(
+                        ["v","classId","className","taskId","title","date",
+                         "count","marks","createdAt","updatedAt"])
+                   && (!("marks" in request.resource.data)
+                        || request.resource.data.marks is map);
+    }
+
     // 上記以外のパスはすべて拒否（デフォルト拒否）。
     match /{document=**} {
       allow read, write: if false;
