@@ -299,8 +299,27 @@ textarea{resize:vertical;line-height:1.6;}
 .qrCell.done .no{color:var(--ok);}
 .qrCell.done::after{content:"\2713";display:block;font-size:11px;color:var(--ok);font-weight:700;}
 .qrRosterBox{text-align:center;padding:6px 0;}
-.qrRosterBox canvas{width:min(66vw,340px);height:auto;image-rendering:pixelated;
+.qrRosterBox canvas{width:min(88vw,560px);height:auto;image-rendering:pixelated;
   border:1px solid var(--line);border-radius:8px;background:#fff;}
+/* 「大きく表示」…スマホのカメラで読みやすいよう画面いっぱいに出す */
+#qrRosterModal.big .modal{max-width:none;width:98vw;}
+#qrRosterModal.big .qrNote,
+#qrRosterModal.big h2{display:none;}
+#qrRosterModal.big .qrRosterBox canvas{width:min(94vw,88vh);}
+/* ---- QRシール印刷 ---- */
+.qrPrintGrid{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;}
+@media (max-width:720px){ .qrPrintGrid{grid-template-columns:1fr;} }
+.qrPrintRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.qrPrintRow label{font-size:12.5px;color:var(--sub);}
+.qrPrintRow input[type=number]{width:78px;}
+.qrPv{position:relative;background:#fff;border:1px solid var(--ink2);
+  box-shadow:0 2px 10px rgba(0,0,0,.12);}
+.qrPv .lb{position:absolute;background:var(--wash2);border:1px solid var(--ghost);
+  overflow:hidden;font-size:5px;line-height:1.1;color:var(--ink2);
+  display:flex;align-items:center;justify-content:center;}
+.qrPv .lb.cut{background:var(--accentWash);border-color:var(--accent);color:var(--accent);}
+.qrPv .safe{position:absolute;border:1px dashed var(--accent);pointer-events:none;}
+.qrPvCap{font-size:11.5px;color:var(--sub);text-align:center;margin-top:6px;line-height:1.6;}
 .qrRosterNav{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;}
 .qrNote{background:var(--wash);border:1px solid var(--line);border-radius:10px;
   padding:9px 11px;font-size:12.5px;color:var(--ink2);line-height:1.7;margin:8px 0;}
@@ -776,6 +795,51 @@ textarea{resize:vertical;line-height:1.6;}
   </div>
 </div>
 
+<!-- QR提出チェック：QRシール印刷モーダル -->
+<div class="overlay" id="qrStickerModal" style="display:none;">
+  <div class="modal" style="max-width:680px;">
+    <h2>🏷 QRシール印刷</h2>
+    <div id="qrStkTitle" class="hint"></div>
+    <div class="qrPrintGrid" style="margin-top:10px;">
+      <div>
+        <div class="qrPrintRow">
+          <label>用紙</label>
+          <select id="qrStkSheet" style="flex:1;min-width:200px;"></select>
+        </div>
+        <div class="qrPrintRow">
+          <label>左へ／右へ ずらす</label>
+          <input type="number" id="qrStkDx" step="0.5" value="0"><span class="hint">mm（＋で右へ）</span>
+        </div>
+        <div class="qrPrintRow">
+          <label>上へ／下へ ずらす</label>
+          <input type="number" id="qrStkDy" step="0.5" value="0"><span class="hint">mm（＋で下へ）</span>
+        </div>
+        <div class="qrPrintRow">
+          <label><input type="checkbox" id="qrStkBorder"> 切る目安の枠線を出す</label>
+        </div>
+        <div class="qrPrintRow">
+          <label><input type="checkbox" id="qrStkName" checked> 氏名を刷る</label>
+        </div>
+        <div id="qrStkWarn"></div>
+        <div class="qrNote">
+          プレビューの<b>赤い破線</b>より外側は、多くのプリンタで<b>印刷できない範囲</b>です。
+          赤くなったシールは切れます。「ずらす」で内側に入れてください。<br>
+          印刷ダイアログは <b>用紙A4・余白なし・倍率100%</b> にしてください。
+        </div>
+      </div>
+      <div>
+        <div class="qrPv" id="qrStkPv"></div>
+        <div class="qrPvCap" id="qrStkPvCap"></div>
+      </div>
+    </div>
+    <div class="modalActions">
+      <button id="qrStkReset">ずらしを0に戻す</button>
+      <button id="qrStkCancel">やめる</button>
+      <button class="primary" id="qrStkPrint">印刷する</button>
+    </div>
+  </div>
+</div>
+
 <!-- QR提出チェック：名簿QR表示モーダル -->
 <div class="overlay" id="qrRosterModal" style="display:none;">
   <div class="modal" style="max-width:460px;">
@@ -790,6 +854,7 @@ textarea{resize:vertical;line-height:1.6;}
         <button id="qrRosterPrev">← 前</button>
         <span id="qrRosterPage" style="font-family:var(--serif);"></span>
         <button id="qrRosterNext">次 →</button>
+        <button id="qrRosterBig" title="スマホで読みにくいときは大きくしてください">⛶ 大きく</button>
       </div>
       <div class="hint" id="qrRosterHint" style="margin-top:8px;"></div>
     </div>
@@ -4404,10 +4469,10 @@ document.getElementById("qrSubToGrades").onclick=()=>{
    面付けは A-one 規格のラベル用紙に合わせている。
    ============================================================ */
 const QR_SHEETS = [
-  {key:"a24", label:"A4ラベル 24面（70×33.9mm・3列8段）",   w:70,   h:33.9, cols:3, rows:8,  mt:12.9, ml:0},
+  {key:"p12", label:"ふつうのコピー用紙（3列4段・切って使う／いちばん確実）", w:63, h:63, cols:3, rows:4, mt:12, ml:12},
+  {key:"a24", label:"A4ラベル 24面（70×33.9mm・3列8段／フチなし印刷が必要）", w:70, h:33.9, cols:3, rows:8, mt:12.9, ml:0},
   {key:"a44", label:"A4ラベル 44面（48.3×25.4mm・4列11段）", w:48.3, h:25.4, cols:4, rows:11, mt:8.8,  ml:8.4},
-  {key:"a65", label:"A4ラベル 65面（38.1×21.2mm・5列13段）", w:38.1, h:21.2, cols:5, rows:13, mt:10.7, ml:9.75},
-  {key:"p12", label:"ふつうのコピー用紙（3列4段・切って使う）", w:63,  h:63,   cols:3, rows:4,  mt:12,   ml:12}
+  {key:"a65", label:"A4ラベル 65面（38.1×21.2mm・5列13段）", w:38.1, h:21.2, cols:5, rows:13, mt:10.7, ml:9.75}
 ];
 function qrStickerPayload(classId, no){ return "KTS1|"+classId+"|"+no; }
 function qrDataUrl(payload, px){
@@ -4425,19 +4490,124 @@ function qrDataUrl(payload, px){
   for(let y=0;y<n;y++) for(let x=0;x<n;x++) if(q.isDark(y,x)) ctx.fillRect(x*cell,y*cell,cell,cell);
   return cv.toDataURL("image/png");
 }
+/* ---- 印刷設定（用紙・ずらし量）はこの端末に覚えておく ---- */
+const QR_PRINT_KEY = "kyoumu_techou_qrprint_v1";
+// 既定は「ふつうのコピー用紙」。ラベル用紙は端が切れやすいので、選んでもらう方が安全。
+let qrPrintOpts = { sheet:"p12", dx:0, dy:0, border:true, name:true };
+try{
+  const raw=localStorage.getItem(QR_PRINT_KEY);
+  if(raw) qrPrintOpts = Object.assign(qrPrintOpts, JSON.parse(raw)||{});
+}catch(e){}
+function qrSavePrintOpts(){
+  try{ localStorage.setItem(QR_PRINT_KEY, JSON.stringify(qrPrintOpts)); }catch(e){}
+}
+function qrSheetDef(){ return QR_SHEETS.find(s=>s.key===qrPrintOpts.sheet) || QR_SHEETS[0]; }
+
+// 多くの家庭用プリンタが印刷できない紙の端（実測でだいたい5mm前後）
+const QR_UNPRINTABLE_MM = 5;
+const QR_PAGE_W = 210, QR_PAGE_H = 296;
+
+let qrStkClass = "";
+
 document.getElementById("gStickerPrint").onclick=()=>{
   const cls=gCurClass;
   const roster=(cls && GRADES.rosters[cls])||[];
   if(!cls || !roster.length){ alert("先にクラスを選んで、名簿を保存してください。"); return; }
-  const opts=QR_SHEETS.map((s,i)=>(i+1)+". "+s.label).join("\n");
-  const pick=prompt("どの用紙に印刷しますか？番号で選んでください。\n\n"+opts, "1");
-  if(pick===null) return;
-  const idx=parseInt(pick,10)-1;
-  const sheet=QR_SHEETS[idx] || QR_SHEETS[0];
+  qrStkClass = cls;
+  document.getElementById("qrStkTitle").textContent =
+    cls+"　"+roster.length+"人ぶん（クラスID "+gClassId(cls)+"）";
+  const sel=document.getElementById("qrStkSheet");
+  sel.innerHTML = QR_SHEETS.map(s=>
+    `<option value="${escAttr(s.key)}" ${s.key===qrPrintOpts.sheet?"selected":""}>${escHtml(s.label)}</option>`
+  ).join("");
+  document.getElementById("qrStkDx").value = qrPrintOpts.dx;
+  document.getElementById("qrStkDy").value = qrPrintOpts.dy;
+  document.getElementById("qrStkBorder").checked = !!qrPrintOpts.border;
+  document.getElementById("qrStkName").checked = !!qrPrintOpts.name;
+  qrRenderStickerPreview();
+  document.getElementById("qrStickerModal").style.display="flex";
+};
+
+function qrReadPrintForm(){
+  qrPrintOpts.sheet = document.getElementById("qrStkSheet").value;
+  const dx=parseFloat(document.getElementById("qrStkDx").value);
+  const dy=parseFloat(document.getElementById("qrStkDy").value);
+  qrPrintOpts.dx = isFinite(dx) ? Math.max(-30, Math.min(30, dx)) : 0;
+  qrPrintOpts.dy = isFinite(dy) ? Math.max(-30, Math.min(30, dy)) : 0;
+  qrPrintOpts.border = document.getElementById("qrStkBorder").checked;
+  qrPrintOpts.name = document.getElementById("qrStkName").checked;
+  qrSavePrintOpts();
+}
+["qrStkSheet","qrStkDx","qrStkDy","qrStkBorder","qrStkName"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener("change", ()=>{ qrReadPrintForm(); qrRenderStickerPreview(); });
+  el.addEventListener("input",  ()=>{ qrReadPrintForm(); qrRenderStickerPreview(); });
+});
+document.getElementById("qrStkReset").onclick=()=>{
+  document.getElementById("qrStkDx").value=0;
+  document.getElementById("qrStkDy").value=0;
+  qrReadPrintForm(); qrRenderStickerPreview();
+};
+document.getElementById("qrStkCancel").onclick=()=>{
+  document.getElementById("qrStickerModal").style.display="none";
+};
+
+/* ---- プレビュー（1ページ目・実寸を縮めたもの） ---- */
+function qrRenderStickerPreview(){
+  const sheet=qrSheetDef();
+  const roster=(qrStkClass && GRADES.rosters[qrStkClass])||[];
+  const pv=document.getElementById("qrStkPv");
+  const SC=248/QR_PAGE_W; // プレビューの縮尺
+  pv.style.width=(QR_PAGE_W*SC)+"px";
+  pv.style.height=(QR_PAGE_H*SC)+"px";
+
+  const ml=sheet.ml+qrPrintOpts.dx, mt=sheet.mt+qrPrintOpts.dy;
+  const perPage=sheet.cols*sheet.rows;
+  let cut=0, html="";
+  const lim=QR_UNPRINTABLE_MM;
+  for(let i=0;i<Math.min(perPage, roster.length);i++){
+    const col=i%sheet.cols, row=Math.floor(i/sheet.cols);
+    const x=ml+col*sheet.w, y=mt+row*sheet.h;
+    const over = x<lim || y<lim || (x+sheet.w)>(QR_PAGE_W-lim) || (y+sheet.h)>(QR_PAGE_H-lim);
+    if(over) cut++;
+    html+=`<div class="lb ${over?"cut":""}" style="left:${x*SC}px;top:${y*SC}px;`+
+      `width:${sheet.w*SC}px;height:${sheet.h*SC}px;">${roster[i].no}</div>`;
+  }
+  html+=`<div class="safe" style="left:${lim*SC}px;top:${lim*SC}px;`+
+    `right:${lim*SC}px;bottom:${lim*SC}px;"></div>`;
+  pv.innerHTML=html;
+
+  const pages=Math.ceil(roster.length/perPage);
+  document.getElementById("qrStkPvCap").textContent =
+    "1ページ目のプレビュー（全"+pages+"ページ・"+roster.length+"人）";
+
+  const warn=document.getElementById("qrStkWarn");
+  const fullBleed = sheet.ml<=0.01 || (sheet.ml+sheet.cols*sheet.w) >= QR_PAGE_W-0.01;
+  if(cut){
+    warn.innerHTML='<div class="warnBox"><b>'+cut+'枚が印刷できない範囲にかかっています。</b>'+
+      (fullBleed
+        ? 'この用紙はシールが紙の端まで並ぶ設計なので、<b>フチなし（縁なし）印刷</b>にしないと必ず切れます。'+
+          'フチなしにできないプリンタでは、下の「ふつうのコピー用紙」を選んで手で切るか、'+
+          '「ずらす」で右・下に寄せて<b>1列ぶんを次のページに送る</b>使い方になります。'
+        : '「ずらす」で内側に入れてください。')+
+      '</div>';
+  } else {
+    warn.innerHTML='<div class="okBox">いまの設定なら1ページ目は全部おさまります。</div>';
+  }
+}
+
+/* ---- 印刷 ---- */
+document.getElementById("qrStkPrint").onclick=()=>{
+  qrReadPrintForm();
+  const sheet=qrSheetDef();
+  const cls=qrStkClass;
+  const roster=(cls && GRADES.rosters[cls])||[];
+  if(!roster.length) return;
   const classId=gClassId(cls);
   const w=window.open("", "_blank");
   if(!w){ alert("印刷用の画面を開けませんでした。ブラウザのポップアップ許可を確認してください。"); return; }
 
+  const ml=sheet.ml+qrPrintOpts.dx, mt=sheet.mt+qrPrintOpts.dy;
   const perPage=sheet.cols*sheet.rows;
   const qrMm=Math.min(sheet.h-3.2, 26);
   const fontMm=Math.min(sheet.h*0.26, 4.6);
@@ -4447,12 +4617,13 @@ document.getElementById("gStickerPrint").onclick=()=>{
     roster.slice(p*perPage, (p+1)*perPage).forEach((s,i)=>{
       const col=i%sheet.cols, row=Math.floor(i/sheet.cols);
       const url=qrDataUrl(qrStickerPayload(classId, s.no), 320);
-      body+='<div class="lbl" style="left:'+(sheet.ml+col*sheet.w)+'mm;top:'+(sheet.mt+row*sheet.h)+'mm;'+
-        'width:'+sheet.w+'mm;height:'+sheet.h+'mm;">'+
+      body+='<div class="lbl'+(qrPrintOpts.border?" cut":"")+'" style="left:'+(ml+col*sheet.w)+'mm;'+
+        'top:'+(mt+row*sheet.h)+'mm;width:'+sheet.w+'mm;height:'+sheet.h+'mm;">'+
         '<img src="'+url+'" style="width:'+qrMm+'mm;height:'+qrMm+'mm;">'+
         '<div class="tx">'+
           '<div class="t1" style="font-size:'+(fontMm*0.72)+'mm;">No.'+s.no+'</div>'+
-          '<div class="t2" style="font-size:'+fontMm+'mm;">'+escHtml(s.name)+'</div>'+
+          (qrPrintOpts.name
+            ? '<div class="t2" style="font-size:'+fontMm+'mm;">'+escHtml(s.name)+'</div>' : '')+
           '<div class="t3" style="font-size:'+(fontMm*0.58)+'mm;">'+escHtml(cls)+'</div>'+
         '</div></div>';
     });
@@ -4465,6 +4636,7 @@ document.getElementById("gStickerPrint").onclick=()=>{
     'body{font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",sans-serif;color:#000;}'+
     '.sheet{width:210mm;height:296mm;position:relative;overflow:hidden;page-break-after:always;}'+
     '.lbl{position:absolute;display:flex;align-items:center;gap:1.6mm;padding:1.6mm;overflow:hidden;}'+
+    '.lbl.cut{outline:0.3mm dashed #bbb;outline-offset:-0.15mm;}'+
     '.tx{min-width:0;line-height:1.25;}'+
     '.t1{font-weight:700;}'+
     '.t2{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'+
@@ -4472,6 +4644,7 @@ document.getElementById("gStickerPrint").onclick=()=>{
     '</style></head><body>'+body+
     '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>');
   w.document.close();
+  document.getElementById("qrStickerModal").style.display="none";
 };
 
 /* ============================================================
@@ -4479,16 +4652,21 @@ document.getElementById("gStickerPrint").onclick=()=>{
    ペイロード： KTR1|クラスID|クラス名|パート|全パート数|番号\t氏名（改行区切り）
    ============================================================ */
 let qrRosterPages=[], qrRosterIdx=0;
+// 1枚あたりのバイト数。小さいほどQRが粗く（＝読みやすく）なり、枚数が増える。
+const QR_ROSTER_CHUNK = 170;
+// 誤り訂正は画面→カメラの短い経路なので L（最小）で十分。M より格子が粗くなる。
+const QR_ROSTER_ECC = "L";
 function qrUtf8Len(s){ return new TextEncoder().encode(s).length; }
 function qrBuildRosterPages(cls){
   const roster=GRADES.rosters[cls]||[];
   const classId=gClassId(cls);
   const lines=roster.map(s=>s.no+"\t"+s.name);
-  // 1枚のQRが濃くなりすぎると画面から読み取れないので、350バイトくらいで区切る
+  // 1枚のQRが濃いと、特に iPhone（BarcodeDetector が無くソフト解読になる）で読めない。
+  // 枚数が増えてもいいので細かく区切る。
   const chunks=[]; let cur=[], curLen=0;
   lines.forEach(line=>{
     const len=qrUtf8Len(line)+1;
-    if(cur.length && curLen+len>350){ chunks.push(cur); cur=[]; curLen=0; }
+    if(cur.length && curLen+len>QR_ROSTER_CHUNK){ chunks.push(cur); cur=[]; curLen=0; }
     cur.push(line); curLen+=len;
   });
   if(cur.length) chunks.push(cur);
@@ -4499,20 +4677,31 @@ function qrBuildRosterPages(cls){
 function qrShowRosterPage(){
   const cv=document.getElementById("qrRosterCanvas");
   const payload=qrRosterPages[qrRosterIdx]||"";
-  const q=qrcode(0,"M"); q.addData(payload,"Byte"); q.make();
-  const n=q.getModuleCount(), cell=Math.max(3, Math.floor(560/n)), size=cell*n;
+  const q=qrcode(0, QR_ROSTER_ECC); q.addData(payload,"Byte"); q.make();
+  const n=q.getModuleCount();
+  // 余白（クワイエットゾーン）を4モジュールぶん付けないと読み取り率が落ちる
+  const quiet=4, total=n+quiet*2;
+  const cell=Math.max(4, Math.floor(1100/total)), size=cell*total;
   cv.width=size; cv.height=size;
   const ctx=cv.getContext("2d");
   ctx.fillStyle="#fff"; ctx.fillRect(0,0,size,size);
   ctx.fillStyle="#000";
-  for(let y=0;y<n;y++) for(let x=0;x<n;x++) if(q.isDark(y,x)) ctx.fillRect(x*cell,y*cell,cell,cell);
+  for(let y=0;y<n;y++) for(let x=0;x<n;x++)
+    if(q.isDark(y,x)) ctx.fillRect((x+quiet)*cell,(y+quiet)*cell,cell,cell);
   document.getElementById("qrRosterPage").textContent=(qrRosterIdx+1)+" / "+qrRosterPages.length;
   document.getElementById("qrRosterPrev").disabled = qrRosterIdx<=0;
   document.getElementById("qrRosterNext").disabled = qrRosterIdx>=qrRosterPages.length-1;
-  document.getElementById("qrRosterHint").textContent = qrRosterPages.length>1
-    ? "全部で "+qrRosterPages.length+" 枚あります。スマホで1枚読むと自動で次を待つので、「次 →」で送ってください。"
-    : "スマホで読み取ると取り込みが終わります。";
+  document.getElementById("qrRosterHint").textContent =
+    (qrRosterPages.length>1
+      ? "全部で "+qrRosterPages.length+" 枚あります。1枚読むとスマホが次を待つので「次 →」で送ってください。"
+      : "スマホで読み取ると取り込みが終わります。")
+    + "　読みにくいときは「⛶ 大きく」を押し、画面の明るさを上げて 20〜30cm まで近づけてください。";
 }
+document.getElementById("qrRosterBig").onclick=()=>{
+  const m=document.getElementById("qrRosterModal");
+  m.classList.toggle("big");
+  document.getElementById("qrRosterBig").textContent = m.classList.contains("big") ? "⛶ 元にもどす" : "⛶ 大きく";
+};
 document.getElementById("gRosterQr").onclick=()=>{
   const cls=gCurClass;
   if(!cls || !(GRADES.rosters[cls]||[]).length){ alert("先にクラスを選んで、名簿を保存してください。"); return; }
@@ -4523,7 +4712,11 @@ document.getElementById("gRosterQr").onclick=()=>{
 };
 document.getElementById("qrRosterPrev").onclick=()=>{ if(qrRosterIdx>0){ qrRosterIdx--; qrShowRosterPage(); } };
 document.getElementById("qrRosterNext").onclick=()=>{ if(qrRosterIdx<qrRosterPages.length-1){ qrRosterIdx++; qrShowRosterPage(); } };
-document.getElementById("qrRosterClose").onclick=()=>{ document.getElementById("qrRosterModal").style.display="none"; };
+document.getElementById("qrRosterClose").onclick=()=>{
+  const m=document.getElementById("qrRosterModal");
+  m.style.display="none"; m.classList.remove("big");
+  document.getElementById("qrRosterBig").textContent="⛶ 大きく";
+};
 
 </script>
 
