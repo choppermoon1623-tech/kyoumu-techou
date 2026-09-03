@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 教務手帳のデータは users/{uid}/techou/data の1ドキュメントに保存される。
+    // 保存できるのは本人（request.auth.uid が uid と一致するログイン済みユーザー）だけとし、
+    // フィールドも push() が書き込む json / updatedAt のみに限定する。
+    match /users/{uid}/techou/{docId} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && docId == "data"
+                   && request.resource.data.keys().hasOnly(["json", "updatedAt"])
+                   && request.resource.data.json is map
+                   && request.resource.data.updatedAt is number;
+    }
+
+    // 上記以外のパスはすべて拒否（デフォルト拒否）。
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
